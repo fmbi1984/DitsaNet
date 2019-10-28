@@ -49,7 +49,7 @@ class DataListenerMemory(Thread):
 				#print(shared.DEV[address][0])
 				#if shared.DEV[address][0] == True:
 				print("Doing asking data to device No. "+str(address))
-				memoryData = BCmb.memoryDataClient('raspberrypi.local', address)
+				memoryData = BCmb.memoryDataClient('raspberrypi.local', 1)
 				#memoryData = BCmb.startPollingClient('raspberrypi.local',address)
 				
 				#print("MD")
@@ -71,21 +71,24 @@ class DataListenerMemory(Thread):
 
 				if memoryData!= None:
 					#we store current
-					shared.DEV[address][1] = str(memoryData[1]).replace('I','')
+					shared.DEV[address][1] = str(memoryData[0]).replace('I','')
 					#we store voltage
-					shared.DEV[address][2] = str(memoryData[2]).replace('V','')
+					shared.DEV[address][2] = str(memoryData[1]).replace('V','')
 					#we store temperature
-					shared.DEV[address][3] = str(memoryData[3]).replace('T','')
+					shared.DEV[address][3] = str(memoryData[2]).replace('T','')
 					#we store step number and type
-					shared.DEV[address][4] = str(memoryData[4]).replace('P','')
+					shared.DEV[address][4] = str(memoryData[3]).replace('P','')
 					#we store time of current step
-					shared.DEV[address][5] = str(memoryData[5].replace('t',''))
+					shared.DEV[address][5] = str(memoryData[4].replace('t',''))
 					#we store current time program
-					shared.DEV[address][6] = str(memoryData[6].replace('Tt',''))
+					shared.DEV[address][6] = str(memoryData[5].replace('Tt',''))
 					#we store the total time program
-					shared.DEV[address][7] = str(memoryData[7].replace('TT',''))
+					shared.DEV[address][7] = str(memoryData[6].replace('TT',''))
 					#we store the total time program
-					shared.DEV[address][8] = str(memoryData[8].replace('',''))
+					shared.DEV[address][8] = str(memoryData[7].replace('',''))
+
+					if shared.DEV[address][8] == '':
+						print("Dato3")
 
 				if memoryData != None:
 					if self.mySrc != None:

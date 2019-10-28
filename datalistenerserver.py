@@ -1,13 +1,12 @@
 from time import sleep, time
 
 from threading import Thread, Event
-from queue import Queue
 
 import logging
 from enum import Enum
 from communicate import Communicate
 
-from shared import lock,devStart,devStop,DEV,DEV_PAGE
+from shared import lock_uart, lock_memory,devStart,devStop,DEV,DEV_PAGE
 #import shared
 import appsettings
 
@@ -15,7 +14,6 @@ from devicemainboard import BCmb
 #from report import IndividualReport
 
 logger = logging.getLogger(__name__)
-in_queue = Queue()
 
 
 #ireport = IndividualReport()
@@ -34,11 +32,10 @@ class DataListenerServer(Thread):
     _stop_event = None
     
 
-    def __init__(self, args,in_queue):
+    def __init__(self, args):
         '''Constructor'''
         Thread.__init__(self)
         self._args = args
-        self.in_queue = in_queue
         self._name = "DataListenerServer Thread"
         if args != None:
             self.mySrc = Communicate()
@@ -74,26 +71,9 @@ class DataListenerServer(Thread):
                     readData = BCmb.readData(address)
                     print("ValueDLS:")
                     print(readData)
-
-                    if readData!=None:
-                        self.in_queue.put(readData)
                     
-                    '''
-                    if readData!=None:
-                        self.in_queue.put(str(readData[0]).replace('I',''))
-                        self.in_queue.put(str(readData[1]).replace('V',''))
-                        self.in_queue.put(str(readData[2]).replace('T',''))
-                        self.in_queue.put(str(readData[3]).replace('P',''))
-                        self.in_queue.put(str(readData[4]).replace('t',''))
-                        self.in_queue.put(str(readData[5]).replace('Tt',''))
-                        self.in_queue.put(str(readData[6]).replace('TT',''))
-                        self.in_queue.put(str(readData[7]).replace('',''))
-
-                        #print("Current Value:")
-                        #self.queueData()
                         
-                        
-
+                    lock_memory.acquire()
                     
                     if readData!= None:
                         #we store current
@@ -134,7 +114,7 @@ class DataListenerServer(Thread):
                 
                     #['VALUE', 'I0.27,V-0.98,T27.21']
 
-                    '''
+                    lock_memory.release()
             
             sleep(.2)
             print(self._name+" stopped")
@@ -146,15 +126,6 @@ class DataListenerServer(Thread):
             print("ERROR SERVER WHEN ASKING DATA")
             self.stop()
         '''
-        #No USAR
-    def queueData(self):
-        print("QUEUE")
-        for i in range(8):
-            q_msg = in_queue.get()
-            #print(q_msg)
-            self.out_queue.put(q_msg)
-
-
     def stop(self):
         print("stop was done in "+self._name)
         self._stop_event.set()

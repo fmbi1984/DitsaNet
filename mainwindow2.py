@@ -15627,18 +15627,20 @@ class Ui_MainWindow(object):
 
 	def display(self):
 		print(time.ctime())
-		if shared.DEV[1][0] == True:
-			newstr1 = ""
-			if self.stateDisplay1 == 1:
-				#current
-				newstr1 = str(shared.DEV[1][1])+" A"
-			if self.stateDisplay1 == 2:
-				#voltage
-				newstr1 = str(shared.DEV[1][2]) + " V"
-			if self.stateDisplay1 == 3:
-				#temperature
-				newstr1 = str(shared.DEV[1][3]) + " °C"
-			self.cmdDisplay1_1.setText(str(newstr1))
+		print("before")
+		#if shared.DEV[1][0] == True:
+		#print("Display")
+		newstr1 = ""
+		if self.stateDisplay1 == 1:
+			#current
+			newstr1 = str(shared.DEV[1][1])+" A"
+		if self.stateDisplay1 == 2:
+			#voltage
+			newstr1 = str(shared.DEV[1][2]) + " V"
+		if self.stateDisplay1 == 3:
+			#temperature
+			newstr1 = str(shared.DEV[1][3]) + " °C"
+		self.cmdDisplay1_1.setText(str(newstr1))
 
 
 		if shared.DEV[2][0] == True:
