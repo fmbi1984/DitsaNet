@@ -69,6 +69,7 @@ def getFirstPortByVID_PID(vid, pid):
     
     try:
         ser = serial.Serial(name, 9600, timeout=1)
+        print(ser)
         if not ser.isOpen():
             return None
         else:

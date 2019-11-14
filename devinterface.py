@@ -10,6 +10,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 import SerialPortUtil
 
 import appsettings
+from appsettings import useHostname
 
 from communicate import Communicate
 from serialcommthread import SerialCommThread, serial_cmd_result
@@ -31,13 +32,44 @@ class devInterface(object):
         crc16 = xmodem_crc_func(bytes(msg_data[0:len(msg_data)]))
         crc16_high, crc16_low = crc16 >> 8, crc16 & 0x00FF
         packet_data.extend([0x03, crc16_low, crc16_high, 0x04])
-        #print("packet_data:")
-        #print(packet_data)
+        print("packet_data:")
+        print(packet_data)
+        return packet_data
+    
+    @staticmethod
+    def packMessageWithoutAddr(msg_op_type, msg_data):
+        packet_data = []
+        packet_data.append(0x02)
+        packet_data.append(msg_op_type)
+        packet_data.extend(msg_data)
+        xmodem_crc_func = crcmod.mkCrcFun(0x11021, rev=False, initCrc=0x0000, xorOut=0x0000)
+        crc16 = xmodem_crc_func(bytes(msg_data[0:len(msg_data)]))
+        crc16_high, crc16_low = crc16 >> 8, crc16 & 0x00FF
+        packet_data.extend([0x03, crc16_low, crc16_high, 0x04])
+        print("packet_dataAddr:")
+        print(packet_data)
         return packet_data
 
     @staticmethod
     def unpackMessage(msg_data):
         packet_data = msg_data[2:len(msg_data)-4]
+        xmodem_crc_func = crcmod.mkCrcFun(0x11021, rev=False, initCrc=0x0000, xorOut=0x0000)
+        crc16 = xmodem_crc_func(bytes(packet_data[0:len(packet_data)]))
+        crc16_high, crc16_low = crc16 >> 8, crc16 & 0x00FF
+        msg_crc_high, msg_crc_low = msg_data[len(msg_data)-2:len(msg_data)-1][0], msg_data[len(msg_data)-3:len(msg_data)-2][0]
+        is_valid = True
+        #is_valid = (msg_crc_high == crc16_high) and (msg_crc_low == crc16_low) and (msg_data[0] == 0x02) and (msg_data[len(msg_data)-1] == 0x04)
+        msg_type = msg_data[1]
+        if len(packet_data) == 1:
+            msg_data2 = msg_data[2]#packet_data
+        else:
+            msg_data2 = packet_data
+
+        return [is_valid, msg_type, msg_data2]
+
+    @staticmethod
+    def unpackMessageWithoutAddr(msg_data):
+        packet_data = msg_data[1:len(msg_data)-4]
         xmodem_crc_func = crcmod.mkCrcFun(0x11021, rev=False, initCrc=0x0000, xorOut=0x0000)
         crc16 = xmodem_crc_func(bytes(packet_data[0:len(packet_data)]))
         crc16_high, crc16_low = crc16 >> 8, crc16 & 0x00FF
@@ -60,8 +92,9 @@ class devInterface(object):
             p_data = devInterface.packMessage(address, op, cmd_data)
 
             if appsettings.useDongle == True:
-                print("Test Mac")
+                print("Test Mac Interface")
                 sp = SerialPortUtil.getFirstPortByVID_PID(0x1a86,0x7523)
+                #print(sp)
             else:
                 print("Test Raspbian")
                 sp = SerialPortUtil.getPortByName("/dev/ttyS0")
@@ -70,7 +103,7 @@ class devInterface(object):
             #sp = SerialPortUtil.getFirstPortByVID_PID(0x067b,0x2303)
             #sp = SerialPortUtil.getFirstPortByVID_PID(0x10c4,0xea60)
             if sp == None:
-                raise Exception("devInterface", "No serial device found!")
+                raise Exception("devInterface", "No serial device found -I!")
             sct = SerialCommThread(None, sp, appsettings.FTDI_baudRate, p_data, b'\x04',timeout,5)
             sct.start()
             sct.join()
@@ -92,18 +125,19 @@ class devInterface(object):
         return result
 
     @staticmethod
-    def sendClientCommandAndGetResponse(hostname, address, op, cmd, timeout):
+    def sendClientCommandAndGetResponse(hostname, op, cmd, timeout):
         result = None
 
         try:
             cmd_data = bytes(cmd,'ISO-8859-1')
-            p_data = devInterface.packMessage(address, op, cmd_data)
+            #p_data = devInterface.packMessage(address, op, cmd_data)
+            p_data = devInterface.packMessageWithoutAddr(op, cmd_data)
 
             if hostname == None:
                 raise Exception("devInterface", "No hostname device found!")
             #print("Sent:")
             #print(p_data)
-            sct = ClientCommThread(None, 'raspberrypi.local', p_data, b'\x04',timeout,1)
+            sct = ClientCommThread(None, useHostname, p_data, b'\x04',timeout,1)
             sct.start()
             sct.join()
             print("client thread stopped")
@@ -125,7 +159,8 @@ class devInterface(object):
 
     @staticmethod
     def decodeMessage(data):
-        [_isvalid, _op, _msg] = devInterface.unpackMessage(data)
+        #[_isvalid, _op, _msg] = devInterface.unpackMessage(data)
+        [_isvalid, _op, _msg] = devInterface.unpackMessageWithoutAddr(data)
         result = None
         mystr = ''.join(str( bytes(_msg), 'ISO-8859-1'))
         #print(mystr)

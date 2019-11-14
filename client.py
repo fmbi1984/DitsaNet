@@ -2,7 +2,7 @@
 
 import socket
 
-HOST = 'raspberrypi.local'  # The server's hostname or IP address
+HOST = 'ditsa-Lenovo-C20-00.local'  # The server's hostname or IP address
 PORT = 65433        # The port used by the server
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:

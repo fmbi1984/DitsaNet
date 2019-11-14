@@ -1,0 +1,11 @@
+
+@startuml
+title Mainwindow
+
+Mainwindow -> DataListenerMemory : Create Thread
+DataListenerMemory -> Deviceboard : SendClientandResponse
+Deviceboard -> Devinterface : Command
+Devinterface -> Clientcommthread: OpenandCloseThread
+Clientcommthread --> Mainwindow: NotifyAccess
+
+@enduml

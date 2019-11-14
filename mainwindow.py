@@ -349,33 +349,33 @@ class Ui_MainWindow(object):
         print("Iniciar")
         if self.check1.checkState == QtCore.Qt.Checked:
             print("hola")
-            #BCmb.runClient('raspberrypi.local', 1)
+            #BCmb.runClient('ditsa-Lenovo-C20-00.local', 1)
         if self.check2.checkState == QtCore.Qt.Checked:
-            BCmb.runClient('raspberrypi.local', 2)
+            BCmb.runClient('ditsa-Lenovo-C20-00.local', 2)
     
     def on_cmdIniciar2_clicked(self):
         print("Iniciar")
         if self.check1.checkState == QtCore.Qt.Checked:
             print("hola")
-            #BCmb.runClient('raspberrypi.local', 1)
+            #BCmb.runClient('ditsa-Lenovo-C20-00.local', 1)
         if self.check2.checkState == QtCore.Qt.Checked:
-            BCmb.runClient('raspberrypi.local', 2)
+            BCmb.runClient('ditsa-Lenovo-C20-00.local', 2)
     
 
     def on_cmdPausar1_clicked(self):
         print("Pausar")
         if self.check1.checkState == QtCore.Qt.Checked:
-            BCmb.pauseClient('raspberrypi.local', 1)
+            BCmb.pauseClient('ditsa-Lenovo-C20-00.local', 1)
         if self.check2.checkState == QtCore.Qt.Checked:
-            BCmb.pauseClient('raspberrypi.local', 2)
+            BCmb.pauseClient('ditsa-Lenovo-C20-00.local', 2)
     
 
     def on_cmdDetener1_clicked(self):
         print("Detener")
         #if self.check1.checkState == QtCore.Qt.Checked:
-        BCmb.stopClient('raspberrypi.local', 1)
+        BCmb.stopClient('ditsa-Lenovo-C20-00.local', 1)
         #if self.check2.checkState == QtCore.Qt.Checked:
-        BCmb.stopClient('raspberrypi.local', 2)
+        BCmb.stopClient('ditsa-Lenovo-C20-00.local', 2)
     
 
 
@@ -479,7 +479,7 @@ class Ui_MainWindow(object):
         for i in range(devStart, devStop+1):
             address=i
             print("Doing ping to device No."+str(address))
-            readData = BCmb.pingClient('raspberrypi.local', address)
+            readData = BCmb.pingClient('ditsa-Lenovo-C20-00.local', address)
             print("VALUE:")
             print(str(readData))
             shared.DEV[i][0] = False

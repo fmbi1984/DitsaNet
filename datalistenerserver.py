@@ -30,6 +30,7 @@ class DataListenerServer(Thread):
     mySrc = None
 
     _stop_event = None
+    _pause_event = None
     
 
     def __init__(self, args):
@@ -44,6 +45,9 @@ class DataListenerServer(Thread):
         self._stop_event = Event()
         self._stop_event.clear()
         
+        self._pause_event = Event()
+        self._pause_event.clear()
+        
         
     def run(self):
 
@@ -57,8 +61,7 @@ class DataListenerServer(Thread):
         #   ireport = IndividualReport(add)
         #   ireport.begin()
         
-        #lock.acquire()
-        #print("Acquire")
+
         while not self._stop_event.is_set():
             
             # we do ping to the devices 
@@ -68,13 +71,14 @@ class DataListenerServer(Thread):
 
                 if DEV[address][0] == True:
                     print("Doing asking data to device No."+str(address))
+                   
                     readData = BCmb.readData(address)
                     print("ValueDLS:")
                     print(readData)
                     
                         
                     lock_memory.acquire()
-                    
+                    print("started Acquire memory")
                     if readData!= None:
                         #we store current
                         DEV[address][1] = str(readData[0]).replace('I','')
@@ -101,9 +105,12 @@ class DataListenerServer(Thread):
                         print(DEV[address][5])
                         print(DEV[address][6])
                         print(DEV[address][7])
-                        print(DEV[address][8])
+                        print(DEV[address][8])                        
                         
+                    lock_memory.release()
+                    print("stop RELEASE memory")
                         #for i in range (1,9):
+                        #    ireport.appendWithTimeStampUsingFile("Dato \n")
                         #ireport.appendWithTimeStampUsingFile(","+ shared.DEV[address][1] + "," + shared.DEV[address][2] + "," +\
                         #                             shared.DEV[address][3] + "," + shared.DEV[address][4] + "," +\
                         #                             shared.DEV[address][5] + "," + shared.DEV[address][6] + "," +\
@@ -114,24 +121,32 @@ class DataListenerServer(Thread):
                 
                     #['VALUE', 'I0.27,V-0.98,T27.21']
 
-                    lock_memory.release()
-            
-            sleep(.2)
-            print(self._name+" stopped")
-        
-        #lock.release()
-        #print("Release")
+                    
+                
+            #sleep(.2)
+            while not self._stop_event.is_set():
+                #print("stop_event")
+                sleep(.2)
+            #print(self._name+" stopped")
         '''
         except:
             print("ERROR SERVER WHEN ASKING DATA")
             self.stop()
+ 
         '''
+        
+    def pause(self):
+        print("pause was done in "+self._name)
+        self._pause_event.set()
+    def resume(self):
+        print("resume was done in "+self._name)
+        self._pause_event.clear()
     def stop(self):
         print("stop was done in "+self._name)
         self._stop_event.set()
 
     def join(self, *args, **kwargs):
-        self.stop()
+        #self.stop()
         super(DataListenerServer,self).join(*args, **kwargs)
 
     def pingForDevicesPresent(self):

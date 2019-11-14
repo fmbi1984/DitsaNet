@@ -12,6 +12,7 @@ from enum import Enum
 
 import shared
 import appsettings
+from appsettings import useHostname
 
 from devinterface import devInterface
 
@@ -271,9 +272,9 @@ class BCmb(object):
 		return result  
 
 	@staticmethod
-	def startPollingClient(hostname,addr):
+	def startPollingClient(hostname):
 		result = ACTION.FAIL
-		result = devInterface.sendClientCommandAndGetResponse(hostname,addr,0x36, "", BCmb.timeout)
+		result = devInterface.sendClientCommandAndGetResponse(hostname,0x36, "", BCmb.timeout)
 		print(result)
 		if result != None:
 			if result[0] == 'VALUE':
@@ -283,9 +284,9 @@ class BCmb(object):
 		return result
 
 	@staticmethod
-	def stopPollingClient(hostname,addr):
+	def stopPollingClient(hostname):
 		result = ACTION.FAIL
-		result = devInterface.sendClientCommandAndGetResponse(hostname,addr,0x37, "", BCmb.timeout)
+		result = devInterface.sendClientCommandAndGetResponse(hostname,0x37, "", BCmb.timeout)
 		print(result)
 		if result != None:
 			if result[0] == 'VALUE':
@@ -295,13 +296,13 @@ class BCmb(object):
 		return result
 
 	@staticmethod
-	def memoryDataClient(hostname,addr):
+	def memoryDataClient(hostname):
 		result = ACTION.FAIL
-		result = devInterface.sendClientCommandAndGetResponse(hostname,addr,0x38, "", BCmb.timeout)
+		result = devInterface.sendClientCommandAndGetResponse(hostname,0x38, "", BCmb.timeout)
 		print(result)
 		if result != None:
 			if result[0] == 'VALUE':
-				result = result[1].split(',')
+				result = result[1].split(';')
 			else:
 				result = None
 		return result
@@ -310,8 +311,8 @@ class BCmb(object):
 if __name__ == "__main__":
 	print("tests")
 	#BCmb.readData(1)
-	#BCmb.pingClient('raspberrypi.local',1)
-	#BCmb.ping(2)
+	#BCmb.pingClient(useHostname,2)
+	#BCmb.ping(1)
 	#BCmb.writeProgram(0, "[{\"Type\":\"Begin\"},{\"Type\":\"Pause\",\"Time\":\"10000\"},{\"Type\":\"Charge\",\"Time\":\"120000\",\"Current\":\"8.0\"},{\"Type\":\"Charge\",\"Time\":\"50000\",\"Current\":\"12.0\"},{\"Type\":\"Carga\",\"Time\":\"60000\",\"Current\":\"15.0\"},{\"Type\":\"Charge\",\"Time\":\"40000\",\"Current\":\"20.0\"},{\"Type\":\"Pause\",\"Time\":\"20000\"},{\"Type\":\"Charge\",\"Time\":\"30000\",\"Current\":\"10.5\"},{\"Type\":\"Charge\",\"Time\":\"40000\",\"Current\":\"14.5\"},{\"Type\":\"End\"}]")
 	#BCmb.readProgram(0)
 	#BCmb.setAddress(1)
@@ -320,7 +321,7 @@ if __name__ == "__main__":
 	#BCmb.readStep(0)
 	#BCmb.currentTime(0)
 	#BCmb.readProgram(0)
-	#BCmb.readDataClient('raspberrypi.local', 1)
+	#BCmb.readDataClient(useHostname, 1)
 	#BCmb.getAddress()
 	
 	#BCmb.stop(1)
@@ -332,40 +333,51 @@ if __name__ == "__main__":
 	'''
 	
 	
-	#BCmb.startPollingClient('raspberrypi.local',1)
+	
 	#sleep(0.1)
+	'''
+	BCmb.startPollingClient(useHostname)
+	sleep(.1)
+	BCmb.stopPollingClient(useHostname)
+	sleep(.3)
+	BCmb.memoryDataClient(useHostname)
+	'''
 
-	#for i in range(0,30):
-	#	BCmb.memoryDataClient('raspberrypi.local', 1)
+	for i in range(0,200):
+		BCmb.startPollingClient(useHostname)
+		sleep(.3)
+		BCmb.stopPollingClient(useHostname)
+		BCmb.memoryDataClient(useHostname)
+		#sleep(.3)
+		print(i)	
+	
+	
 
 	
-	#BCmb.stopPollingClient('raspberrypi.local',1)
+
 
 	
 
-	#BCmb.memoryDataClient('raspberrypi.local', 1)
-	
-
-	#BCmb.pingClient('raspberrypi.local',1)
-	#BCmb.runClient('raspberrypi.local', 1)
-	#BCmb.pauseClient('raspberrypi.local', 1)
-	#BCmb.stopClient('raspberrypi.local', 1)
-	#BCmb.stopClient('raspberrypi.local', 2)
-	#BCmb.readDataClient('raspberrypi.local',1)
-	#BCmb.readStepClient('raspberrypi.local', 1)
-	#BCmb.currentTimeClient('raspberrypi.local', 1)
-	#BCmb.readProgramClient('raspberrypi.local',1)
-	#BCmb.writeProgramClient('raspberrypi.local',1,"[{\"Type\":\"Begin\"},{\"Type\":\"Pause\",\"Time\":\"10000\"},{\"Type\":\"Charge\",\"Time\":\"1200000\",\"Current\":\"20.0\"},{\"Type\":\"Charge\",\"Time\":\"900000\",\"Current\":\"22.7\"},{\"Type\":\"Carga\",\"Time\":\"1200000\",\"Current\":\"27.0\"},{\"Type\":\"Charge\",\"Time\":\"180000\",\"Current\":\"24.0\"},{\"Type\":\"Pause\",\"Time\":\"60000\"},{\"Type\":\"Charge\",\"Time\":\"1200000\",\"Current\":\"26.5\"},{\"Type\":\"Charge\",\"Time\":\"600000\",\"Current\":\"30.0\"},{\"Type\":\"End\"}]")
-	#BCmb.writeProgramClient('raspberrypi.local',1,"[{\"Type\":\"Begin\"},{\"Type\":\"Pause\",\"Time\":\"25000\"},{\"Type\":\"Charge\",\"Time\":\"30000\",\"Current\":\"30.0\"},{\"Type\":\"Charge\",\"Time\":\"1800000\",\"Current\":\"27.4\"},{\"Type\":\"Carga\",\"Time\":\"1200000\",\"Current\":\"18.6\"},{\"Type\":\"Pause\",\"Time\":\"180000\"},{\"Type\":\"Charge\",\"Time\":\"1200000\",\"Current\":\"9.0\"},{\"Type\":\"Charge\",\"Time\":\"900000\",\"Current\":\"12.4\"},{\"Type\":\"Pause\",\"Time\":\"300000\"},{\"Type\":\"Charge\",\"Time\":\"1200000\",\"Current\":\"22.2\"},{\"Type\":\"Charge\",\"Time\":\"1200000\",\"Current\":\"8.8\"},{\"Type\":\"Charge\",\"Time\":\"1500000\",\"Current\":\"25.6\"},{\"Type\":\"Pause\",\"Time\":\"180000\"},{\"Type\":\"Charge\",\"Time\":\"1500000\",\"Current\":\"17.2\"},{\"Type\":\"End\"}]")
-	#BCmb.writeProgramClient('raspberrypi.local',2,"[{\"Type\":\"Begin\"},{\"Type\":\"Pause\",\"Time\":\"15000\"},{\"Type\":\"Charge\",\"Time\":\"60000\",\"Current\":\"28.3\"},{\"Type\":\"Pause\",\"Time\":\"46000\"},{\"Type\":\"Charge\",\"Time\":\"180000\",\"Current\":\"20.8\"},{\"Type\":\"Carga\",\"Time\":\"40000\",\"Current\":\"30.0\"},{\"Type\":\"Pause\",\"Time\":\"15000\"},{\"Type\":\"Charge\",\"Time\":\"60000\",\"Current\":\"25.7\"},{\"Type\":\"Pause\",\"Time\":\"20000\"},{\"Type\":\"Charge\",\"Time\":\"120000\",\"Current\":\"26.4\"},{\"Type\":\"Charge\",\"Time\":\"30000\",\"Current\":\"18.9\"},{\"Type\":\"End\"}]")
-	#BCmb.writeProgramClient('raspberrypi.local',1,"[{\"Type\":\"Begin\"},{\"Type\":\"Charge\",\"Time\":\"180000\",\"Current\":\"30.0\"},{\"Type\":\"Charge\",\"Time\":\"1200000\",\"Current\":\"25.6\"},{\"Type\":\"Pause\",\"Time\":\"300000\"},{\"Type\":\"Carga\",\"Time\":\"600000\",\"Current\":\"10.5\"},{\"Type\":\"Carga\",\"Time\":\"1200000\",\"Current\":\"19.2\"},{\"Type\":\"Carga\",\"Time\":\"600000\",\"Current\":\"28.4\"},{\"Type\":\"Charge\",\"Time\":\"900000\",\"Current\":\"23.5\"},{\"Type\":\"Charge\",\"Time\":\"1200000\",\"Current\":\"14.7\"},{\"Type\":\"Pause\",\"Time\":\"300000\"},{\"Type\":\"Pause\",\"Time\":\"120000\"},{\"Type\":\"Charge\",\"Time\":\"1200000\",\"Current\":\"17.7\"},{\"Type\":\"Charge\",\"Time\":\"900000\",\"Current\":\"9.5\"},{\"Type\":\"Charge\",\"Time\":\"1500000\",\"Current\":\"24.8\"},{\"Type\":\"End\"}]")
+	#BCmb.pingClient(useHostname,1)
+	#BCmb.runClient(useHostname, 1)
+	#BCmb.pauseClient(useHostname, 1)
+	#BCmb.stopClient(useHostname, 1)
+	#BCmb.stopClient(useHostname, 2)
+	#BCmb.readDataClient(useHostname,1)
+	#BCmb.readStepClient(useHostname, 1)
+	#BCmb.currentTimeClient(useHostname, 1)
+	#BCmb.readProgramClient(useHostname,1)
+	#BCmb.writeProgramClient(useHostname,2,"[{\"Type\":\"Begin\"},{\"Type\":\"Pause\",\"Time\":\"10000\"},{\"Type\":\"Charge\",\"Time\":\"1200000\",\"Current\":\"20.0\"},{\"Type\":\"Charge\",\"Time\":\"900000\",\"Current\":\"22.7\"},{\"Type\":\"Carga\",\"Time\":\"1200000\",\"Current\":\"27.0\"},{\"Type\":\"Charge\",\"Time\":\"180000\",\"Current\":\"24.0\"},{\"Type\":\"Pause\",\"Time\":\"60000\"},{\"Type\":\"Charge\",\"Time\":\"1200000\",\"Current\":\"26.5\"},{\"Type\":\"Charge\",\"Time\":\"600000\",\"Current\":\"30.0\"},{\"Type\":\"End\"}]")
+	#BCmb.writeProgramClient(useHostname,1,"[{\"Type\":\"Begin\"},{\"Type\":\"Pause\",\"Time\":\"25000\"},{\"Type\":\"Charge\",\"Time\":\"30000\",\"Current\":\"30.0\"},{\"Type\":\"Charge\",\"Time\":\"1800000\",\"Current\":\"27.4\"},{\"Type\":\"Carga\",\"Time\":\"1200000\",\"Current\":\"18.6\"},{\"Type\":\"Pause\",\"Time\":\"180000\"},{\"Type\":\"Charge\",\"Time\":\"1200000\",\"Current\":\"9.0\"},{\"Type\":\"Charge\",\"Time\":\"900000\",\"Current\":\"12.4\"},{\"Type\":\"Pause\",\"Time\":\"300000\"},{\"Type\":\"Charge\",\"Time\":\"1200000\",\"Current\":\"22.2\"},{\"Type\":\"Charge\",\"Time\":\"1200000\",\"Current\":\"8.8\"},{\"Type\":\"Charge\",\"Time\":\"1500000\",\"Current\":\"25.6\"},{\"Type\":\"Pause\",\"Time\":\"180000\"},{\"Type\":\"Charge\",\"Time\":\"1500000\",\"Current\":\"17.2\"},{\"Type\":\"End\"}]")
+	#BCmb.writeProgramClient(useHostname,2,"[{\"Type\":\"Begin\"},{\"Type\":\"Pause\",\"Time\":\"15000\"},{\"Type\":\"Charge\",\"Time\":\"60000\",\"Current\":\"28.3\"},{\"Type\":\"Pause\",\"Time\":\"46000\"},{\"Type\":\"Charge\",\"Time\":\"180000\",\"Current\":\"20.8\"},{\"Type\":\"Carga\",\"Time\":\"40000\",\"Current\":\"30.0\"},{\"Type\":\"Pause\",\"Time\":\"15000\"},{\"Type\":\"Charge\",\"Time\":\"60000\",\"Current\":\"25.7\"},{\"Type\":\"Pause\",\"Time\":\"20000\"},{\"Type\":\"Charge\",\"Time\":\"120000\",\"Current\":\"26.4\"},{\"Type\":\"Charge\",\"Time\":\"30000\",\"Current\":\"18.9\"},{\"Type\":\"End\"}]")
+	#BCmb.writeProgramClient(useHostname,1,"[{\"Type\":\"Begin\"},{\"Type\":\"Charge\",\"Time\":\"180000\",\"Current\":\"30.0\"},{\"Type\":\"Charge\",\"Time\":\"1200000\",\"Current\":\"25.6\"},{\"Type\":\"Pause\",\"Time\":\"300000\"},{\"Type\":\"Carga\",\"Time\":\"600000\",\"Current\":\"10.5\"},{\"Type\":\"Carga\",\"Time\":\"1200000\",\"Current\":\"19.2\"},{\"Type\":\"Carga\",\"Time\":\"600000\",\"Current\":\"28.4\"},{\"Type\":\"Charge\",\"Time\":\"900000\",\"Current\":\"23.5\"},{\"Type\":\"Charge\",\"Time\":\"1200000\",\"Current\":\"14.7\"},{\"Type\":\"Pause\",\"Time\":\"300000\"},{\"Type\":\"Pause\",\"Time\":\"120000\"},{\"Type\":\"Charge\",\"Time\":\"1200000\",\"Current\":\"17.7\"},{\"Type\":\"Charge\",\"Time\":\"900000\",\"Current\":\"9.5\"},{\"Type\":\"Charge\",\"Time\":\"1500000\",\"Current\":\"24.8\"},{\"Type\":\"End\"}]")
 	
 	'''
 	while True:
 		#BCmb.readData(1)
-		BCmb.memoryDataClient('raspberrypi.local', 1)
-		#BCmb.readDataClient('raspberrypi.local', 1)
-		#BCmb.readDataClient('raspberrypi.local', 2)
-		#BCmb.readStepClient('raspberrypi.local', 2)
+		BCmb.memoryDataClient(useHostname, 1)
+		#BCmb.readDataClient(useHostname, 1)
+		#BCmb.readDataClient(useHostname, 2)
+		#BCmb.readStepClient(useHostname, 2)
 		sleep(.1)
 	#'''

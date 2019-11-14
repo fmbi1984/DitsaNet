@@ -300,4 +300,4 @@ f.close()
 
 print(prepare_toSend(contents))
 
-#BCmb.writeProgramClient('raspberrypi.local',1,prepare_toSend(contents))
+#BCmb.writeProgramClient('ditsa-Lenovo-C20-00.local',1,prepare_toSend(contents))

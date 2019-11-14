@@ -7,6 +7,7 @@ import shared
 useDesktopToSaveReports = True
 useDongle = True
 useMac = True
+useHostname = 'ditsa-Lenovo-C20-00.local'
 
 measureWMVoltage = False
 jlinkSNforPIC32 = 820100854
@@ -171,7 +172,7 @@ def countEnabledTests():
 # Future Technology Devices International Limited FT232R USB UART
 FTDI_idVendor=0x0403
 FTDI_idProduct=0x6001
-FTDI_baudRate=115200
+FTDI_baudRate=9600
 if inAustin == True:
     FTDI_serialNumber='AH05R7EI' # Austin
 else:

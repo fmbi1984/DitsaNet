@@ -54,7 +54,7 @@ class DataListener(Thread):
 
                 if shared.DEV[address][0] == True:
                     print("Doing asking data to device No."+str(address))
-                    readData = BCmb.readDataClient('raspberrypi.local', address)
+                    readData = BCmb.readDataClient('ditsa-Lenovo-C20-00.local', address)
                     print("VALUE:")
                     print(readData)
                     if readData!= None:
@@ -104,7 +104,7 @@ class DataListener(Thread):
         for i in range(shared.devStart, shared.devStop+1):
             address=i
             print("Doing ping to device No."+str(address))
-            readData = BCmb.pingClient('raspberrypi.local', address)
+            readData = BCmb.pingClient('ditsa-Lenovo-C20-00.local', address)
             print("VALUE:")
             print(str(readData))
             shared.DEV[i][0] = False

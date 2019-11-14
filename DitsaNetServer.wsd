@@ -1,0 +1,36 @@
+@startuml
+Title Server
+
+MainTread -> DataListenerServer: Create Thread
+DataListenerServer -> Devicemainboard: Comand
+Devicemainboard -> Devinterface: SendCommandResponse
+Devinterface -> SerialCommTread: OpenandCloseSerial 
+SerialCommTread --> MainTread: NotifyAcces 
+
+@enduml
+
+
+@startuml
+Title Server
+
+MainTread -> DataListenerServer: create Thread
+DataListenerServer->SerialCommTread: 
+SerialCommTread-->MainTread: NotifyAccess
+
+@enduml
+
+
+@startuml
+
+start
+:Inicializacion;
+if(some thing) then(true)
+	:some activity;
+	:Another activity;
+else(false)
+	:some else;
+endif
+->ending process;
+stop
+
+@enduml

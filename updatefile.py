@@ -8,6 +8,7 @@ from enum import Enum
 from communicate import Communicate
 import shared
 import appsettings
+from appsettings import useHostname
 
 from devicemainboard import BCmb
 
@@ -48,7 +49,7 @@ class UpdateFile(Thread):
         try:
             ssh_client = paramiko.SSHClient()
             ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            ssh_client.connect(hostname='raspberrypi.local', username='pi', password='raspberry')
+            ssh_client.connect(hostname=useHostname, username='pi', password='raspberry')
 
             '''
             sftp = ssh_client.open_sftp()

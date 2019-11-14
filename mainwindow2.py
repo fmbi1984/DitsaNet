@@ -14,6 +14,8 @@ from devicemainboard import BCmb
 import shared
 import time
 import threading
+import appsettings 
+from appsettings import useHostname
 from datetime import timedelta
 
 class Ui_MainWindow(object):
@@ -15580,7 +15582,6 @@ class Ui_MainWindow(object):
 		self.fillWithSettings()
 
 		print("Iniciar Actualizar")
-		BCmb.startPollingClient('raspberrypi.local',1)
 		self.dataThread = DataListenerMemory(self.testsCallback)
 		self.dataThread.start()
 
@@ -15588,7 +15589,6 @@ class Ui_MainWindow(object):
 		print("close")
 
 		print("Detener Actualizar")
-		BCmb.stopPollingClient('raspberrypi.local',1)
 		self.dataThread.stop()
 
 	def on_cmdSeleccionar_clicked(self):
@@ -15601,7 +15601,7 @@ class Ui_MainWindow(object):
 			myCheck = self.MainWindow.findChild(QtWidgets.QCheckBox, "chkSel1_"+str(i))
 
 			if myCheck.isChecked() == True:
-				BCmb.runClient('raspberrypi.local', i)
+				BCmb.runClient(useHostname, i)
 
 
 	def on_cmdPausar_clicked(self):
@@ -15611,7 +15611,7 @@ class Ui_MainWindow(object):
 			myCheck = self.MainWindow.findChild(QtWidgets.QCheckBox, "chkSel1_"+str(i))
 
 			if myCheck.isChecked() == True:
-				BCmb.pauseClient('raspberrypi.local', i)
+				BCmb.pauseClient(useHostname, i)
 
 
 	def on_cmdDetener_clicked(self):
@@ -15621,7 +15621,7 @@ class Ui_MainWindow(object):
 			myCheck = self.MainWindow.findChild(QtWidgets.QCheckBox, "chkSel1_"+str(i))
 
 			if myCheck.isChecked() == True:
-				BCmb.stopClient('raspberrypi.local', i)
+				BCmb.stopClient(useHostname, i)
 
 	WAIT_SECONDS = 1
 
@@ -15725,7 +15725,7 @@ class Ui_MainWindow(object):
 		for i in range(devStart, devStop+1):
 			address=i
 			print("Doing ping to device No."+str(address))
-			readData = BCmb.pingClient('raspberrypi.local', address)
+			readData = BCmb.pingClient(useHostname, address)
 			print("VALUE:")
 			print(str(readData))
 			shared.DEV[i][0] = False

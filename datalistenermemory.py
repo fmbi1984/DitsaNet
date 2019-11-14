@@ -7,7 +7,9 @@ import logging
 from enum import Enum
 from communicate import Communicate
 import shared
+from shared import lock_uart, lock_memory,devStart,devStop,DEV,DEV_PAGE
 import appsettings
+from appsettings import useHostname
 
 from devicemainboard import BCmb
 #from report import IndividualReport
@@ -48,36 +50,49 @@ class DataListenerMemory(Thread):
 				
 				#print(shared.DEV[address][0])
 				#if shared.DEV[address][0] == True:
-				print("Doing asking data to device No. "+str(address))
-				memoryData = BCmb.memoryDataClient('raspberrypi.local', 1)
-				#memoryData = BCmb.startPollingClient('raspberrypi.local',address)
-				
-				#print("MD")
-				#print(memoryData)
-				
-				'''
-				memoryDataTemp = str(memoryData[0].replace('D',''))
+				#print("Doing asking data to device No. "+str(address))
+				#BCmb.stopPollingClient(useHostname,address)
+				#sleep(.002)
+				BCmb.startPollingClient(useHostname)
+				sleep(.4)
+				BCmb.stopPollingClient(useHostname)
+				sleep(.1)
+				memoryData = BCmb.memoryDataClient(useHostname)
+				sleep(.3)
 
-				if memoryDataTemp == 'True':
-					shared.DEV[address][0] = True
-				else:
-					shared.DEV[address][0] = False
-
-				if shared.DEV[address][0] == True:
 				
-				'''
+				
 				print("ValueM:")
 				print(memoryData)
+				memoryData = memoryData[0].split(',')
+				print(memoryData)
+				dat1 = str(memoryData[0]).replace('{','')
+				print(dat1)
+				
+				dat2 = str(memoryData[7]).replace('}','')
+				print(dat2)
 
+				#print("VaL")
+				#print(dat2)
+
+				'''
+				shared.DEV[address][1] = dat2[0].replace('I','')
+				print(shared.DEV[address][1])
+
+				shared.DEV[address][1] = str(memoryData[0]).replace('I','')
+				print(shared.DEV[address][1])
+				'''
+
+				#lock_memory.acquire()
 				if memoryData!= None:
 					#we store current
-					shared.DEV[address][1] = str(memoryData[0]).replace('I','')
+					shared.DEV[address][1] = str(dat1.replace('I',''))
 					#we store voltage
-					shared.DEV[address][2] = str(memoryData[1]).replace('V','')
+					shared.DEV[address][2] = str(memoryData[1].replace('V',''))
 					#we store temperature
-					shared.DEV[address][3] = str(memoryData[2]).replace('T','')
+					shared.DEV[address][3] = str(memoryData[2].replace('T',''))
 					#we store step number and type
-					shared.DEV[address][4] = str(memoryData[3]).replace('P','')
+					shared.DEV[address][4] = str(memoryData[3].replace('P',''))
 					#we store time of current step
 					shared.DEV[address][5] = str(memoryData[4].replace('t',''))
 					#we store current time program
@@ -85,7 +100,7 @@ class DataListenerMemory(Thread):
 					#we store the total time program
 					shared.DEV[address][7] = str(memoryData[6].replace('TT',''))
 					#we store the total time program
-					shared.DEV[address][8] = str(memoryData[7].replace('',''))
+					shared.DEV[address][8] = str(dat2.replace('',''))
 
 					if shared.DEV[address][8] == '':
 						print("Dato3")
@@ -94,6 +109,9 @@ class DataListenerMemory(Thread):
 					if self.mySrc != None:
 						self.mySrc.myGUI_signal.emit("DL["+str(address)+"]:DataReady")
 
+				#BCmb.startPollingClient(useHostname,address)
+
+				#lock_memory.release()
 			# we do ping to the devices
 			sleep(.1)
 			print(self._name+" stopped")

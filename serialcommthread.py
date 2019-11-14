@@ -11,13 +11,13 @@ import StringUtils
 from communicate import Communicate
 from exitcodes import EXIT_CODE
 
-from shared import lock
+from shared import lock_uart,lock_memory
 
 import serial
 import appsettings
 
-if appsettings.useMac == False:
-	import RPi.GPIO as GPIO
+#if appsettings.useMac == False:
+#	import RPi.GPIO as GPIO
 
 serial_cmd_result = [None]
 
@@ -111,8 +111,7 @@ class SerialCommThread(Thread):
 			GPIO.setwarnings(False)
 			GPIO.setup(EN_485,GPIO.OUT)
 			GPIO.output(EN_485,GPIO.LOW)
-		lock.acquire()
-		#print("started")
+
 		while not self._msgwasreceived and not self._stopevent.is_set():
 			if self._serialport != None:
 				
@@ -167,8 +166,6 @@ class SerialCommThread(Thread):
 							if self._end_char:
 								#print("read from port")
 								self.read_from_port(self._serialport)
-
-
 							
 							if self._flagcommand == False and self._elapsed > self._timeout and self._timeout!= -1:
 								#print("timeout")
@@ -200,14 +197,13 @@ class SerialCommThread(Thread):
 
 				print(self._name+" stopped")
 
-				#lock.release()
 			else:
 				self.stop()
 				raise Exception("Serial", "No device found!")
 
 		#print("serial thread stopped")
 		self._wasStopped.set()
-		lock.release()
+		
 
 	def stop(self):
 		self._stopevent.set()
@@ -220,6 +216,7 @@ class SerialCommThread(Thread):
 		super(SerialCommThread,self).join(*args, **kwargs)
 
 	def addcbuff(self, ser, c):
+		lock_uart.acquire()
 		if c == self._end_char:
 			self._dataByteArray.append(ord(c))
 			self._dataBytesLiteral = ''.join(str( bytes(self._dataByteArray), 'ISO-8859-1') )
@@ -241,7 +238,8 @@ class SerialCommThread(Thread):
 				self._dataByteArray.append(ord(c))
 				self._dataBytesLiteral = ''.join(str( bytes(self._dataByteArray), 'ISO-8859-1') )
 				#print(c)
-	
+		lock_uart.release()
+
 	def inicbuff(self):
 		#self._serialport.flushInput()
 		self._dataByteArray.clear()
