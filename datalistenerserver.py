@@ -6,7 +6,7 @@ import logging
 from enum import Enum
 from communicate import Communicate
 
-from shared import lock_uart, lock_memory,devStart,devStop,DEV,DEV_PAGE
+from shared import lock_uart, lock_memory,devStart,devStop,DEV,DEV_PAGE,state
 #import shared
 import appsettings
 
@@ -97,10 +97,18 @@ class DataListenerServer(Thread):
                         print(DEV[address][7])
                         print(DEV[address][8])                        
 
+                        if DEV[address][8] == 'S' or DEV[address][8] == 'E' and state[0] == True:
+                            print("State")
+                            print(state)
+                            state[0] = False
+                            ireport.appendWithTimeStampUsingFile(","+ DEV[address][1] + "," + DEV[address][2] + "," +\
+                                                    DEV[address][3] + "," + DEV[address][4] + "," +\
+                                                    DEV[address][5] + "," + DEV[address][6] + "," +\
+                                                    DEV[address][7] + "," + DEV[address][8], str(address))
 
-                        if DEV[address][8] == 'R' or DEV[address][8] == 'P' or DEV[address][8] == 'E':
+                        if DEV[address][8] == 'R' or DEV[address][8] == 'P':
                             print("CapturaDatos")
-                            #ireport.appendWithTimeStampUsingFile("Dato \n")
+                            state[0] = True
                             ireport.appendWithTimeStampUsingFile(","+ DEV[address][1] + "," + DEV[address][2] + "," +\
                                                     DEV[address][3] + "," + DEV[address][4] + "," +\
                                                     DEV[address][5] + "," + DEV[address][6] + "," +\

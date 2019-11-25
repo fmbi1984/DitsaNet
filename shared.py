@@ -18,6 +18,8 @@ lock_memory = threading.Lock() # lock will be used as a lock for the memory
 devStart = 1
 devStop = 1
 
+state = [True]
+
 #ping #I #V #T #P #t #Tt #TT #I #Name #Show #Address
 DEV = [
 	#[False, '', '', '', '', '', '', '', ''],
