@@ -97,6 +97,7 @@ def client_thread(conn):
 						print("Does Not Have Value: ")
 					ds = DataListenerServer(None)
 					ds.start()
+					ds.join()
 					
 					tmp = bytes("ACTION: PASS", 'ISO-8859-1')
 
@@ -113,8 +114,8 @@ def client_thread(conn):
 					
 					
 					if ds is not None:
-						print("Have Value: ")
-						print(ds)
+						#print("Have Value: ")
+						#print(ds)
 						ds.stop()
 					
 						
@@ -143,9 +144,11 @@ def client_thread(conn):
 					for i in range (devStart, devStop+1):
 									
 						address = i
-						if DEV[address][0] == True:
+						if DEV[address][0] == True: 
+							#DEV[address][0] = "True"
 							tmp += "{"
-							tmp +=   "I" + shared.DEV[address][1] + "," +\
+							tmp +=  str(shared.DEV[address][0]) + "," +\
+									"I" + shared.DEV[address][1] + "," +\
 									"V" + shared.DEV[address][2] + "," +\
 									"T" + shared.DEV[address][3] + "," +\
 									"P" + shared.DEV[address][4] + "," +\
@@ -154,9 +157,13 @@ def client_thread(conn):
 									"TT" + shared.DEV[address][7] + "," +\
 									"" + shared.DEV[address][8]
 							tmp += "}"
-
+						else:
+							tmp += "{"
+							tmp += str(shared.DEV[address][0])
+							tmp += "}"
 						tmp += ";"
-					
+						print(tmp)
+						
 					lock_memory.release()
 					#print("stop RELEASE memory server")
 					
@@ -224,6 +231,8 @@ def client_thread(conn):
 		#print('Received', repr(data))
 		if data != None:
 			conn.sendall(data)
+			print("Send")
+			print(data)
 		else:
 			conn.sendall(b'None')
 	print("[-] Closed connection")

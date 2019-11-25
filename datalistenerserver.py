@@ -11,14 +11,12 @@ from shared import lock_uart, lock_memory,devStart,devStop,DEV,DEV_PAGE
 import appsettings
 
 from devicemainboard import BCmb
-#from report import IndividualReport
+from report import IndividualReport
 
 logger = logging.getLogger(__name__)
 
 
-#ireport = IndividualReport()
-#ireport.begin()
-
+ireport = IndividualReport()
 
 class ACTION(Enum):
     PASS = 0
@@ -56,12 +54,6 @@ class DataListenerServer(Thread):
         
         self.pingForDevicesPresent()
         
-        #for i in range(1,2+1):
-        #   add = str(i)
-        #   ireport = IndividualReport(add)
-        #   ireport.begin()
-        
-
         while not self._stop_event.is_set():
             
             # we do ping to the devices 
@@ -76,18 +68,16 @@ class DataListenerServer(Thread):
                     print("ValueDLS:")
                     print(readData)
                     
-                        
                     lock_memory.acquire()
-                    print("started Acquire memory")
-                    if readData!= None:
+                    if readData!= None:                        
                         #we store current
-                        DEV[address][1] = str(readData[0]).replace('I','')
+                        DEV[address][1] = str(readData[0].replace('I',''))
                         #we store voltage
-                        DEV[address][2] = str(readData[1]).replace('V','')
+                        DEV[address][2] = str(readData[1].replace('V',''))
                         #we store temperature
-                        DEV[address][3] = str(readData[2]).replace('T','')
+                        DEV[address][3] = str(readData[2].replace('T',''))
                         #we store step number and type
-                        DEV[address][4] = str(readData[3]).replace('P','')
+                        DEV[address][4] = str(readData[3].replace('P',''))
                         #we store time of current step
                         DEV[address][5] = str(readData[4].replace('t',''))
                         #we store current time program
@@ -106,17 +96,17 @@ class DataListenerServer(Thread):
                         print(DEV[address][6])
                         print(DEV[address][7])
                         print(DEV[address][8])                        
+
+
+                        if DEV[address][8] == 'R' or DEV[address][8] == 'P' or DEV[address][8] == 'E':
+                            print("CapturaDatos")
+                            #ireport.appendWithTimeStampUsingFile("Dato \n")
+                            ireport.appendWithTimeStampUsingFile(","+ DEV[address][1] + "," + DEV[address][2] + "," +\
+                                                    DEV[address][3] + "," + DEV[address][4] + "," +\
+                                                    DEV[address][5] + "," + DEV[address][6] + "," +\
+                                                    DEV[address][7] + "," + DEV[address][8], str(address))
                         
                     lock_memory.release()
-                    print("stop RELEASE memory")
-                        #for i in range (1,9):
-                        #    ireport.appendWithTimeStampUsingFile("Dato \n")
-                        #ireport.appendWithTimeStampUsingFile(","+ shared.DEV[address][1] + "," + shared.DEV[address][2] + "," +\
-                        #                             shared.DEV[address][3] + "," + shared.DEV[address][4] + "," +\
-                        #                             shared.DEV[address][5] + "," + shared.DEV[address][6] + "," +\
-                        #                             shared.DEV[address][7] + "," + shared.DEV[address][8], str(address))
-                        
-                        
                         #self.dataStr = str(readData[0])
                 
                     #['VALUE', 'I0.27,V-0.98,T27.21']
@@ -124,9 +114,10 @@ class DataListenerServer(Thread):
                     
                 
             #sleep(.2)
-            while not self._stop_event.is_set():
-                #print("stop_event")
-                sleep(.2)
+            self.stop()
+            #while not self._stop_event.is_set():
+            #    print("stop_event")
+            #    sleep(.2)
             #print(self._name+" stopped")
         '''
         except:
@@ -153,25 +144,29 @@ class DataListenerServer(Thread):
         # we do ping to the devices 
         for i in range( devStart, devStop+1):
             address=i
-            print("Doing ping to device No."+str(address))
-            readData = BCmb.ping(address)
-            print("VALUE:")
-            print(str(readData))
-            DEV[i][0] = False
-            if readData!= None:
-                if readData == True:
-                    DEV[i][0] = True
-                    print("DEV"+str(address)+" is Present!")  
+
+            if DEV[i][0] == False:
+                print("Doing ping to device No."+str(address))
+                readData = BCmb.ping(address)
+                print("VALUE:")
+                print(str(readData))
+                DEV[i][0] = False
+                if readData!= None:
+                    if readData == True:
+                        DEV[i][0] = True
+                        print("DEV"+str(address)+" is Present!")  
+                    else:
+                        print("DEV"+str(address)+" is not Present!")
+                        #ireport.end()
                 else:
                     print("DEV"+str(address)+" is not Present!")
                     #ireport.end()
-            else:
-                print("DEV"+str(address)+" is not Present!")
-                #ireport.end()
+        
+        
 
 if __name__ == '__main__':
     logger.debug("demo")
-    main = DataListenerServer(None)
     #main.daemon = True
-    #main.start()
-    #main.stop()
+    main = DataListenerServer(None)
+    main.start()
+    main.stop()

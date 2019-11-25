@@ -274,7 +274,7 @@ class BCmb(object):
 	@staticmethod
 	def startPollingClient(hostname):
 		result = ACTION.FAIL
-		result = devInterface.sendClientCommandAndGetResponse(hostname,0x36, "", BCmb.timeout)
+		result = devInterface.sendClientCommandAndGetResponseWithoutAddr(hostname,0x36, "", BCmb.timeout)
 		print(result)
 		if result != None:
 			if result[0] == 'VALUE':
@@ -286,7 +286,7 @@ class BCmb(object):
 	@staticmethod
 	def stopPollingClient(hostname):
 		result = ACTION.FAIL
-		result = devInterface.sendClientCommandAndGetResponse(hostname,0x37, "", BCmb.timeout)
+		result = devInterface.sendClientCommandAndGetResponseWithoutAddr(hostname,0x37, "", BCmb.timeout)
 		print(result)
 		if result != None:
 			if result[0] == 'VALUE':
@@ -298,7 +298,7 @@ class BCmb(object):
 	@staticmethod
 	def memoryDataClient(hostname):
 		result = ACTION.FAIL
-		result = devInterface.sendClientCommandAndGetResponse(hostname,0x38, "", BCmb.timeout)
+		result = devInterface.sendClientCommandAndGetResponseWithoutAddr(hostname,0x38, "", BCmb.timeout)
 		print(result)
 		if result != None:
 			if result[0] == 'VALUE':
@@ -343,13 +343,13 @@ if __name__ == "__main__":
 	BCmb.memoryDataClient(useHostname)
 	'''
 
-	for i in range(0,200):
-		BCmb.startPollingClient(useHostname)
-		sleep(.3)
-		BCmb.stopPollingClient(useHostname)
-		BCmb.memoryDataClient(useHostname)
+	#for i in range(0,200):
+	#BCmb.startPollingClient(useHostname)
+	#	sleep(.3)
+	BCmb.stopPollingClient(useHostname)
+	#	BCmb.memoryDataClient(useHostname)
 		#sleep(.3)
-		print(i)	
+	#	print(i)	
 	
 	
 

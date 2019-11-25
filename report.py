@@ -21,25 +21,21 @@ class IndividualReport():
 	date_modified = None
 	text_to_print = ""
 	
-	def __init__(self, address):
+	def __init__(self):
 		try:
 			os.makedirs(self.file_path)
 		except OSError:
 			print ("Creation of the directory %s failed" % self.file_path)
 		else:
-			print ("Successfully created the directory %s" % self.file_path)			
-		if not StringUtils.isNoneOrEmpty(address):
-			self.address_number = address
-			self.file_name = self.file_path + self.address_number + '.xls'   #'.txt'
-			self.text_to_print = ""
-			
+			print ("Successfully created the directory %s" % self.file_path)
+
 
 	def begin(self):
 		temp = ""
 		self.text_to_print = ""
 		#st = self.create_timestamp()
 		st = ""
-		temp += self.append(str(st)+","+"Current"+","+"Voltage"+","+"Temperature"+","+"Step"+","+"Time"+","+"Current Time"+","+"Total Time"+","+"Step State\r\n")
+		temp += self.append(str(st)+"Date"+","+"Current"+","+"Voltage"+","+"Temperature"+","+"Step"+","+"Time"+","+"Current Time"+","+"Total Time"+","+"Step State\r\n")
 		#temp += self.append(str(st)+" **************************************************************************\r\n")
 		#st = self.create_timestamp()
 		#temp += self.append(str(st)+" ****************************** REPORT BEGIN ******************************\r\n")
@@ -99,16 +95,19 @@ class IndividualReport():
 		if not StringUtils.isNoneOrEmpty(file):
 			self.address_number = file
 			self.file_name = self.file_path + self.address_number + '.xls'   #'.txt'
-	
+
+		if not os.path.exists(self.file_name):
+			self.begin()
+
 		st = self.create_timestamp()
 		temp = str(st)+" "+ text +  "\r\n"
 		self.append(temp)
 		self.text_to_print += temp
 		return temp
-	
+
 	def create_timestamp(self):
 		now = datetime.now()
-		st = now.strftime('%Y-%m-%d %H:%M:%S') + ('.%04d' % (now.microsecond / 100))
+		st = now.strftime('%Y-%m-%d %H:%M:%S') #+ ('.%04d' % (now.microsecond / 100))
 		#print(st)
 		return st
 
@@ -117,9 +116,6 @@ class IndividualReport():
 
 class MainReport:
 	home = str(Path.home())
-
-
-
 	#if appsettings.useDesktopToSaveReports:
 	file_path = home +'/TestLogs/'
 	#else:
@@ -200,15 +196,17 @@ if __name__ == '__main__':
 	#mreport.begin()
 	#mreport.end()
 	#ireport = [None, None, None]
-	ireport = IndividualReport("12345")
-	ireport.begin()
+	
+	ireport = IndividualReport()
+	#ireport.begin()
 
 	#print(ireport.appendWithTimeStamp("data1\r\n"), end='')
 	#print(ireport.appendWithTimeStamp("data2\r\n"), end='')
 	#print(ireport.appendWithTimeStamp("data3\r\n"), end='')
-	ireport.appendWithTimeStamp("data1" + "," + "data2" + "," + "data3")
+	#for i in range (0,20): 
+	ireport.appendWithTimeStampUsingFile("," + "data1" + "," + "data2" + "," + "data3","Modulo" + "1 " + "2019-11-23")
 	#ireport.appendWithTimeStamp("data2")
 	#ireport.appendWithTimeStamp("data3")
 	#print(ireport.print(), end='')
 
-	ireport.end()
+	#ireport.end()

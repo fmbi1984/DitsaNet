@@ -125,7 +125,40 @@ class devInterface(object):
         return result
 
     @staticmethod
-    def sendClientCommandAndGetResponse(hostname, op, cmd, timeout):
+    def sendClientCommandAndGetResponse(hostname,address, op, cmd, timeout):
+        result = None
+
+        try:
+            cmd_data = bytes(cmd,'ISO-8859-1')
+            #p_data = devInterface.packMessage(address, op, cmd_data)
+            p_data = devInterface.packMessage(address,op, cmd_data)
+
+            if hostname == None:
+                raise Exception("devInterface", "No hostname device found!")
+            #print("Sent:")
+            #print(p_data)
+            sct = ClientCommThread(None, useHostname, p_data, b'\x04',timeout,1)
+            sct.start()
+            sct.join()
+            print("client thread stopped")
+            if sct.stopped() == False:
+                e="client thread not stopped"
+                print("\033[1;31;40m"+str(e)+"\033[0;37;40m")
+
+            data = client_cmd_result[0]
+            #print("FrankClient")
+            #print(data)
+            result = None
+            if data != None:
+                result = devInterface.decodeMessage(data)
+            else:
+                result = None
+        except Exception as e:
+            print("\033[1;31;40m"+str(e)+"\033[0;37;40m")
+        return result
+
+    @staticmethod
+    def sendClientCommandAndGetResponseWithoutAddr(hostname, op, cmd, timeout):
         result = None
 
         try:

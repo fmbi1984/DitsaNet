@@ -15607,7 +15607,7 @@ class Ui_MainWindow(object):
 	def on_cmdPausar_clicked(self):
 		print("Pausar")
 
-		for i in range(1,3):
+		for i in range(1,2):
 			myCheck = self.MainWindow.findChild(QtWidgets.QCheckBox, "chkSel1_"+str(i))
 
 			if myCheck.isChecked() == True:
@@ -15617,30 +15617,83 @@ class Ui_MainWindow(object):
 	def on_cmdDetener_clicked(self):
 		print("Detener")
 
-		for i in range(1,3):
+		for i in range(1,2):
 			myCheck = self.MainWindow.findChild(QtWidgets.QCheckBox, "chkSel1_"+str(i))
 
 			if myCheck.isChecked() == True:
 				BCmb.stopClient(useHostname, i)
 
 	WAIT_SECONDS = 1
+	count = 0
 
 	def display(self):
+		print("C:")
+		print(self.count)
+		if self.count > 2:
+			address = 1
+			
+			memoryData = BCmb.memoryDataClient(useHostname)
+			
+			if memoryData!= None:
+
+				print("ValueM:")
+				print(memoryData)
+
+				memoryData = memoryData[0].split(',')
+				print(memoryData)
+
+				dat1 = str(memoryData[0]).replace('{','')
+				print(dat1)
+	
+
+				if dat1 == 'True':
+					memoryData[8] = str(memoryData[8]).replace('}','')
+					memoryData[0] = True
+
+					shared.DEV[address][0] = memoryData[0]
+					#we store current
+					shared.DEV[address][1] = str(memoryData[1].replace('I',''))
+					#we store voltage
+					shared.DEV[address][2] = str(memoryData[2].replace('V',''))
+					#we store temperature
+					shared.DEV[address][3] = str(memoryData[3].replace('T',''))
+					#we store step number and type
+					shared.DEV[address][4] = str(memoryData[4].replace('P',''))
+					#we store time of current step
+					shared.DEV[address][5] = str(memoryData[5].replace('t',''))
+					#we store current time program
+					shared.DEV[address][6] = str(memoryData[6].replace('Tt',''))
+					#we store the total time program
+					shared.DEV[address][7] = str(memoryData[7].replace('TT',''))
+					#we store the total time program
+					shared.DEV[address][8] = str(memoryData[8].replace('',''))
+
+					if shared.DEV[address][8] == '':
+						print("Dato3")
+
+				if dat1 == 'False}':
+					memoryData[0] = str(memoryData[0]).replace('}','')
+					memoryData[0] = False
+					print("FalsePing")
+				
+				print(memoryData)
+
+				
+
+		self.count = self.count + 1
 		print(time.ctime())
-		print("before")
-		#if shared.DEV[1][0] == True:
-		#print("Display")
-		newstr1 = ""
-		if self.stateDisplay1 == 1:
-			#current
-			newstr1 = str(shared.DEV[1][1])+" A"
-		if self.stateDisplay1 == 2:
-			#voltage
-			newstr1 = str(shared.DEV[1][2]) + " V"
-		if self.stateDisplay1 == 3:
-			#temperature
-			newstr1 = str(shared.DEV[1][3]) + " °C"
-		self.cmdDisplay1_1.setText(str(newstr1))
+		if shared.DEV[1][0] == True:
+			newstr1 = ""
+			if self.stateDisplay1 == 1:
+				#current
+				newstr1 = str(shared.DEV[1][1])+" A"
+			if self.stateDisplay1 == 2:
+				#voltage
+				newstr1 = str(shared.DEV[1][2]) + " V"
+			if self.stateDisplay1 == 3:
+				#temperature
+				newstr1 = str(shared.DEV[1][3]) + " °C"
+			self.cmdDisplay1_1.setText(str(newstr1))
 
 
 		if shared.DEV[2][0] == True:
@@ -15717,26 +15770,6 @@ class Ui_MainWindow(object):
 			self.cmdDisplay1.update()
 			self.cmdDisplay1.setUpdatesEnabled(True)
 		'''
-
-	def pingForDevicesPresent(self):
-		# we do ping to the devices
-		devStart = 1
-		devStop = 2
-		for i in range(devStart, devStop+1):
-			address=i
-			print("Doing ping to device No."+str(address))
-			readData = BCmb.pingClient(useHostname, address)
-			print("VALUE:")
-			print(str(readData))
-			shared.DEV[i][0] = False
-			if readData!= None:
-				if readData == True:
-					shared.DEV[i][0] = True
-					print("DEV"+str(address)+" is Present!")
-				else:
-					print("DEV"+str(address)+" is not Present!")
-			else:
-				print("DEV"+str(address)+" is not Present!")
 
 	def fillWithSettings(self):
 		print("fillWithSettings")

@@ -40,13 +40,12 @@ class DataListenerMemory(Thread):
 		self._stop_event.clear()
 
 	def run(self):
-		# try:
+
 		print(self._name+" started")
-		#self.pingForDevicesPresent()
 		while not self._stop_event.is_set():
 
 			for i in range(shared.devStart, shared.devStop+1):
-				address = i
+				#address = i
 				
 				#print(shared.DEV[address][0])
 				#if shared.DEV[address][0] == True:
@@ -54,37 +53,32 @@ class DataListenerMemory(Thread):
 				#BCmb.stopPollingClient(useHostname,address)
 				#sleep(.002)
 				BCmb.startPollingClient(useHostname)
-				sleep(.4)
-				BCmb.stopPollingClient(useHostname)
-				sleep(.1)
-				memoryData = BCmb.memoryDataClient(useHostname)
 				sleep(.3)
 
 				
-				
-				print("ValueM:")
-				print(memoryData)
-				memoryData = memoryData[0].split(',')
-				print(memoryData)
-				dat1 = str(memoryData[0]).replace('{','')
-				print(dat1)
-				
-				dat2 = str(memoryData[7]).replace('}','')
-				print(dat2)
+				#BCmb.stopPollingClient(useHostname)
+				#sleep(.1)
 
-				#print("VaL")
-				#print(dat2)
+				#if threading.Timer(self.WAIT_SECONDS, self.display).start()
+				#memoryData = BCmb.memoryDataClient(useHostname)
+				#sleep(.3)
 
 				'''
-				shared.DEV[address][1] = dat2[0].replace('I','')
-				print(shared.DEV[address][1])
+				memoryData = None
 
-				shared.DEV[address][1] = str(memoryData[0]).replace('I','')
-				print(shared.DEV[address][1])
-				'''
 
-				#lock_memory.acquire()
 				if memoryData!= None:
+
+					print("ValueM:")
+					print(memoryData)
+					memoryData = memoryData[0].split(',')
+					print(memoryData)
+					dat1 = str(memoryData[0]).replace('{','')
+					print(dat1)
+					
+					dat2 = str(memoryData[7]).replace('}','')
+					print(dat2)
+
 					#we store current
 					shared.DEV[address][1] = str(dat1.replace('I',''))
 					#we store voltage
@@ -109,9 +103,8 @@ class DataListenerMemory(Thread):
 					if self.mySrc != None:
 						self.mySrc.myGUI_signal.emit("DL["+str(address)+"]:DataReady")
 
-				#BCmb.startPollingClient(useHostname,address)
+				'''
 
-				#lock_memory.release()
 			# we do ping to the devices
 			sleep(.1)
 			print(self._name+" stopped")
@@ -124,26 +117,6 @@ class DataListenerMemory(Thread):
 	def join(self, *args, **kwargs):
 		self.stop()
 		super(DataListenerMemory,self).join(*args, **kwargs)
-
-	def pingForDevicesPresent(self):
-		# we do ping to the devices 
-		for i in range(shared.devStart, shared.devStop+1):
-			address=i
-			print("Doing ping to device No."+str(address))
-			readData = BCmb.ping(address)
-			print("VALUE:")
-			print(str(readData))
-			shared.DEV[i][0] = False
-			if readData!= None:
-				if readData == True:
-					shared.DEV[i][0] = True
-					print("DEV"+str(address)+" is Present!")  
-				else:
-					print("DEV"+str(address)+" is not Present!")
-					# ireport.end()
-			else:
-				print("DEV"+str(address)+" is not Present!")
-				# ireport.end()
 
 if __name__ == '__main__':
 	logger.debug("demo")
