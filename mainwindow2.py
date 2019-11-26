@@ -15607,7 +15607,7 @@ class Ui_MainWindow(object):
 	def on_cmdPausar_clicked(self):
 		print("Pausar")
 
-		for i in range(1,2):
+		for i in range(1,3):
 			myCheck = self.MainWindow.findChild(QtWidgets.QCheckBox, "chkSel1_"+str(i))
 
 			if myCheck.isChecked() == True:
@@ -15617,7 +15617,7 @@ class Ui_MainWindow(object):
 	def on_cmdDetener_clicked(self):
 		print("Detener")
 
-		for i in range(1,2):
+		for i in range(1,3):
 			myCheck = self.MainWindow.findChild(QtWidgets.QCheckBox, "chkSel1_"+str(i))
 
 			if myCheck.isChecked() == True:

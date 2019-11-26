@@ -97,7 +97,7 @@ class DataListenerServer(Thread):
                         print(DEV[address][7])
                         print(DEV[address][8])                        
 
-                        if DEV[address][8] == 'S' or DEV[address][8] == 'E' and state[0] == True:
+                        if (DEV[address][8] == 'S' or DEV[address][8] == 'E') and state[0] == True:
                             print("State")
                             print(state)
                             state[0] = False
