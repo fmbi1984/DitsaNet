@@ -44,69 +44,11 @@ class DataListenerMemory(Thread):
 		print(self._name+" started")
 		while not self._stop_event.is_set():
 
-			for i in range(shared.devStart, shared.devStop+1):
-				#address = i
-				
-				#print(shared.DEV[address][0])
-				#if shared.DEV[address][0] == True:
-				#print("Doing asking data to device No. "+str(address))
-				#BCmb.stopPollingClient(useHostname,address)
-				#sleep(.002)
-				BCmb.startPollingClient(useHostname)
-				sleep(.3)
-
-				
-				#BCmb.stopPollingClient(useHostname)
-				#sleep(.1)
-
-				#if threading.Timer(self.WAIT_SECONDS, self.display).start()
-				#memoryData = BCmb.memoryDataClient(useHostname)
-				#sleep(.3)
-
-				'''
-				memoryData = None
-
-
-				if memoryData!= None:
-
-					print("ValueM:")
-					print(memoryData)
-					memoryData = memoryData[0].split(',')
-					print(memoryData)
-					dat1 = str(memoryData[0]).replace('{','')
-					print(dat1)
-					
-					dat2 = str(memoryData[7]).replace('}','')
-					print(dat2)
-
-					#we store current
-					shared.DEV[address][1] = str(dat1.replace('I',''))
-					#we store voltage
-					shared.DEV[address][2] = str(memoryData[1].replace('V',''))
-					#we store temperature
-					shared.DEV[address][3] = str(memoryData[2].replace('T',''))
-					#we store step number and type
-					shared.DEV[address][4] = str(memoryData[3].replace('P',''))
-					#we store time of current step
-					shared.DEV[address][5] = str(memoryData[4].replace('t',''))
-					#we store current time program
-					shared.DEV[address][6] = str(memoryData[5].replace('Tt',''))
-					#we store the total time program
-					shared.DEV[address][7] = str(memoryData[6].replace('TT',''))
-					#we store the total time program
-					shared.DEV[address][8] = str(dat2.replace('',''))
-
-					if shared.DEV[address][8] == '':
-						print("Dato3")
-
-				if memoryData != None:
-					if self.mySrc != None:
-						self.mySrc.myGUI_signal.emit("DL["+str(address)+"]:DataReady")
-
-				'''
+			BCmb.startPollingClient(useHostname)
+			sleep(.3)
 
 			# we do ping to the devices
-			sleep(.1)
+			#sleep(.1)
 			print(self._name+" stopped")
 		
 

@@ -15630,54 +15630,53 @@ class Ui_MainWindow(object):
 		print("C:")
 		print(self.count)
 		if self.count > 2:
-			address = 1
-			
 			memoryData = BCmb.memoryDataClient(useHostname)
 			
-			if memoryData!= None:
+			for i in range (shared.devStart, shared.devStop+1):
+				address = i
+			
+				if memoryData!= None:
 
-				print("ValueM:")
-				print(memoryData)
+					print("ValueM:")
+					print(memoryData)
 
-				memoryData = memoryData[0].split(',')
-				print(memoryData)
+					TempData = memoryData[address-1].split(',')
+					print(TempData)
 
-				dat1 = str(memoryData[0]).replace('{','')
-				print(dat1)
-	
+					dat1 = str(TempData[0]).replace('{','')
+					print(dat1)
 
-				if dat1 == 'True':
-					memoryData[8] = str(memoryData[8]).replace('}','')
-					memoryData[0] = True
+					if dat1 == 'True':
+						TempData[8] = str(TempData[8]).replace('}','')
+						TempData[0] = True
 
-					shared.DEV[address][0] = memoryData[0]
-					#we store current
-					shared.DEV[address][1] = str(memoryData[1].replace('I',''))
-					#we store voltage
-					shared.DEV[address][2] = str(memoryData[2].replace('V',''))
-					#we store temperature
-					shared.DEV[address][3] = str(memoryData[3].replace('T',''))
-					#we store step number and type
-					shared.DEV[address][4] = str(memoryData[4].replace('P',''))
-					#we store time of current step
-					shared.DEV[address][5] = str(memoryData[5].replace('t',''))
-					#we store current time program
-					shared.DEV[address][6] = str(memoryData[6].replace('Tt',''))
-					#we store the total time program
-					shared.DEV[address][7] = str(memoryData[7].replace('TT',''))
-					#we store the total time program
-					shared.DEV[address][8] = str(memoryData[8].replace('',''))
+						shared.DEV[address][0] = TempData[0]
+						#we store current
+						shared.DEV[address][1] = str(TempData[1].replace('I',''))
+						#we store voltage
+						shared.DEV[address][2] = str(TempData[2].replace('V',''))
+						#we store temperature
+						shared.DEV[address][3] = str(TempData[3].replace('T',''))
+						#we store step number and type
+						shared.DEV[address][4] = str(TempData[4].replace('P',''))
+						#we store time of current step
+						shared.DEV[address][5] = str(TempData[5].replace('t',''))
+						#we store current time program
+						shared.DEV[address][6] = str(TempData[6].replace('Tt',''))
+						#we store the total time program
+						shared.DEV[address][7] = str(TempData[7].replace('TT',''))
+						#we store the total time program
+						shared.DEV[address][8] = str(TempData[8].replace('',''))
 
-					if shared.DEV[address][8] == '':
-						print("Dato3")
+						if shared.DEV[address][8] == '':
+							print("Dato3")
 
-				if dat1 == 'False}':
-					memoryData[0] = str(memoryData[0]).replace('}','')
-					memoryData[0] = False
-					print("FalsePing")
-				
-				print(memoryData)
-
+					if dat1 == 'False}':
+						TempData[0] = str(TempData[0]).replace('}','')
+						shared.DEV[address][0] = False
+						print("FalsePing")
+					
+					print(TempData)
 				
 
 		self.count = self.count + 1
@@ -15694,6 +15693,11 @@ class Ui_MainWindow(object):
 				#temperature
 				newstr1 = str(shared.DEV[1][3]) + " °C"
 			self.cmdDisplay1_1.setText(str(newstr1))
+		else:
+			print("FAILCOMM1")
+			newstr1 = ""
+			newstr1 = "FailComm"
+			self.cmdDisplay1_1.setText(str(newstr1))
 
 
 		if shared.DEV[2][0] == True:
@@ -15707,6 +15711,11 @@ class Ui_MainWindow(object):
 			if self.stateDisplay2 == 3:
 				#temperature
 				newstr2 = str(shared.DEV[2][3])+ " °C"
+			self.cmdDisplay1_2.setText(str(newstr2))
+		else:
+			print("FAILCOMM2")
+			newstr2 = ""
+			newstr2 = "FailComm"
 			self.cmdDisplay1_2.setText(str(newstr2))
 
 		threading.Timer(self.WAIT_SECONDS, self.display).start()

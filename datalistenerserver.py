@@ -6,7 +6,7 @@ import logging
 from enum import Enum
 from communicate import Communicate
 
-from shared import lock_uart, lock_memory,devStart,devStop,DEV,DEV_PAGE,state
+from shared import lock_uart, lock_memory,devStart,devStop,DEV,DEV_PAGE
 #import shared
 import appsettings
 
@@ -57,7 +57,7 @@ class DataListenerServer(Thread):
         while not self._stop_event.is_set():
             
             # we do ping to the devices 
-    
+            lock_memory.acquire()
             for i in range(devStart, devStop+1):
                 address = i
 
@@ -68,7 +68,7 @@ class DataListenerServer(Thread):
                     print("ValueDLS:")
                     print(readData)
                     
-                    lock_memory.acquire()
+                    
                     if readData!= None:                        
                         #we store current
                         DEV[address][1] = str(readData[0].replace('I',''))
@@ -86,7 +86,7 @@ class DataListenerServer(Thread):
                         DEV[address][7] = str(readData[6].replace('TT',''))
                         #we store the total time program
                         DEV[address][8] = str(readData[7].replace('',''))
-                        
+                        '''
                         print("Current Value:")
                         print(DEV[address][1])
                         print(DEV[address][2])
@@ -95,34 +95,33 @@ class DataListenerServer(Thread):
                         print(DEV[address][5])
                         print(DEV[address][6])
                         print(DEV[address][7])
-                        print(DEV[address][8])                        
-
-                        if (DEV[address][8] == 'S' or DEV[address][8] == 'E') and state[0] == True:
-                            print("State")
-                            print(state)
-                            state[0] = False
+                        print(DEV[address][8]) 
+                        '''
+                        if (DEV[address][8] == 'S' or DEV[address][8] == 'E') and DEV[address][9] == True:
+                            print(DEV[address][9])
+                            DEV[address][9] = False
                             ireport.appendWithTimeStampUsingFile(","+ DEV[address][1] + "," + DEV[address][2] + "," +\
                                                     DEV[address][3] + "," + DEV[address][4] + "," +\
                                                     DEV[address][5] + "," + DEV[address][6] + "," +\
                                                     DEV[address][7] + "," + DEV[address][8], str(address))
 
                         if DEV[address][8] == 'R' or DEV[address][8] == 'P':
-                            print("CapturaDatos")
-                            state[0] = True
+                            DEV[address][9] = True
                             ireport.appendWithTimeStampUsingFile(","+ DEV[address][1] + "," + DEV[address][2] + "," +\
                                                     DEV[address][3] + "," + DEV[address][4] + "," +\
                                                     DEV[address][5] + "," + DEV[address][6] + "," +\
                                                     DEV[address][7] + "," + DEV[address][8], str(address))
                         
-                    lock_memory.release()
+                    
                         #self.dataStr = str(readData[0])
                 
                     #['VALUE', 'I0.27,V-0.98,T27.21']
 
                     
                 
-            #sleep(.2)
+            sleep(.3)
             self.stop()
+            lock_memory.release()
             #while not self._stop_event.is_set():
             #    print("stop_event")
             #    sleep(.2)

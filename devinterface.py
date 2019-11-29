@@ -104,7 +104,7 @@ class devInterface(object):
             #sp = SerialPortUtil.getFirstPortByVID_PID(0x10c4,0xea60)
             if sp == None:
                 raise Exception("devInterface", "No serial device found -I!")
-            sct = SerialCommThread(None, sp, appsettings.FTDI_baudRate, p_data, b'\x04',timeout,5)
+            sct = SerialCommThread(None, sp, appsettings.FTDI_baudRate, p_data, b'\x04',timeout,1)
             sct.start()
             sct.join()
             print("serial thread stopped")

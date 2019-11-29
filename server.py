@@ -128,8 +128,12 @@ def client_thread(conn):
 				
 				elif p_data[1]==op_data:
 					print("memory data")
+
+					ds.stop()
+					#sleep(.2)
 					
 					#msg = devInterface.unpackMessage(p_data)
+					lock_memory.acquire()
 					msg = devInterface.unpackMessageWithoutAddr(p_data)
 					#print("msg")
 					#print(msg)
@@ -138,12 +142,13 @@ def client_thread(conn):
 					
 					#address = int(msg[1])
 					
-					lock_memory.acquire()
+					
 					#print("started Acquire memory server")
 					tmp = "VALUE: "
 					for i in range (devStart, devStop+1):
 									
 						address = i
+						print("Address: "+str(address))
 						if DEV[address][0] == True: 
 							#DEV[address][0] = "True"
 							tmp += "{"
@@ -164,16 +169,13 @@ def client_thread(conn):
 						tmp += ";"
 						print(tmp)
 						
-					lock_memory.release()
-					#print("stop RELEASE memory server")
 					
-					print("Address: "+str(address))
-
-					print("TMP")
-
-					print(tmp)
+					#print("stop RELEASE memory server")
+					#print("TMP")
+					#print(tmp)
 					#data = bytes(devInterface.packMessage(msg[1], msg[2], bytes(tmp,'ISO-8859-1')))
 					data = bytes(devInterface.packMessageWithoutAddr(msg[1],bytes(tmp,'ISO-8859-1')))
+					lock_memory.release()
 					print("DATA3:")
 					print(data)
 					
@@ -187,7 +189,7 @@ def client_thread(conn):
 						t_out = 1
 					
 					try:	
-						sct = SerialCommThread(None, sp, appsettings.FTDI_baudRate, p_data, b'\x04',t_out,5)
+						sct = SerialCommThread(None, sp, appsettings.FTDI_baudRate, p_data, b'\x04',t_out,1)
 						sct.start()
 						sct.join()
 						
