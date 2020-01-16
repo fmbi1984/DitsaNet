@@ -69,7 +69,7 @@ class DataListenerServer(Thread):
                     print(readData)
                     
                     
-                    if readData!= None:                        
+                    if readData!= None and len(readData)==8:
                         #we store current
                         DEV[address][1] = str(readData[0].replace('I',''))
                         #we store voltage

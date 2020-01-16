@@ -44,12 +44,17 @@ class DataListenerMemory(Thread):
 		print(self._name+" started")
 		while not self._stop_event.is_set():
 
-			BCmb.startPollingClient(useHostname)
+			memoryPolling = BCmb.startPollingClient(useHostname)
 			sleep(.3)
 
 			# we do ping to the devices
 			#sleep(.1)
 			print(self._name+" stopped")
+
+			if memoryPolling != None:
+				if self.mySrc != None:
+					#self.mySrc.myGUI_signal.emit("DL["+str(address)+"]:DataReady")
+					self.mySrc.myGUI_signal.emit("DL[PASS]:DataReady")
 		
 
 	def stop(self):

@@ -1,22 +1,31 @@
-import threading
-import time
-sem = threading.Semaphore()
 
-def fun1():
-    while True:
-        sem.acquire()
-        print(1)
-        sem.release()
-        time.sleep(0.25)
+'''
 
-def fun2():
-    while True:
-        sem.acquire()
-        print(2)
-        sem.release()
-        time.sleep(0.25)
+import crcmod
 
-t = threading.Thread(target = fun1)
-t.start()
-t2 = threading.Thread(target = fun2)
-t2.start()
+msg_data = b'1VALUE: I0.07,V1.96,T32.49,P3C,t426.26,Tt436.26,TT1706,R'
+#packet_data = b'\x026ACTION: PASS\x036;\x04'
+#msg_data = packet_data[1:len(packet_data)-4]
+#msg_data= packet_data[1:len(packet_data)]
+print(msg_data)
+xmodem_crc_func = crcmod.mkCrcFun(0x11021, rev=False, initCrc=0x0000, xorOut=0x0000)
+crc16 = xmodem_crc_func(bytes(msg_data[0:len(msg_data)]))
+print(crc16)
+
+x = crc16 >> 8
+y = crc16 & 0x00FF
+print(x)
+print(y)
+
+x = [False, '', '', '', '', '', '0.0', '0.0', 'I', True, 1]
+
+y = float(x[7])
+
+print(y)
+
+'''
+
+
+x = "lblPage "+str(14)
+
+print(x)

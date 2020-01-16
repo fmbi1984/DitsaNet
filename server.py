@@ -129,7 +129,7 @@ def client_thread(conn):
 				elif p_data[1]==op_data:
 					print("memory data")
 
-					ds.stop()
+					#ds.stop()
 					#sleep(.2)
 					
 					#msg = devInterface.unpackMessage(p_data)
@@ -185,11 +185,13 @@ def client_thread(conn):
 					
 					if p_data[2] == op_code:			   #write eeprom json
 						t_out = 10
+						attempts = 1
 					else:
 						t_out = 1
+						attempts = 3
 					
 					try:	
-						sct = SerialCommThread(None, sp, appsettings.FTDI_baudRate, p_data, b'\x04',t_out,1)
+						sct = SerialCommThread(None, sp, appsettings.FTDI_baudRate, p_data, b'\x04',t_out,attempts)
 						sct.start()
 						sct.join()
 						

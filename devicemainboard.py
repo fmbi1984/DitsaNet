@@ -64,10 +64,12 @@ class BCmb(object):
 	def runClient(hostname,addr):
 		result = ACTION.FAIL
 		result = devInterface.sendClientCommandAndGetResponse(hostname,addr, 0x33, "", BCmb.timeout)
+		print("RUN")
 		print(result)
 		if result != None:
-			if result[1] == 'PASS':
+			if result[1] == 'PASS,RUN':
 				result = ACTION.PASS
+				print(result)
 			else:
 				result = ACTION.FAIL
 		return result
@@ -78,7 +80,7 @@ class BCmb(object):
 		result = devInterface.sendClientCommandAndGetResponse(hostname,addr, 0x34, "", BCmb.timeout)
 		print(result)
 		if result != None:
-			if result[1] == 'PASS':
+			if result[1] == 'PASS,PAUSE':
 				result = ACTION.PASS
 			else:
 				result = ACTION.FAIL
@@ -88,9 +90,10 @@ class BCmb(object):
 	def stopClient(hostname,addr):
 		result = ACTION.FAIL
 		result = devInterface.sendClientCommandAndGetResponse(hostname,addr, 0x35, "", BCmb.timeout)
+		print("STP")
 		print(result)
 		if result != None:
-			if result[1] == 'PASS':
+			if result[1] == 'PASS,STOP':
 				result = ACTION.PASS
 			else:
 				result = ACTION.FAIL
@@ -279,7 +282,7 @@ class BCmb(object):
 		result = devInterface.sendClientCommandAndGetResponseWithoutAddr(hostname,0x36, "", BCmb.timeout)
 		print(result)
 		if result != None:
-			if result[0] == 'VALUE':
+			if result[1] == 'PASS':
 				result = result[1]
 			else:
 				result = None
@@ -313,7 +316,7 @@ class BCmb(object):
 if __name__ == "__main__":
 	print("tests")
 	#BCmb.readData(1)
-	#BCmb.pingClient(useHostname,2)
+	#BCmb.pingClient(useHostname,1)
 	#BCmb.ping(1)
 	#BCmb.writeProgram(0, "[{\"Type\":\"Begin\"},{\"Type\":\"Pause\",\"Time\":\"10000\"},{\"Type\":\"Charge\",\"Time\":\"120000\",\"Current\":\"8.0\"},{\"Type\":\"Charge\",\"Time\":\"50000\",\"Current\":\"12.0\"},{\"Type\":\"Carga\",\"Time\":\"60000\",\"Current\":\"15.0\"},{\"Type\":\"Charge\",\"Time\":\"40000\",\"Current\":\"20.0\"},{\"Type\":\"Pause\",\"Time\":\"20000\"},{\"Type\":\"Charge\",\"Time\":\"30000\",\"Current\":\"10.5\"},{\"Type\":\"Charge\",\"Time\":\"40000\",\"Current\":\"14.5\"},{\"Type\":\"End\"}]")
 	#BCmb.readProgram(0)
@@ -344,27 +347,21 @@ if __name__ == "__main__":
 	sleep(.3)
 	BCmb.memoryDataClient(useHostname)
 	'''
+	
+	#BCmb.runClient(useHostname, 2)
 
-	#for i in range(0,200):
-	#BCmb.startPollingClient(useHostname)
-	#	sleep(.3)
-	#BCmb.stopPollingClient(useHostname)
+	#for i in range(0,100):
+	#	BCmb.startPollingClient(useHostname)
+	#	sleep(.2)
 	#	BCmb.memoryDataClient(useHostname)
-		#sleep(.3)
-	#	print(i)	
-	
-	
+	#	BCmb.pingClient(useHostname,1)
+		#BCmb.readDataClient(useHostname, 2)
 
-	
-
-
-	
-
-	BCmb.pingClient(useHostname,2)
+	#BCmb.pingClient(useHostname,1)
 	#BCmb.runClient(useHostname, 1)
-	#BCmb.pauseClient(useHostname, 1)
-	#BCmb.stopClient(useHostname, 2)
-	#BCmb.stopClient(useHostname, 2)
+	#BCmb.pauseClient(useHostname, 2)
+	BCmb.stopClient(useHostname, 1)
+	#BCmb.stopClient(useHostname, 1)
 	#BCmb.readDataClient(useHostname,1)
 	#BCmb.readStepClient(useHostname, 1)
 	#BCmb.currentTimeClient(useHostname, 1)
