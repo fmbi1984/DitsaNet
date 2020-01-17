@@ -8,6 +8,8 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+from windowch import Ui_WindowCh
+
 from datalistenermemory import DataListenerMemory
 #from demo import Thread
 from devicemainboard import BCmb
@@ -8632,13 +8634,6 @@ class Ui_MainWindow(object):
 		self.cmdDisplay8_28.setObjectName("cmdDisplay8_28")
 		self.tabWidget.addTab(self.tbPage8, "")
 
-
-		self.txtProgram = QtWidgets.QTextEdit(self.centralWidget)
-		self.txtProgram.setGeometry(QtCore.QRect(120, 10, 231, 21))
-		self.txtProgram.setObjectName("txtProgram")
-		self.cmdSeleccionar = QtWidgets.QPushButton(self.centralWidget)
-		self.cmdSeleccionar.setGeometry(QtCore.QRect(20, 0, 91, 32))
-		self.cmdSeleccionar.setObjectName("cmdSeleccionar")
 		self.cmdIniciar = QtWidgets.QPushButton(self.centralWidget)
 		self.cmdIniciar.setGeometry(QtCore.QRect(520, 0, 91, 32))
 		self.cmdIniciar.setObjectName("cmdIniciar")
@@ -8649,7 +8644,7 @@ class Ui_MainWindow(object):
 		self.cmdDetener.setGeometry(QtCore.QRect(700, 0, 91, 32))
 		self.cmdDetener.setObjectName("cmdDetener")
 		self.cmdCargar = QtWidgets.QPushButton(self.centralWidget)
-		self.cmdCargar.setGeometry(QtCore.QRect(360, 0, 141, 32))
+		self.cmdCargar.setGeometry(QtCore.QRect(20, 0, 141, 32))
 		self.cmdCargar.setObjectName("cmdCargar")
 		MainWindow.setCentralWidget(self.centralWidget)
 		self.menuBar = QtWidgets.QMenuBar(MainWindow)
@@ -8706,8 +8701,8 @@ class Ui_MainWindow(object):
 
 		self.cmdDetener.clicked.connect(self.on_cmdDetener_clicked)
 
+		self.cmdCargar.clicked.connect(self.on_cmdCargarP_clicked)
 
-		self.cmdSeleccionar.clicked.connect(self.on_cmdSeleccionar_clicked)
 
 		self.cmdDisplay1_1.clicked.connect(self.on_cmdDisplay1_clicked)
 		self.cmdDisplay1_2.clicked.connect(self.on_cmdDisplay2_clicked)
@@ -8819,7 +8814,6 @@ class Ui_MainWindow(object):
 			mytbPage = self.MainWindow.findChild(QtWidgets.QWidget,"tbPage"+str(i))
 			self.tabWidget.setTabText(self.tabWidget.indexOf(mytbPage), _translate("MainWindow", "Mesa "+str(i)))
 			
-		self.cmdSeleccionar.setText(_translate("MainWindow", "Selecionar"))
 		self.cmdIniciar.setText(_translate("MainWindow", "Iniciar"))
 		self.cmdPausar.setText(_translate("MainWindow", "Pausar"))
 		self.cmdDetener.setText(_translate("MainWindow", "Detener"))
@@ -8872,7 +8866,6 @@ class Ui_MainWindow(object):
 "FirstN: 0"))
 		self.cmdDisplay1_1.setText(_translate("MainWindow", "Voltage: 12.6V"))
 	
-		self.cmdSeleccionar.setText(_translate("MainWindow", "Selecionar"))
 		self.cmdIniciar.setText(_translate("MainWindow", "Iniciar"))
 		self.cmdPausar.setText(_translate("MainWindow", "Pausar"))
 		self.cmdDetener.setText(_translate("MainWindow", "Detener"))
@@ -9007,6 +9000,14 @@ class Ui_MainWindow(object):
 
 			if myCheck.isChecked() == True:
 				BCmb.stopClient(useHostname, i)
+
+	def on_cmdCargarP_clicked(self):
+		print("CargarPr")
+		self.ProgramWindow = QtWidgets.QDialog()
+		self.ProgramWindow.setModal(True)
+		self.ui = Ui_WindowCh()
+		self.ui.setupUi(self.ProgramWindow)
+		self.ProgramWindow.show()
 
 	WAIT_SECONDS = 1
 	count = 0
