@@ -9139,15 +9139,12 @@ class Ui_MainWindow(object):
 	def currentProgressB(self):
 		val = float(shared.DEV[1][6]) * 100 / float(shared.DEV[1][7])
 		#val = float(shared.DEV[1][6])
-
 		print("VAL")
 		print(val)
 		val2 = float(format(val,'.1f'))
 		print(val2)
 		#time.sleep(.1)
 		self.pbProgram1_1.setValue(val2)
-
-
 
 	def testsCallback(self, msg):
 		#for i in range(1,3):

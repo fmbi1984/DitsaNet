@@ -11,7 +11,7 @@ import StringUtils
 class IndividualReport():
 	home = str(Path.home())
 	#if appsettings.useDesktopToSaveReports:
-	file_path = home + '/TestLogs/'
+	file_path = home + '/FormationDataFiles/'
 	#else:
 	#file_path = os.getcwd() + '/TestLogs/'
 

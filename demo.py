@@ -24,8 +24,12 @@ y = float(x[7])
 print(y)
 
 '''
+from os import scandir
 
+def ls2(path): 
+	return [obj.name for obj in scandir(path) if obj.is_file()]
 
-x = "lblPage "+str(14)
+files=ls2("/Users/cex/Documents/github/DitsaNetApp/FormationDataFiles/")
+for file in files:
+	print(file)
 
-print(x)
