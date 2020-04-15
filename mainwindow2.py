@@ -9192,7 +9192,15 @@ class Ui_MainWindow(object):
 		'''
 
 	def fillWithSettings(self):
-		print("fillWithSettings")
+		print("fillWithSettingsOfEditor")
+		settings = QtCore.QSettings('Settings/archivo.ini', QtCore.QSettings.NativeFormat)
+		if settings.value('Settings/archivo.ini')!='':
+			self.settingsList = settings.value("mylist")
+			self.settingsLabel = settings.value("mylabel")
+			self.settingsRowCol = settings.value("rowcol")
+			print("SettingsList:",self.settingsList)
+			print("SettingsLable:",self.settingsLabel)
+			print("SettingsRowCol:",self.settingsRowCol)
 		#print(shared.DEV[0][8])
 		#for i in range(1, 9):
 

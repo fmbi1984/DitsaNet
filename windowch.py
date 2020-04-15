@@ -40,18 +40,18 @@ class Ui_WindowCh(object):
 		self.horizontalLayout = QtWidgets.QHBoxLayout(self.widget)
 		self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
 		self.horizontalLayout.setObjectName("horizontalLayout")
-		self.lineEdit = QtWidgets.QLineEdit(self.widget)
-		self.lineEdit.setObjectName("lineEdit")
-		self.horizontalLayout.addWidget(self.lineEdit)
+		self.lineEditMin = QtWidgets.QLineEdit(self.widget)
+		self.lineEditMin.setObjectName("lineEditMin")
+		self.horizontalLayout.addWidget(self.lineEditMin)
 		self.label = QtWidgets.QLabel(self.widget)
 		font = QtGui.QFont()
 		font.setPointSize(12)
 		self.label.setFont(font)
 		self.label.setObjectName("label")
 		self.horizontalLayout.addWidget(self.label)
-		self.lineEdit_2 = QtWidgets.QLineEdit(self.widget)
-		self.lineEdit_2.setObjectName("lineEdit_2")
-		self.horizontalLayout.addWidget(self.lineEdit_2)
+		self.lineEditMax = QtWidgets.QLineEdit(self.widget)
+		self.lineEditMax.setObjectName("lineEditMax")
+		self.horizontalLayout.addWidget(self.lineEditMax)
 
 		self.retranslateUi(WindowCh)
 		QtCore.QMetaObject.connectSlotsByName(WindowCh)
@@ -65,18 +65,29 @@ class Ui_WindowCh(object):
 		self.lblModules.setText(_translate("WindowCh", "Selección de Módulos"))
 		self.label.setText(_translate("WindowCh", "-"))
 
-
 		#self.sBoxMin.setRange(1,28)
 		#self.sBoxMax.setValue(2)
-
+		self.lineEditMin.setMaxLength(8)
+		self.lineEditMax.setMaxLength(8)
+		self.lineEditMin.editingFinished.connect(self.on_editMin)
+		self.lineEditMax.textChanged.connect(self.on_editMax)
 		self.BttnDone.clicked.connect(self.on_bttnDoneClicked)
 		self.BttnCancel.clicked.connect(self.on_bttnCancelClicked)
 		#self.sBoxMin.valueChanged.connect(self.spinBMn_valueChanged)
 		#self.sBoxMax.valueChanged.connect(self.spinBMx_valueChanged)
+
 		self.on_cb_textPrograms()
 
+	def on_editMin(self):
+		y = self.lineEditMin.text()
+		print(y)
+
+	def on_editMax(self):
+		x = self.lineEditMax.text()
+		print(x)
+
 	def on_cb_textPrograms(self):
-		files=self.ls2("/Users/cex/Documents/github/DitsaNetApp/FormationDataFiles/")
+		files=self.ls2("/Users/cex/Documents/github/DitsaNetApp/ProfileEditorPrograms/")
 		for file in files:
 			nf = file.replace('.txt','')
 			self.textPrograms.addItem(nf)
@@ -84,7 +95,7 @@ class Ui_WindowCh(object):
 	def ls2(self,path): 
 		return [obj.name for obj in scandir(path) if obj.is_file()]
 
-	lastV = 0
+	#lastV = 0
 	#def spinBMn_valueChanged(self):
 		#self.firtsV = self.sBoxMin.value()
 		#self.sBoxMax.setValue(self.sBoxMin.value()+1)
