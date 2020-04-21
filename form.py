@@ -33,7 +33,7 @@ class Ui_Form(QtWidgets.QWidget):
 		self.tableWidget.horizontalHeader().setVisible(False)
 		#self.tableWidget.horizontalHeader().setHighlightSections(False)
 		#self.tableWidget.horizontalHeader().setMinimumSectionSize(20) #141
-		self.tableWidget.horizontalHeader().setDefaultSectionSize(141)
+		self.tableWidget.horizontalHeader().setDefaultSectionSize(75)
 		self.tableWidget.verticalHeader().setVisible(False)
 		#self.tableWidget.verticalHeader().setCascadingSectionResizes(False)
 		#self.tableWidget.verticalHeader().setHighlightSections(True)
@@ -44,8 +44,9 @@ class Ui_Form(QtWidgets.QWidget):
 		self.retranslateUi(self)
 		QtCore.QMetaObject.connectSlotsByName(self)
 
+		self.auxMylist = list()
 		self.tableWidget.cellPressed.connect(self.on_cellClickedTableW)
-
+		self.parent.comboBox.enterEvent = self.enterEvent
 
 	def retranslateUi(self, Form):
 		_translate = QtCore.QCoreApplication.translate
@@ -66,6 +67,7 @@ class Ui_Form(QtWidgets.QWidget):
 		if z == 0:
 			z = 1
 
+		print("row:",self.parent.rowCol)
 		for i in range(len(self.parent.rowCol)):
 			if self.parent.rowCol[i] == str(z)+'%':
 				j = self.parent.rowCol
@@ -74,10 +76,18 @@ class Ui_Form(QtWidgets.QWidget):
 				for i in range(2):
 					if i == 0:
 						y = tmp[0].partition('R=')
-						self.tableWidget.setRowCount(int(y[2]))
+						self.zx = int(y[2])
+						self.tableWidget.setRowCount(self.zx)
 					else:
 						y = tmp[1].partition('C=')
-						self.tableWidget.setColumnCount(int(y[2]))
+						self.zy = int(y[2])
+						self.tableWidget.setColumnCount(self.zy)
+
+				for j in range(self.zx):
+					for k in range(self.zy):
+						item = QtWidgets.QTableWidgetItem()
+						item.setFlags(QtCore.Qt.ItemIsEnabled)
+						self.tableWidget.setItem(j,k,item)
 
 		#print("TT:",self.parent.rowCol)
 
@@ -99,6 +109,7 @@ class Ui_Form(QtWidgets.QWidget):
 			#print("k",k)
 			if k == str(z):
 				nameCell = self.parent.mylist[i+2].split()
+				#print("nameCell:",nameCell)
 				nameF = nameCell[0].partition('N=')
 				tmp = coordCell[i+1].split()
 				for i in range(2):
@@ -109,18 +120,10 @@ class Ui_Form(QtWidgets.QWidget):
 						y = tmp[1].partition('Y=')
 						coordy = y[2]
 
-				form = Ui_FormModule(self)
-
-				if nameCell == ['Progress']:
-					self.tableWidget.setCellWidget(int(coordx),int(coordy),form)
-				else:
-					lblt = QtGui.QFont("Arial",12, QtGui.QFont.Normal)
-					item = QtWidgets.QTableWidgetItem(nameF[2])
-					item.setTextAlignment(QtCore.Qt.AlignBottom | QtCore.Qt.AlignHCenter)
-					item.setFont(lblt)
-					item.setBackground(QtGui.QColor('white'))
-					item.setFlags(QtCore.Qt.ItemIsEnabled) #QtCore.Qt.ItemIsSelectable 
-					self.tableWidget.setItem(int(coordx),int(coordy),item)
+				cbText = self.parent.comboBox.currentText()
+				form = Ui_FormModule(nameF[2],cbText,self)
+				self.tableWidget.setCellWidget(int(coordx),int(coordy),form)
+				
 
 	def populateLabel(self):
 		print("PopulateLabel")
@@ -182,6 +185,37 @@ class Ui_Form(QtWidgets.QWidget):
 		#ft.setWeight(75)
 		#lblCh.setFont(ft)
 		#self.tableWidget.setCellWidget(vx,vy,form)
+
+	def enterEvent(self,event):
+		print("enterEvent")
+		cbText = self.parent.comboBox.currentText()
+		vz = self.parent.tabWidget.currentIndex() + 1
+		for i in range(0,len(self.parent.mylist),4):
+			if self.parent.mylist[i] == str(vz)+"%":
+				#print("vz:",vz)
+				#print(self.parent.mylist[i+1])
+
+				nameCell = self.parent.mylist[i+2].split()
+				#print("nameCell:",nameCell)
+				nameF = nameCell[0].partition('N=')
+				tmp = self.parent.mylist[i+1].split()
+				for i in range(2):
+					if i == 0:
+						y = tmp[0].partition('X=')
+						coordx = y[2]
+					else:
+						y = tmp[1].partition('Y=')
+						coordy = y[2]
+
+				#print("x:",coordx)
+				#print("y:",coordy)
+				#print("n:",nameF[2])
+				form = Ui_FormModule(nameF[2],cbText,self)
+				self.tableWidget.setCellWidget(int(coordx),int(coordy),form)
+
+	def totalMylist(self):
+		self.auxMylist = self.parent.mylist[:]
+
 '''
 if __name__ == "__main__":
 	import sys

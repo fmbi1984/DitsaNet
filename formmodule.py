@@ -9,16 +9,18 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-
 class Ui_FormModule(QtWidgets.QWidget):
-	def __init__(self,parent=None):
+	#def setupUi(self, FormModule):
+	def __init__(self,nameModule,cbOpction,parent=None):
 		super(Ui_FormModule, self).__init__()
 		self.parent = parent
-		#def setupUi(self, FormModule):
+		self.nameModule = nameModule
+		self.cbOpction = cbOpction
+
 		self.setObjectName("FormModule")
-		self.resize(139, 59)
+		self.resize(73, 70)
 		self.label = QtWidgets.QLabel(self)
-		self.label.setGeometry(QtCore.QRect(0, 0,140,30))
+		self.label.setGeometry(QtCore.QRect(0, 15, 74, 20))
 		font = QtGui.QFont()
 		font.setFamily("Ubuntu Light")
 		font.setPointSize(12)
@@ -27,10 +29,10 @@ class Ui_FormModule(QtWidgets.QWidget):
 		self.label.setFont(font)
 		self.label.setStyleSheet("QLabel { background-color : lightblue; color : black;  border: 1px solid black; }")
 		self.label.setFrameShape(QtWidgets.QFrame.Box)
-		self.label.setAlignment(QtCore.Qt.AlignCenter)
+		self.label.setAlignment(QtCore.Qt.AlignHCenter|QtCore.Qt.AlignTop)
 		self.label.setObjectName("label")
 		self.pbProgram = QtWidgets.QProgressBar(self)
-		self.pbProgram.setGeometry(QtCore.QRect(0,30,140,20))
+		self.pbProgram.setGeometry(QtCore.QRect(0, 35, 74, 15))
 		self.pbProgram.setStyleSheet("QProgressBar\n"
 "{\n"
 "	border: 1px solid black;\n"
@@ -43,8 +45,18 @@ class Ui_FormModule(QtWidgets.QWidget):
 "	width: 2.15px;\n"
 "	margin: 0.5px;\n"
 "}")
-		self.pbProgram.setProperty("value", 20)
+		self.pbProgram.setProperty("value",0)
 		self.pbProgram.setObjectName("pbProgram")
+		self.lblmodule = QtWidgets.QLabel(self)
+		self.lblmodule.setGeometry(QtCore.QRect(0, 0, 74, 15))
+		font = QtGui.QFont()
+		font.setPointSize(11)
+		self.lblmodule.setFont(font)
+		self.lblmodule.setLayoutDirection(QtCore.Qt.LeftToRight)
+		self.lblmodule.setStyleSheet("QLabel { background-color : white; }") #color : black;  border: 1px solid black;
+		#self.label_2.setFrameShape(QtWidgets.QFrame.Box)
+		self.lblmodule.setAlignment(QtCore.Qt.AlignCenter)
+		self.lblmodule.setObjectName("lblmodule")
 
 		self.retranslateUi(self)
 		QtCore.QMetaObject.connectSlotsByName(self)
@@ -52,7 +64,7 @@ class Ui_FormModule(QtWidgets.QWidget):
 	def retranslateUi(self, FormModule):
 		_translate = QtCore.QCoreApplication.translate
 		FormModule.setWindowTitle(_translate("FormModule", "Form"))
-		self.label.setText(_translate("FormModule", "Voltaje:12.6V"))
+		self.label.setText(_translate("FormModule", "00.0"))
 		self.pbProgram.setToolTip(_translate("FormModule", "Nombre: MF1\n"
 "Estado: No Conectado\n"
 "Corriente: 25.0\n"
@@ -67,10 +79,33 @@ class Ui_FormModule(QtWidgets.QWidget):
 "Tiempo Finalizado: 12/04/2019 20:13\n"
 "ServerID: 0\n"
 "FirstN: 0"))
+		self.lblmodule.setText(_translate("FormModule", "1-01"))
 
 	def showEvent(self,event):
-		print("showEFM")
+		print("FormShow")
+		self.lblmodule.setText(self.nameModule)
 
+		if self.cbOpction == 'Current':
+			self.label.setText("0.0"+" A")
+
+		if self.cbOpction == 'Voltage':
+			self.label.setText("00.0"+" V")
+
+		if self.cbOpction == 'Temperature':
+			self.label.setText("0.0"+" C")
+
+		if self.cbOpction == 'Time left':
+			self.label.setText("0.0"+" t")
+
+		if self.cbOpction == 'Step':
+			self.label.setText("0.0"+" S")
+
+		if self.cbOpction == 'Address':
+			self.label.setText("1"+" #")
+		
+			
+		
+		
 '''
 if __name__ == "__main__":
 	import sys

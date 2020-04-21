@@ -113,8 +113,11 @@ class Ui_MainWindow(object):
 		self.tabWidget.setCurrentIndex(0)
 		QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
+		self.comboBox.addItems(['Current','Voltage','Temperature','Time left','Step','Address'])
+		
 		MainWindow.showEvent = self.showEvent
 		MainWindow.closeEvent = self.closeEvent
+		
 
 		self.mylist = list()
 		self.mylabel = list()
@@ -122,9 +125,6 @@ class Ui_MainWindow(object):
 
 		self.Tabs = list()
 		self.maxTabs = list()
-
-		self.newList = list()
-		self.newLabel = list()
 
 		self.MainWindow = MainWindow
 
@@ -148,7 +148,6 @@ class Ui_MainWindow(object):
 		self.actionjjk.setText(_translate("MainWindow", "jjk"))
 		self.actionjkjkj.setText(_translate("MainWindow", "jkjkj"))
 
-
 	def showEvent(self,event):
 		print("ShowEvent") 
 		settings = QtCore.QSettings('/Users/cex/Documents/github/DitsaNetEditorApp/Settings/archivo.ini', QtCore.QSettings.NativeFormat)
@@ -157,13 +156,6 @@ class Ui_MainWindow(object):
 			self.settingsLabel = settings.value("mylabel")
 			self.settingsRowCol = settings.value("rowcol")
 
-			print("settingslist:",self.settingsList)
-			if self.settingsList !=None:
-				self.currentList()
-
-			if self.settingsLabel != None:
-				self.currentLabel()
-
 			if self.settingsRowCol != None and len(self.settingsRowCol) !=0:
 				self.rowCol = self.settingsRowCol[:]
 			else:
@@ -171,8 +163,7 @@ class Ui_MainWindow(object):
 				self.rowCol.append('R=10 C=10')
 
 			if self.settingsList != None:
-				self.mylist = self.newList[:] #para que no se corresponden con el mismo objeto
-				self.newList.clear()
+				self.mylist = self.settingsList[:] #para que no se corresponden con el mismo objeto
 
 			if self.settingsLabel != None:
 				self.mylabel = self.settingsLabel[:] #para que no se corresponden con el mismo objeto
@@ -213,100 +204,7 @@ class Ui_MainWindow(object):
 		form = Ui_Form(self)
 		self.tabWidget.addTab(form,"Page "+str(self.tabWidget.count()+1))
 
-	def currentList(self):
-		for i in range(0,len(self.settingsList),4):
-			if self.settingsList[i] not in self.Tabs:
-				self.Tabs.append(self.settingsList[i])
-		
-		print("tb:",self.Tabs)
-		minCoord = []
-		comp1 = []
-		comp2 = []
-		compxy = []
-		for j in range(len(self.Tabs)):
-			for i in range(0,len(self.settingsList),4):
-				if self.settingsList[i] == self.Tabs[j]:
-					minCoord.append(self.settingsList[i])
-					minCoord.append(self.settingsList[i+1])
-					minCoord.append(self.settingsList[i+2])
-					minCoord.append(self.settingsList[i+3])
-			t = 0
-			x = int(len(minCoord)/4)
-			while t<x:
-				t += 1
-				for i in range(1,len(minCoord),4):
-					tmp = minCoord[i].split()
-					for i in range(2):
-						if i == 0:
-							y = tmp[0].partition('X=')
-							coordx = y[2]
-							comp1.append(int(coordx))
-						else:
-							y = tmp[1].partition('Y=')
-							coordy = y[2]
-							comp2.append(int(coordy))
 
-				print("comp1:",comp1)
-				print("comp2:",comp2)
-
-				for k in range(len(comp1)):
-					comp = str(comp1[k]) + str(comp2[k])
-					compxy.append(int(comp))
-				print("compxy:",compxy)
-
-				compT = min(compxy)
-				print("compT:",compT)
-
-				for n in range(len(comp1)):
-					if str(compT) == str(comp1[n])+str(comp2[n]):
-						val1 = str(comp1[n])
-						val2 = str(comp2[n])
-
-						for r in range(1,len(self.newList),4):
-							if self.newList[r] == "X="+str(comp1[n])+" Y="+str(comp2[n]):
-								for i in range(1,len(minCoord),4):
-									if minCoord[i] == "X="+val1+" Y="+val2:
-										minCoord.append(minCoord[i-1])
-										minCoord.append("X="+str(comp1[n]+1)+" Y="+str(comp2[n]))
-										minCoord.append(minCoord[i+1])
-										minCoord.append(minCoord[i+2])
-										minCoord.pop(i+2)
-										minCoord.pop(i+1)
-										minCoord.pop(i)
-										minCoord.pop(i-1)
-										val1 = str(comp1[n]+1)
-										val2 = str(comp2[n])
-										break
-						
-						#print("miCrd:",minCoord)
-						self.newList.append(self.Tabs[j])
-						self.newList.append("X="+str(int(val1)+1)+" Y="+ str(comp2[n]))
-						self.newList.append("Progress")
-						self.newList.append("Bar")
-
-						for h in range(1,len(minCoord),4):
-							if minCoord[h] == "X="+val1+" Y="+val2:
-								self.newList.append(minCoord[h-1])
-								self.newList.append(minCoord[h])
-								self.newList.append(minCoord[h+1])
-								self.newList.append(minCoord[h+2])
-						break
-				#print("newList:",self.newList)
-				for m in range(1,len(minCoord),4):
-					if minCoord[m] == "X="+val1+" Y="+val2:
-						minCoord.pop(m+2)
-						minCoord.pop(m+1)
-						minCoord.pop(m)
-						minCoord.pop(m-1)
-						comp1.clear()
-						comp2.clear()
-						compxy.clear()
-						break
-				print("self.newList:",self.newList)
-
-	def currentLabel(self):
-		print("pass")
-		
 if __name__ == "__main__":
 	import sys
 	app = QtWidgets.QApplication(sys.argv)
