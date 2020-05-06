@@ -11,11 +11,11 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 class Ui_FormModule(QtWidgets.QWidget):
 	#def setupUi(self, FormModule):
-	def __init__(self,nameModule,cbOpction,parent=None):
+	def __init__(self,nameModule,cbOption,parent=None):
 		super(Ui_FormModule, self).__init__()
 		self.parent = parent
 		self.nameModule = nameModule
-		self.cbOpction = cbOpction
+		self.cbOption = cbOption
 
 		self.setObjectName("FormModule")
 		self.resize(73, 70)
@@ -61,6 +61,8 @@ class Ui_FormModule(QtWidgets.QWidget):
 		self.retranslateUi(self)
 		QtCore.QMetaObject.connectSlotsByName(self)
 
+		#self.showEvent(self)
+
 	def retranslateUi(self, FormModule):
 		_translate = QtCore.QCoreApplication.translate
 		FormModule.setWindowTitle(_translate("FormModule", "Form"))
@@ -85,34 +87,30 @@ class Ui_FormModule(QtWidgets.QWidget):
 		print("FormShow")
 		self.lblmodule.setText(self.nameModule)
 
-		if self.cbOpction == 'Current':
+		if self.cbOption == 'Current':
 			self.label.setText("0.0"+" A")
 
-		if self.cbOpction == 'Voltage':
+		if self.cbOption == 'Voltage':
 			self.label.setText("00.0"+" V")
 
-		if self.cbOpction == 'Temperature':
+		if self.cbOption == 'Temperature':
 			self.label.setText("0.0"+" C")
 
-		if self.cbOpction == 'Time left':
+		if self.cbOption == 'Time left':
 			self.label.setText("0.0"+" t")
 
-		if self.cbOpction == 'Step':
+		if self.cbOption == 'Step':
 			self.label.setText("0.0"+" S")
 
-		if self.cbOpction == 'Address':
+		if self.cbOption == 'Address':
 			self.label.setText("1"+" #")
-		
-			
-		
-		
+
 '''
 if __name__ == "__main__":
 	import sys
 	app = QtWidgets.QApplication(sys.argv)
 	FormModule = QtWidgets.QWidget()
 	ui = Ui_FormModule()
-	ui.setupUi(FormModule)
 	FormModule.show()
 	sys.exit(app.exec_())
 '''

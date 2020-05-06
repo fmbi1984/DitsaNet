@@ -10,6 +10,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 from form import Ui_Form
+from windowch import Ui_WindowCh
 
 
 class Ui_MainWindow(object):
@@ -65,7 +66,7 @@ class Ui_MainWindow(object):
 		self.gridLayout_2.setSpacing(6)
 		self.gridLayout_2.setObjectName("gridLayout_2")
 		#self.tabWidget.addTab(self.tab, "")
-		form = Ui_Form(self)
+		#form = Ui_Form(self)
 		#self.tab_2 = QtWidgets.QWidget()
 		#self.tab_2.setObjectName("tab_2")
 		#self.tabWidget.addTab(self.tab_2, "")
@@ -114,10 +115,15 @@ class Ui_MainWindow(object):
 		QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
 		self.comboBox.addItems(['Current','Voltage','Temperature','Time left','Step','Address'])
-		
+		self.comboBox.activated.connect(self.onCombo)
+
+		self.cmdDetener.clicked.connect(self.btnDetener)
+		self.cmdPausar.clicked.connect(self.btnPausar)
+		self.cmdIniciar.clicked.connect(self.btnIniciar)
+		self.cmdCargar.clicked.connect(self.btnCargar)
+
 		MainWindow.showEvent = self.showEvent
 		MainWindow.closeEvent = self.closeEvent
-		
 
 		self.mylist = list()
 		self.mylabel = list()
@@ -203,6 +209,29 @@ class Ui_MainWindow(object):
 		print("newPage")
 		form = Ui_Form(self)
 		self.tabWidget.addTab(form,"Page "+str(self.tabWidget.count()+1))
+
+	def onCombo(self):
+		print("comboBox")
+		form = self.tabWidget.currentWidget() #ya estamos en form, ingresa a la propiedad
+		form.populateCircuit()
+		
+	def btnDetener(self):
+		print("Detener")
+
+	def btnPausar(self):
+		print("Pausar")
+
+	def btnIniciar(self):
+		print("Iniciar")
+
+	def btnCargar(self):
+		print("Cargar")
+		Ui_WindowCh(self).exec_()
+		#self.ProgramWindow = QtWidgets.QDialog()
+		#self.ProgramWindow.setModal(True)
+		#self.ui = Ui_WindowCh()
+		#self.ui.setupUi(self.ProgramWindow)
+		#self.ProgramWindow.show()
 
 
 if __name__ == "__main__":

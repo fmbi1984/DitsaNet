@@ -46,7 +46,6 @@ class Ui_Form(QtWidgets.QWidget):
 
 		self.auxMylist = list()
 		self.tableWidget.cellPressed.connect(self.on_cellClickedTableW)
-		self.parent.comboBox.enterEvent = self.enterEvent
 
 	def retranslateUi(self, Form):
 		_translate = QtCore.QCoreApplication.translate
@@ -58,16 +57,12 @@ class Ui_Form(QtWidgets.QWidget):
 		self.populateCircuit()
 		self.populateLabel()
 
-		##dar formato a populateCircuit -populateLabel agregar progressbar
-
 	def populateColumnRow(self):
 		print("populateColumnRow")
-		#print("RC0:",self.parent.rowCol)
 		z = self.parent.tabWidget.currentIndex() + 1
 		if z == 0:
 			z = 1
 
-		print("row:",self.parent.rowCol)
 		for i in range(len(self.parent.rowCol)):
 			if self.parent.rowCol[i] == str(z)+'%':
 				j = self.parent.rowCol
@@ -83,11 +78,11 @@ class Ui_Form(QtWidgets.QWidget):
 						self.zy = int(y[2])
 						self.tableWidget.setColumnCount(self.zy)
 
-				for j in range(self.zx):
+				for n in range(self.zx):
 					for k in range(self.zy):
 						item = QtWidgets.QTableWidgetItem()
 						item.setFlags(QtCore.Qt.ItemIsEnabled)
-						self.tableWidget.setItem(j,k,item)
+						self.tableWidget.setItem(n,k,item)
 
 		#print("TT:",self.parent.rowCol)
 
@@ -123,7 +118,6 @@ class Ui_Form(QtWidgets.QWidget):
 				cbText = self.parent.comboBox.currentText()
 				form = Ui_FormModule(nameF[2],cbText,self)
 				self.tableWidget.setCellWidget(int(coordx),int(coordy),form)
-				
 
 	def populateLabel(self):
 		print("PopulateLabel")
@@ -185,33 +179,6 @@ class Ui_Form(QtWidgets.QWidget):
 		#ft.setWeight(75)
 		#lblCh.setFont(ft)
 		#self.tableWidget.setCellWidget(vx,vy,form)
-
-	def enterEvent(self,event):
-		print("enterEvent")
-		cbText = self.parent.comboBox.currentText()
-		vz = self.parent.tabWidget.currentIndex() + 1
-		for i in range(0,len(self.parent.mylist),4):
-			if self.parent.mylist[i] == str(vz)+"%":
-				#print("vz:",vz)
-				#print(self.parent.mylist[i+1])
-
-				nameCell = self.parent.mylist[i+2].split()
-				#print("nameCell:",nameCell)
-				nameF = nameCell[0].partition('N=')
-				tmp = self.parent.mylist[i+1].split()
-				for i in range(2):
-					if i == 0:
-						y = tmp[0].partition('X=')
-						coordx = y[2]
-					else:
-						y = tmp[1].partition('Y=')
-						coordy = y[2]
-
-				#print("x:",coordx)
-				#print("y:",coordy)
-				#print("n:",nameF[2])
-				form = Ui_FormModule(nameF[2],cbText,self)
-				self.tableWidget.setCellWidget(int(coordx),int(coordy),form)
 
 	def totalMylist(self):
 		self.auxMylist = self.parent.mylist[:]
