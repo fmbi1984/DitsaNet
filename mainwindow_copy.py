@@ -12,6 +12,8 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from form import Ui_Form
 from windowch import Ui_WindowCh
 
+from devicemainboard import BCmb
+
 
 class Ui_MainWindow(object):
 	def __init__(self,MainWindow, parent=None):
@@ -217,21 +219,19 @@ class Ui_MainWindow(object):
 		
 	def btnDetener(self):
 		print("Detener")
+		#BCmb.stopClient(useHostname, i)
 
 	def btnPausar(self):
 		print("Pausar")
+		#BCmb.pauseClient(useHostname, i)
 
 	def btnIniciar(self):
 		print("Iniciar")
+		#BCmb.runClient(useHostname, i)
 
 	def btnCargar(self):
 		print("Cargar")
 		Ui_WindowCh(self).exec_()
-		#self.ProgramWindow = QtWidgets.QDialog()
-		#self.ProgramWindow.setModal(True)
-		#self.ui = Ui_WindowCh()
-		#self.ui.setupUi(self.ProgramWindow)
-		#self.ProgramWindow.show()
 
 
 if __name__ == "__main__":

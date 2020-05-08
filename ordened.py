@@ -1,6 +1,5 @@
 
 class NameOrdened():
-
 	def __init__(self,nameList):
 		self.nameList = nameList
 
@@ -22,7 +21,7 @@ class NameOrdened():
 
 	def cod(self):
 		x = sorted(self.nameList)
-		print("x:",x)
+		#print("x:",x)
 
 		for i in range(len(x)):
 			list1 = x[i]
@@ -86,8 +85,8 @@ class NameOrdened():
 						self.aux.append(dat[j])
 						self.listAux.append("let")	
 				
-				print("aux:",self.aux)
-				print("listAux:",self.listAux)
+				#print("aux:",self.aux)
+				#print("listAux:",self.listAux)
 
 				for i in range(0,len(self.listAux)):
 					if self.listAux[i] == 'let':
@@ -107,12 +106,12 @@ class NameOrdened():
 					part = ''.join(self.aux2)
 					self.aux2.clear()
 					part2 = dat.partition(part)
-					print("part2:",part2)
+					#print("part2:",part2)
 
 				else:
 					self.aux.insert(0,'')
 					part2 = tuple(self.aux)
-					print("part2E:",part2)
+					#print("part2E:",part2)
 
 				#print("count:",count)
 				#print(len(part2))
@@ -131,11 +130,11 @@ class NameOrdened():
 					if flagInt != True:
 						self.anx.append(part2[x])
 
-				print("num:",self.num)
-				print("anx:",self.anx)
+				#print("num:",self.num)
+				#print("anx:",self.anx)
 
 				tup = tuple(self.anx+self.num)
-				print("tup:",tup)
+				#print("tup:",tup)
 
 				self.num.clear()
 				self.listF.append(tup)
@@ -148,7 +147,7 @@ class NameOrdened():
 				self.indx.clear()
 
 			k = min(self.listF)
-			print("k:",k)
+			#print("k:",k)
 
 			final = len(self.listF)
 			#print("len:",final)
@@ -158,7 +157,7 @@ class NameOrdened():
 				t += 1
 				#print("t:",t)
 				remov =min(self.listF)
-				print("remove:",remov)
+				#print("remove:",remov)
 				self.aux.append(min(self.listF))
 				for i in range(len(self.listF)):
 					if not self.listF[i] == remov:
@@ -169,7 +168,7 @@ class NameOrdened():
 				#print("len:",len(aux2))
 				self.aux2.clear()
 
-			print("AUX:",self.aux)
+			#print("AUX:",self.aux)
 
 			for j in range(len(self.aux)):
 				tup2 = self.aux[j]
@@ -186,7 +185,7 @@ class NameOrdened():
 				self.aux3.append(vv)
 
 			self.listT = sorted(self.listDig[:]) + self.aux3[:]
-			print("listT:",self.listT)
+			#print("listT:",self.listT)
 
 			self.aux.clear()
 			self.aux3.clear()
@@ -197,7 +196,7 @@ class NameOrdened():
 		else:
 			print("vacio")
 			self.listT = sorted(self.listDig[:])
-			print("listT:",self.listT)
+			#print("listT:",self.listT)
 
 			self.aux.clear()
 			self.aux3.clear()

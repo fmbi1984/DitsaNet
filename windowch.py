@@ -78,14 +78,19 @@ class Ui_WindowCh(QtWidgets.QDialog):
 		self.tableWidget = QtWidgets.QTableWidget(self)
 		self.tableWidget.setGeometry(QtCore.QRect(0, 420, 391, 241))
 		self.tableWidget.setFrameShape(QtWidgets.QFrame.Box)
+		self.tableWidget.setFrameShadow(QtWidgets.QFrame.Sunken)
+		self.tableWidget.setAlternatingRowColors(True)
 		self.tableWidget.setObjectName("tableWidget")
-		self.tableWidget.setColumnCount(0)
+		self.tableWidget.setColumnCount(5)
 		self.tableWidget.setRowCount(0)
+		self.tableWidget.setHorizontalHeaderLabels(('Operation','Nominal','Time','Temp Max','Temp Min'))
 
 		self.retranslateUi(self)
 		QtCore.QMetaObject.connectSlotsByName(self)
 
 		self.newlist = list()
+		self.loadProg = list()
+		self.addrs = list()
 		self.check = list()
 		self.data1 = None
 		self.data2 = None
@@ -93,11 +98,11 @@ class Ui_WindowCh(QtWidgets.QDialog):
 
 	def retranslateUi(self, WindowCh):
 		_translate = QtCore.QCoreApplication.translate
-		WindowCh.setWindowTitle(_translate("WindowCh", "Programas"))
-		self.BttnCancel.setText(_translate("WindowCh", "Cancelar"))
-		self.BttnDone.setText(_translate("WindowCh", "Hecho"))
-		self.lblPrograms.setText(_translate("WindowCh", "Programas"))
-		self.lblModules.setText(_translate("WindowCh", "Selección de Módulos"))
+		WindowCh.setWindowTitle(_translate("WindowCh", "Programs"))
+		self.BttnCancel.setText(_translate("WindowCh", "Cancel"))
+		self.BttnDone.setText(_translate("WindowCh", "Done"))
+		self.lblPrograms.setText(_translate("WindowCh", "Programs"))
+		self.lblModules.setText(_translate("WindowCh", "Selection of Modules"))
 		self.label.setText(_translate("WindowCh", "-"))
 		self.BtnArrowR.setText(_translate("WindowCh", ">>"))
 		self.BtnArrowL.setText(_translate("WindowCh", "<<"))
@@ -105,12 +110,16 @@ class Ui_WindowCh(QtWidgets.QDialog):
 		self.BtnArrowR.clicked.connect(self.on_bttnArrowR)
 		self.BtnArrowL.clicked.connect(self.on_bttnArrowL)
 		self.BttnDone.setDefault(True)
+		self.lineEditMin.setAlignment(QtCore.Qt.AlignCenter)
+		self.lineEditMax.setAlignment(QtCore.Qt.AlignCenter)
 		self.lineEditMin.setMaxLength(8)
 		self.lineEditMax.setMaxLength(8)
 		self.lineEditMin.textChanged.connect(self.on_editMin)
 		self.lineEditMax.textChanged.connect(self.on_editMax)
 		self.BttnDone.clicked.connect(self.on_bttnDoneClicked)
 		self.BttnCancel.clicked.connect(self.on_bttnCancelClicked)
+		
+		self.textPrograms.activated.connect(self.loadTableW)
 
 
 	def showEvent(self,event):
@@ -123,8 +132,7 @@ class Ui_WindowCh(QtWidgets.QDialog):
 		ordName = NameOrdened(self.newlist) #manda a llamar la clase NameOrdened
 		x = ordName.cod()					#ordena los elementos de la lista de < a >
 
-		print("xW:",x)
-
+		#print("xW:",x)
 		self.newlist.clear()
 
 		for i in range(len(x)):
@@ -136,7 +144,7 @@ class Ui_WindowCh(QtWidgets.QDialog):
 					self.newlist.append(self.parent.mylist[j+1])
 
 		print("new:",self.newlist)
-		
+		self.loadTableW() ##verificar lo que sucede si no hay programas
 
 	def closeEvent(self,event):
 		print("closeEventW")
@@ -145,6 +153,7 @@ class Ui_WindowCh(QtWidgets.QDialog):
 		y = self.lineEditMin.text()
 		txt = y.upper()
 		self.lineEditMin.setText(txt)
+		
 		self.data1 = "N="+txt
 		self.on_editMax()
 
@@ -161,8 +170,6 @@ class Ui_WindowCh(QtWidgets.QDialog):
 		txt = y.upper()
 		self.lineEditMax.setText(txt)
 		self.data2 = "N="+txt
-		print("data1:",self.data1)
-		print("data2:",self.data2)
 		
 		try:
 			self.flagOutL = False
@@ -173,32 +180,26 @@ class Ui_WindowCh(QtWidgets.QDialog):
 			value2 = value2 + 2
 
 			valF = self.newlist[value1:value2]
-			print("valF:",valF)
+			#print("valF:",valF)
 			self.check.clear()
 			for i in range(2,len(valF),4):
 				self.check.append(valF[i].replace('N=',''))
 
 			self.btnCheckBox()
-			print("self.check:",self.check)
-			print("lenValF:",int(len(valF)/4))
+			#print("self.check:",self.check)
+			#print("lenValF:",int(len(valF)/4))
 
 		except:
-			print("except")
 			if self.data1 != None and self.data1 !='N=':
 				try:
 					val1 = self.newlist.index(self.data1)
 
 					val1 = val1 - 2
-
-					#print("val1:",val1)
-					#print("newL:",self.newlist)
 					valF = self.newlist[val1:val1+3]
-					#print("valF:",valF)
 					self.check.clear()
 					for i in range(2,len(valF),4):
 						self.check.append(valF[i].replace('N=',''))
 
-					print("chek2:",self.check)
 					self.btnCheckBox()
 				except:
 					self.listWidget.clear()
@@ -206,11 +207,11 @@ class Ui_WindowCh(QtWidgets.QDialog):
 				self.listWidget.clear()
 
 			if self.data2 != None and self.data2 != 'N=':
-				print("no se encuentra")
+				#print("no se encuentra")
 				self.flagOutL = True
 				self.listWidget.clear()
-			else:
-				print("data2 esta vacio")
+			#else:
+				#print("data2 esta vacio")
 
 	def btnCheckBox(self):
 		self.listWidget.clear()
@@ -240,21 +241,127 @@ class Ui_WindowCh(QtWidgets.QDialog):
 		print(self.programJson)
 
 	def on_bttnDoneClicked(self):
-		self.on_clicked_textPrograms()
+		#self.on_clicked_textPrograms()
+		for j in range(2,len(self.newlist),4):
+			if self.newlist[j] == self.data1:
+				self.index1 = j-2
+				print("indx1:",j-2)
+			elif self.newlist[j] == self.data2:
+				self.index2 = j+2
+				print("indx2:",j+2)
+				break
 
+		self.addrs.clear()
+		self.loadProg = self.newlist[self.index1:self.index2]
+		for i in range(3,len(self.loadProg),4):
+			addr = self.loadProg[i].split('A=')
+			self.addrs.append(addr[1])
+
+		print("loadProg:",self.loadProg)
+		print("addr:",self.addrs)
+		self.loadProg.clear()
+		#for i in range(2,len(self.newlist[self.index1:self.index2]),4):
+
+
+		print("check:",len(self.check))
 		print("espera que se carguen todos los programas...")
-		##realizar un len de cuantos dispositivos seran ejecutados
-		
+		##realizar un len de cuantos dispositivos seran ejecutados y sacar addrs
 
-		#for i in range(len()):
-		#	print("valueAddr:",i)
-			#BCmb.writeProgramClient(useHostname,i,self.programJson)
-		#print(self.programJson)
-
+		for i in range(len(self.check)):
+			print("valueAddr:",self.addrs[i])
+			
+			BCmb.writeProgramClient(useHostname,self.addrs[i],self.programJson)
+	#Falta pulir esta parte checar lo que pasa si deshabilita un check se quita un elemento
+	#	self.plainTextEdit.setFocus(True)
+	#	self.plainTextEdit.insertPlainText("ERROR SERVER")
+	
 	def on_bttnCancelClicked(self):
 		self.close()
 		#cambiar este widget estructuralo mejor
 
+	def loadTableW(self):
+		print("loadProgramsTable")
+		self.on_clicked_textPrograms()
+		x = self.programJson.replace('[','')
+		y = x.replace(']','')
+		w = y.replace('{','')
+		v = w.replace('}','')
+		new = v.split('Type:')
+
+		#print("pJ:",programJson)
+		#print("v:",v)
+		#print("new:",new)
+		steps = len(new)-3
+		print("Steps:",steps) #rows este valor es el numero de steps -3 (begin,end,'')
+		self.tableWidget.setRowCount(steps)
+		
+		self.st = 0
+		for i in range(len(new)):
+			comp= new[i].split(',')
+			for j in range(len(comp)-1):
+				typeName = comp[j]
+				if comp[j] == 'Carga':
+					self.st += 1
+					#print("Carga")
+					#print("comp:",comp)
+					#print("len:",len(comp)-1) 
+					self.tabItem(typeName,self.st-1,j)
+					if len(comp)-1 == 5: # 5 implica /Carga/Current/AH-T/MaxTmp/MinTmp
+						comp2 = comp[j+1].split(':')
+						comp3 = comp[j+2].split(':')
+						comp4 = comp[j+3].split(':')
+						comp5 = comp[j+4].split(':')
+						
+						if comp2[0]=='Current':
+							current = comp2[1]
+							self.tabItem(current,self.st-1,j+1)
+						if comp3[0]=='AH':
+							ampH = comp3[1]
+							self.tabItem(ampH+'    AH',self.st-1,j+2)
+						else:
+							ampH = comp3[1]
+							self.tabItem(ampH+'    T',self.st-1,j+2)
+						if comp4[0]=='MaxTemp':
+							maxTmp = comp4[1]
+							self.tabItem(maxTmp,self.st-1,j+3)
+						if comp5[0]=='MinTemp':
+							minTmp = comp5[1]
+							self.tabItem(minTmp,self.st-1,j+4)
+
+					else: # 3 implica /Carga/Current/AH-T
+						comp2 = comp[j+1].split(':')
+						comp3 = comp[j+2].split(':')
+						
+						if comp2[0]=='Current':
+							current = comp2[1]
+							self.tabItem(current,self.st-1,j+1)
+
+						if comp3[0]=='AH':
+							ampH = comp3[1]
+							self.tabItem(ampH+'    AH',self.st-1,j+2)
+						else:
+							ampH = comp3[1]
+							self.tabItem(ampH+'    T',self.st-1,j+2)
+
+				elif comp[j] == 'Pausa':
+					self.st +=1
+					self.tabItem(typeName,self.st-1,j)
+					comp2 = comp[j+1].split(':')
+					if comp2[0] == 'Time':
+						time = comp2[1]
+						self.tabItem('-',self.st-1,j+1)
+						self.tabItem(time+'    T',self.st-1,j+2)
+						self.tabItem('-',self.st-1,j+3)
+						self.tabItem('-',self.st-1,j+4)
+
+	def tabItem(self,name,rw,col):
+		lblt = QtGui.QFont("Arial",10, QtGui.QFont.Normal)
+		item = QtWidgets.QTableWidgetItem(name)
+		item.setTextAlignment(QtCore.Qt.AlignCenter)
+		item.setFont(lblt)
+		#item.setBackground(QtGui.QColor('lightblue'))
+		item.setFlags(QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled)
+		self.tableWidget.setItem(rw,col,item)
 
 	flagClickR = False
 	def on_bttnArrowR(self):
@@ -278,7 +385,6 @@ class Ui_WindowCh(QtWidgets.QDialog):
 		if self.flagOutL != True:
 			self.btnCheckBox()
 
-
 	flagClickL = False
 	def on_bttnArrowL(self):
 		#print("arrowL")
@@ -298,6 +404,7 @@ class Ui_WindowCh(QtWidgets.QDialog):
 			self.flagClickL = False
 			self.setFixedSize(392, 421)
 
+	#dejar codigo cuando se carga el programa 
 '''
 if __name__ == "__main__":
 	import sys

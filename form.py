@@ -44,8 +44,10 @@ class Ui_Form(QtWidgets.QWidget):
 		self.retranslateUi(self)
 		QtCore.QMetaObject.connectSlotsByName(self)
 
+		self.tableWidget.contextMenuEvent = self.contextMenuEvent
 		self.auxMylist = list()
 		self.tableWidget.cellPressed.connect(self.on_cellClickedTableW)
+
 
 	def retranslateUi(self, Form):
 		_translate = QtCore.QCoreApplication.translate
@@ -158,6 +160,15 @@ class Ui_Form(QtWidgets.QWidget):
 						coordy = y[2]
 				item.setFlags(QtCore.Qt.ItemIsEnabled)
 				self.tableWidget.setItem(int(coordx),int(coordy),item)
+
+	def contextMenuEvent(self,event):
+		print("contextEvent")
+		self.popMenu = QtWidgets.QMenu(self)
+		startAct = self.popMenu.addAction('Start')
+		pauseAct = self.popMenu.addAction('Pause')
+		stopAct = self.popMenu.addAction('Stop')
+
+		action = self.popMenu.exec_(self.tableWidget.mapToGlobal(event.pos()))
 
 	def on_cellClickedTableW(self):
 		print("ClickTable") #poner restrinccion que solo para Qlabel y tal vez se pueda agregar widget de qlabel y progress juntos
