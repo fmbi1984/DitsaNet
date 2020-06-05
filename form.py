@@ -44,14 +44,18 @@ class Ui_Form(QtWidgets.QWidget):
 		self.retranslateUi(self)
 		QtCore.QMetaObject.connectSlotsByName(self)
 
-		self.tableWidget.contextMenuEvent = self.contextMenuEvent
 		self.auxMylist = list()
-		self.tableWidget.cellPressed.connect(self.on_cellClickedTableW)
 
+		#self.tableWidget.mousePressEvent = self.mousePressEvent
+		#self.tableWidget.mouseReleaseEvent = self.mouseReleaseEvent
+		
+
+		self.tableWidget.cellPressed.connect(self.on_cellClickedTableW)
 
 	def retranslateUi(self, Form):
 		_translate = QtCore.QCoreApplication.translate
 		Form.setWindowTitle(_translate("Form", "Form"))
+
 
 	def showEvent(self,event):
 		print("showE")
@@ -170,26 +174,64 @@ class Ui_Form(QtWidgets.QWidget):
 
 		action = self.popMenu.exec_(self.tableWidget.mapToGlobal(event.pos()))
 
+	
+
 	def on_cellClickedTableW(self):
-		print("ClickTable") #poner restrinccion que solo para Qlabel y tal vez se pueda agregar widget de qlabel y progress juntos
-		#form = Ui_FormModule(self)
+		print("ClickTable") #averguar si donde se hizo click esta en list
 		vx = self.tableWidget.currentRow()
-		print("vx:",vx)
-
 		vy = self.tableWidget.currentColumn()
-		print("vy:",vy)
+		vz = self.parent.tabWidget.currentIndex() + 1
 
-		#x = self.tableWidget.cellWidget(vx,vy).text()
-		#print("x:",x)
-		#lblCh = QtWidgets.QLabel(x)
-		#lblCh.setStyleSheet("QLabel {background-color : lightblue; color : black; border: 1.5px solid black;} ")
-		#lblCh.setAlignment(QtCore.Qt.AlignCenter)
-		#ft = QtGui.QFont()
-		#ft.setPointSize(12)
-		#ft.setBold(True)
-		#ft.setWeight(75)
-		#lblCh.setFont(ft)
-		#self.tableWidget.setCellWidget(vx,vy,form)
+		coord = 'X='+str(vx)+' Y='+str(vy)
+		tab = str(vz)+'%'
+		#print("coord:",coord)
+		#for i in self.tableWidget.cellActivated(vx,vy):
+		#	print("entro select")
+
+		for i in range(0,len(self.parent.mylist),4):
+			numberTab = self.parent.mylist[i]
+			coordCell = self.parent.mylist[i+1] 
+			#nameCell = self.parent.mylist#[i+2]
+			##addrCell = self.parent.mylist[i+3]
+
+			z = self.parent.tabWidget.currentIndex() + 1 
+			
+			if tab == numberTab:
+				print("tab0:",tab)
+				if coord == coordCell:
+					print("coordC:",coordCell)
+					##numberTab = self.parent.mylist[i]
+					##coordCell = self.parent.mylist #i+1 
+					#nameCell = self.parent.mylist#[i+2]
+					##addrCell = self.parent.mylist[i+3]
+
+					##z = self.parent.tabWidget.currentIndex() + 1 
+					k = numberTab.replace('%','')
+
+					if z == 0:
+						z = 1
+
+					#print("z",z)
+					#print("k",k)
+					if k == str(z):
+						nameCell = self.parent.mylist[i+2].split()
+						#print("nameCell:",nameCell)
+						nameF = nameCell[0].partition('N=')
+						tmp = self.parent.mylist[i+1].split()
+						for i in range(2):
+							if i == 0:
+								y = tmp[0].partition('X=')
+								coordx = y[2]
+							else:
+								y = tmp[1].partition('Y=')
+								coordy = y[2]
+
+						cbText = self.parent.comboBox.currentText()
+						form = Ui_FormModule(nameF[2],cbText,self)
+						form.changeModule()
+						form.selectionLabel()
+						self.tableWidget.setCellWidget(int(coordx),int(coordy),form)
+						
 
 	def totalMylist(self):
 		self.auxMylist = self.parent.mylist[:]

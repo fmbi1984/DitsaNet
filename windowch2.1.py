@@ -17,7 +17,6 @@ from appsettings import useHostname
 
 from ordened import NameOrdened
 
-
 class Ui_WindowCh(QtWidgets.QDialog):
 	#def setupUi(self, WindowCh):
 	def __init__(self,parent=None):
@@ -25,24 +24,26 @@ class Ui_WindowCh(QtWidgets.QDialog):
 		self.parent = parent
 
 		self.setObjectName("WindowCh")
-		self.setFixedSize(392, 421) #self.setFixedSize(392, 384) 533-663
+		##self.resize(1070, 421)
+		self.setFixedSize(929, 421)
+		self.setSizeGripEnabled(False)
 		self.BttnCancel = QtWidgets.QPushButton(self)
-		self.BttnCancel.setGeometry(QtCore.QRect(110, 190, 80, 25))
+		self.BttnCancel.setGeometry(QtCore.QRect(649, 190, 80, 25))
 		self.BttnCancel.setObjectName("BttnCancel")
 		self.BttnDone = QtWidgets.QPushButton(self)
-		self.BttnDone.setGeometry(QtCore.QRect(220, 190, 80, 25))
+		self.BttnDone.setGeometry(QtCore.QRect(759, 190, 80, 25))
 		self.BttnDone.setObjectName("BttnDone")
 		self.textPrograms = QtWidgets.QComboBox(self)
-		self.textPrograms.setGeometry(QtCore.QRect(50, 60, 301, 25))
+		self.textPrograms.setGeometry(QtCore.QRect(589, 60, 301, 25))
 		self.textPrograms.setObjectName("textPrograms")
 		self.lblPrograms = QtWidgets.QLabel(self)
-		self.lblPrograms.setGeometry(QtCore.QRect(160, 16, 81, 31))
+		self.lblPrograms.setGeometry(QtCore.QRect(699, 16, 81, 31))
 		self.lblPrograms.setObjectName("lblPrograms")
 		self.lblModules = QtWidgets.QLabel(self)
-		self.lblModules.setGeometry(QtCore.QRect(130, 100, 151, 21))
+		self.lblModules.setGeometry(QtCore.QRect(669, 100, 151, 21))
 		self.lblModules.setObjectName("lblModules")
 		self.layoutWidget = QtWidgets.QWidget(self)
-		self.layoutWidget.setGeometry(QtCore.QRect(80, 140, 251, 27))
+		self.layoutWidget.setGeometry(QtCore.QRect(619, 140, 251, 27))
 		self.layoutWidget.setObjectName("layoutWidget")
 		self.horizontalLayout = QtWidgets.QHBoxLayout(self.layoutWidget)
 		self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
@@ -62,28 +63,34 @@ class Ui_WindowCh(QtWidgets.QDialog):
 		self.lineEditMax.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp("^[-A-Za-z\\d]*$"),self))
 		self.horizontalLayout.addWidget(self.lineEditMax)
 		self.listWidget = QtWidgets.QListWidget(self)
-		self.listWidget.setGeometry(QtCore.QRect(391, 0, 141, 421))
+		self.listWidget.setGeometry(QtCore.QRect(929, 0, 141, 421))
 		self.listWidget.setFrameShape(QtWidgets.QFrame.Box)
+		self.listWidget.setFrameShadow(QtWidgets.QFrame.Sunken)
 		self.listWidget.setObjectName("listWidget")
 		self.BtnArrowR = QtWidgets.QPushButton(self)
-		self.BtnArrowR.setGeometry(QtCore.QRect(300, 220, 89, 25))
+		self.BtnArrowR.setGeometry(QtCore.QRect(830, 220, 89, 25))
 		self.BtnArrowR.setObjectName("BtnArrowR")
-		self.textEdit = QtWidgets.QTextEdit(self)
-		self.textEdit.setGeometry(QtCore.QRect(0, 250, 391, 171))
-		self.textEdit.setFrameShape(QtWidgets.QFrame.Box)
-		self.textEdit.setObjectName("textEdit")
 		self.BtnArrowL = QtWidgets.QPushButton(self)
-		self.BtnArrowL.setGeometry(QtCore.QRect(0, 220, 89, 25))
+		self.BtnArrowL.setGeometry(QtCore.QRect(539, 220, 89, 25))
 		self.BtnArrowL.setObjectName("BtnArrowL")
 		self.tableWidget = QtWidgets.QTableWidget(self)
-		self.tableWidget.setGeometry(QtCore.QRect(0, 420, 391, 241))
+		self.tableWidget.setGeometry(QtCore.QRect(0, 0, 531, 421))
 		self.tableWidget.setFrameShape(QtWidgets.QFrame.Box)
 		self.tableWidget.setFrameShadow(QtWidgets.QFrame.Sunken)
+		self.tableWidget.setDragEnabled(False)
 		self.tableWidget.setAlternatingRowColors(True)
-		self.tableWidget.setObjectName("tableWidget")
-		self.tableWidget.setColumnCount(5)
+		self.tableWidget.setGridStyle(QtCore.Qt.SolidLine)
+		self.tableWidget.setCornerButtonEnabled(True)
 		self.tableWidget.setRowCount(0)
+		self.tableWidget.setColumnCount(5)
 		self.tableWidget.setHorizontalHeaderLabels(('Operation','Nominal','Time','Temp Max','Temp Min'))
+		self.tableWidget.setObjectName("tableWidget")
+		self.tableWidget.horizontalHeader().setCascadingSectionResizes(False)
+		self.tableWidget.horizontalHeader().setStretchLastSection(False)
+		self.textEdit = QtWidgets.QTextEdit(self)
+		self.textEdit.setGeometry(QtCore.QRect(529, 250, 402, 171))
+		self.textEdit.setFrameShape(QtWidgets.QFrame.Box)
+		self.textEdit.setObjectName("textEdit")
 
 		self.retranslateUi(self)
 		QtCore.QMetaObject.connectSlotsByName(self)
@@ -92,11 +99,9 @@ class Ui_WindowCh(QtWidgets.QDialog):
 		self.loadProg = list()
 		self.addrs = list()
 		self.check = list()
-		self.tempList = list()
 		self.data1 = None
 		self.data2 = None
 		self.flagOutL = False
-		self.flagChange = False
 
 	def retranslateUi(self, WindowCh):
 		_translate = QtCore.QCoreApplication.translate
@@ -108,6 +113,7 @@ class Ui_WindowCh(QtWidgets.QDialog):
 		self.label.setText(_translate("WindowCh", "-"))
 		self.BtnArrowR.setText(_translate("WindowCh", ">>"))
 		self.BtnArrowL.setText(_translate("WindowCh", "<<"))
+		self.tableWidget.setSortingEnabled(False)
 
 		self.BtnArrowR.clicked.connect(self.on_bttnArrowR)
 		self.BtnArrowL.clicked.connect(self.on_bttnArrowL)
@@ -156,26 +162,29 @@ class Ui_WindowCh(QtWidgets.QDialog):
 		y = self.lineEditMin.text()
 		txt = y.upper()
 		self.lineEditMin.setText(txt)
-
+		
 		self.data1 = "N="+txt
 		self.on_editMax()
+
+		'''
+		for i in range(2,len(self.parent.mylist),4):
+			if self.parent.mylist[i] == "N="+y:
+				self.addr1 = self.parent.mylist[i+1]
+				self.addr1 = int(self.addr1.replace('A=',''))
+				print("addr1:",self.addr1)
+		'''
 
 	def on_editMax(self):
 		y = self.lineEditMax.text()
 		txt = y.upper()
 		self.lineEditMax.setText(txt)
 		self.data2 = "N="+txt
-
-		self.flagChange = False
-		#print("data1:",self.data1)
-		#print("data2:",self.data2)
 		
 		try:
 			self.flagOutL = False
 			value1 = self.newlist.index(self.data1)
 			value2 = self.newlist.index(self.data2)
 
-			self.flagChange = True
 			value1 = value1 - 2
 			value2 = value2 + 2
 
@@ -186,9 +195,10 @@ class Ui_WindowCh(QtWidgets.QDialog):
 				self.check.append(valF[i].replace('N=',''))
 
 			self.btnCheckBox()
+			#print("self.check:",self.check)
+			#print("lenValF:",int(len(valF)/4))
 
 		except:
-			self.flagChange = True
 			if self.data1 != None and self.data1 !='N=':
 				try:
 					val1 = self.newlist.index(self.data1)
@@ -213,31 +223,20 @@ class Ui_WindowCh(QtWidgets.QDialog):
 				#print("data2 esta vacio")
 
 	def uncheck_check(self):
-		#print("uncheck_check")
-		self.tempList.clear()
+		print("uncheck_check")
 		for index in range(self.listWidget.count()):
 			if self.listWidget.item(index).checkState() == QtCore.Qt.Checked:
-				#print("check:",self.listWidget.item(index).text())
-				self.tempList.append(self.listWidget.item(index).text())
-
-		for i in range(2,len(self.newlist),4):
-			for j in range(len(self.tempList)):
-				if 'N='+self.tempList[j] == self.newlist[i]:
-					self.loadProg.append(self.newlist[i-2])
-					self.loadProg.append(self.newlist[i-1])
-					self.loadProg.append(self.newlist[i])
-					self.loadProg.append(self.newlist[i+1])
+				#checked_items.append(self.listWidget.item(index))
+				print("check:",index)
+				print(self.listWidget.item(index))
 
 	def btnCheckBox(self):
-		if self.flagChange != False:
-			self.flagChange = False
-			self.listWidget.clear()
-
-			for i in range(len(self.check)):
-				item = QtWidgets.QListWidgetItem(self.check[i])
-				item.setFlags(item.flags() | QtCore.Qt.ItemIsUserCheckable)
-				item.setCheckState(QtCore.Qt.Checked)
-				self.listWidget.addItem(item)
+		self.listWidget.clear()
+		for i in range(len(self.check)):
+			item = QtWidgets.QListWidgetItem(self.check[i])
+			item.setFlags(item.flags() | QtCore.Qt.ItemIsUserCheckable)
+			item.setCheckState(QtCore.Qt.Checked)
+			self.listWidget.addItem(item)
 
 	def on_cb_textPrograms(self):
 		files=self.ls2("/Users/cex/Documents/github/DitsaNetApp/ProfileEditorPrograms/")
@@ -259,32 +258,40 @@ class Ui_WindowCh(QtWidgets.QDialog):
 		print(self.programJson)
 
 	def on_bttnDoneClicked(self):
-		print("clickDone")
 		self.uncheck_check()
-	
+
+		for j in range(2,len(self.newlist),4):
+			if self.newlist[j] == self.data1:
+				self.index1 = j-2
+				print("indx1:",j-2)
+			elif self.newlist[j] == self.data2:
+				self.index2 = j+2
+				print("indx2:",j+2)
+				break
+
 		self.addrs.clear()
+		self.loadProg = self.newlist[self.index1:self.index2]
 		for i in range(3,len(self.loadProg),4):
 			addr = self.loadProg[i].split('A=')
 			self.addrs.append(addr[1])
 
-		#print("loadProg:",self.loadProg)
+		print("loadProg:",self.loadProg)
 		print("addr:",self.addrs)
 		self.loadProg.clear()
+		#for i in range(2,len(self.newlist[self.index1:self.index2]),4):
 
+
+		print("check:",len(self.check))
 		print("espera que se carguen todos los programas...")
-		##realiza un len de cuantos dispositivos seran ejecutados y saca addrs
+		##realizar un len de cuantos dispositivos seran ejecutados y sacar addrs
 
-		self.textEdit.clear()
-		self.textEdit.setVisible(False)
-		for i in range(len(self.addrs)):
+		for i in range(len(self.check)):
 			print("valueAddr:",self.addrs[i])
-		
-			x = BCmb.writeProgramClient(useHostname,self.addrs[i],self.programJson)
-			if x == None:
-				self.textEdit.insertPlainText("Falla Addr: "+self.addrs[i]+'\n')
-				self.textEdit.setVisible(True)
-				
-		#solo falta realizar pruebas con comunicacion
+			
+			BCmb.writeProgramClient(useHostname,self.addrs[i],self.programJson)
+	#Falta pulir esta parte checar lo que pasa si deshabilita un check se quita un elemento
+	#	self.plainTextEdit.setFocus(True)
+	#	self.plainTextEdit.insertPlainText("ERROR SERVER")
 	
 	def on_bttnCancelClicked(self):
 		self.close()
@@ -379,7 +386,7 @@ class Ui_WindowCh(QtWidgets.QDialog):
 		#print("arrowR")
 		if self.flagClickR != True and self.flagClickL !=True:
 			self.flagClickR = True
-			self.setFixedSize(533, 421)
+			self.setFixedSize(921, 421)
 
 		elif self.flagClickR != False and self.flagClickL !=False:
 			self.flagClickR = False
@@ -387,7 +394,7 @@ class Ui_WindowCh(QtWidgets.QDialog):
 
 		elif self.flagClickR != True and self.flagClickL !=False:
 			self.flagClickR = True
-			self.setFixedSize(533, 663)
+			self.setFixedSize(921, 663)
 
 		elif self.flagClickR != False and self.flagClickL !=True:
 			self.flagClickR = False
@@ -395,7 +402,6 @@ class Ui_WindowCh(QtWidgets.QDialog):
 
 		if self.flagOutL != True:
 			self.btnCheckBox()
-
 
 	flagClickL = False
 	def on_bttnArrowL(self):
@@ -415,6 +421,9 @@ class Ui_WindowCh(QtWidgets.QDialog):
 		elif self.flagClickL != False and self.flagClickR !=True:
 			self.flagClickL = False
 			self.setFixedSize(392, 421)
+
+
+
 
 '''
 if __name__ == "__main__":

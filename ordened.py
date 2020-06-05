@@ -67,7 +67,7 @@ class NameOrdened():
 
 			for i in range(len(self.listAlp)):
 				dat = self.listAlp[i]
-				print("dat:",dat)
+				#print("dat:",dat)
 
 				for j in range(len(dat)):
 					if dat[j].isdigit():

@@ -141,7 +141,7 @@ class devInterface(object):
 			sct = ClientCommThread(None, useHostname, p_data, b'\x04',timeout,1)
 			sct.start()
 			sct.join()
-			print("client thread stopped")
+			#print("client thread stopped")
 			if sct.stopped() == False:
 				e="client thread not stopped"
 				print("\033[1;31;40m"+str(e)+"\033[0;37;40m")

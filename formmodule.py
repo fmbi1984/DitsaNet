@@ -20,7 +20,7 @@ class Ui_FormModule(QtWidgets.QWidget):
 		self.setObjectName("FormModule")
 		self.resize(73, 70)
 		self.label = QtWidgets.QLabel(self)
-		self.label.setGeometry(QtCore.QRect(0, 15, 74, 20))
+		self.label.setGeometry(QtCore.QRect(0, 15, 73, 20)) #(0, 15, 74, 20))
 		font = QtGui.QFont()
 		font.setFamily("Ubuntu Light")
 		font.setPointSize(12)
@@ -32,7 +32,7 @@ class Ui_FormModule(QtWidgets.QWidget):
 		self.label.setAlignment(QtCore.Qt.AlignHCenter|QtCore.Qt.AlignTop)
 		self.label.setObjectName("label")
 		self.pbProgram = QtWidgets.QProgressBar(self)
-		self.pbProgram.setGeometry(QtCore.QRect(0, 35, 74, 15))
+		self.pbProgram.setGeometry(QtCore.QRect(0, 35, 73, 15)) #(0, 35, 74, 15))
 		self.pbProgram.setStyleSheet("QProgressBar\n"
 "{\n"
 "	border: 1px solid black;\n"
@@ -48,18 +48,19 @@ class Ui_FormModule(QtWidgets.QWidget):
 		self.pbProgram.setProperty("value",0)
 		self.pbProgram.setObjectName("pbProgram")
 		self.lblmodule = QtWidgets.QLabel(self)
-		self.lblmodule.setGeometry(QtCore.QRect(0, 0, 74, 15))
+		self.lblmodule.setGeometry(QtCore.QRect(0, 0, 73, 15)) #(0, 0, 74, 15))
 		font = QtGui.QFont()
 		font.setPointSize(11)
 		self.lblmodule.setFont(font)
 		self.lblmodule.setLayoutDirection(QtCore.Qt.LeftToRight)
-		self.lblmodule.setStyleSheet("QLabel { background-color : white; }") #color : black;  border: 1px solid black;
-		#self.label_2.setFrameShape(QtWidgets.QFrame.Box)
+		self.lblmodule.setStyleSheet("QLabel { background-color : ghostwhite; }") #color : black;  border: 1px solid black;
+		#self.lblmodule.setFrameShape(QtWidgets.QFrame.Box)
 		self.lblmodule.setAlignment(QtCore.Qt.AlignCenter)
 		self.lblmodule.setObjectName("lblmodule")
 
 		self.retranslateUi(self)
 		QtCore.QMetaObject.connectSlotsByName(self)
+
 
 		#self.showEvent(self)
 
@@ -67,7 +68,21 @@ class Ui_FormModule(QtWidgets.QWidget):
 		_translate = QtCore.QCoreApplication.translate
 		FormModule.setWindowTitle(_translate("FormModule", "Form"))
 		self.label.setText(_translate("FormModule", "00.0"))
-		self.pbProgram.setToolTip(_translate("FormModule", "Nombre: MF1\n"
+		self.label.setToolTip(_translate("FormModule", "Nombre:"+self.nameModule+"\n"
+"Estado: No Conectado\n"
+"Corriente: 25.0\n"
+"Voltaje: 58.0\n"
+"Temperatura: 24.8\n"
+"AH: 0.0\n"
+"Nombre de Programa: 001-SGL\n"
+"Indice del Programa: 501\n"
+"Paso del Programa: 1\n"
+"Step time: 00:01\n"
+"Tiempo Restante: 00:00\n"
+"Tiempo Finalizado: 12/04/2019 20:13\n"
+"ServerID: 0\n"
+"FirstN: 0"))
+		self.pbProgram.setToolTip(_translate("FormModule", "Nombre:"+self.nameModule+"\n"
 "Estado: No Conectado\n"
 "Corriente: 25.0\n"
 "Voltaje: 58.0\n"
@@ -86,6 +101,9 @@ class Ui_FormModule(QtWidgets.QWidget):
 	def showEvent(self,event):
 		print("FormShow")
 		self.lblmodule.setText(self.nameModule)
+		#self.label.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
+		
+		#self.lblmodule.setTextInteractionFlags(QtCore.Qt.TextSelectableByKeyboard)
 
 		if self.cbOption == 'Current':
 			self.label.setText("0.0"+" A")
@@ -104,6 +122,54 @@ class Ui_FormModule(QtWidgets.QWidget):
 
 		if self.cbOption == 'Address':
 			self.label.setText("1"+" #")
+
+	def selectionModule(self):
+		print("entreModule")
+		ft = QtGui.QFont()
+		ft.setPointSize(12)
+		ft.setBold(True)
+		ft.setWeight(75)
+		self.label.setStyleSheet("QLabel {background-color : lightblue; color : black; border: 1.5px solid black;} ")
+		self.label.setAlignment(QtCore.Qt.AlignCenter)
+		self.label.setFont(ft)
+		self.pbProgram.setStyleSheet("QProgressBar\n"
+"{\n"
+"	border: 1.5px solid black;\n"
+"	border-radius: 0px;\n"
+"	text-align: center;\n"
+"}\n"
+"QProgressBar::chunk\n"
+"{\n"
+"	background-color: blue;\n"
+"	width: 2.15px;\n"
+"	margin: 0.5px;\n"
+"}")
+
+	def deselectModule(self):
+		print("deselec")
+		ft = QtGui.QFont()
+		ft.setPointSize(12)
+		ft.setBold(True)
+		ft.setWeight(75)
+		self.label.setStyleSheet("QLabel {background-color : lightblue; color : black; border: 1px solid black;} ")
+		self.label.setAlignment(QtCore.Qt.AlignCenter)
+		self.label.setFont(ft)
+		self.pbProgram.setStyleSheet("QProgressBar\n"
+"{\n"
+"	border: 1px solid black;\n"
+"	border-radius: 0px;\n"
+"	text-align: center;\n"
+"}\n"
+"QProgressBar::chunk\n"
+"{\n"
+"	background-color: blue;\n"
+"	width: 2.15px;\n"
+"	margin: 0.5px;\n"
+"}")
+
+	def selectionLabel(self):
+		print("selectionLabel")
+		self.lblmodule.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
 
 '''
 if __name__ == "__main__":
