@@ -9112,8 +9112,6 @@ class Ui_MainWindow(object):
 				newstr2 = ""
 				newstr2 = "FailComm"
 				self.cmdDisplay1_2.setText(str(newstr2))
-		
-		
 
 		threading.Timer(self.WAIT_SECONDS, self.display).start()
 

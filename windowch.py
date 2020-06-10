@@ -16,6 +16,7 @@ from devicemainboard import BCmb
 from appsettings import useHostname
 
 from ordened import NameOrdened
+from downloadprogress import Ui_downloadProgress #verificar si usarlo o no
 
 
 class Ui_WindowCh(QtWidgets.QDialog):
@@ -271,18 +272,32 @@ class Ui_WindowCh(QtWidgets.QDialog):
 		print("addr:",self.addrs)
 		self.loadProg.clear()
 
-		print("espera que se carguen todos los programas...")
 		##realiza un len de cuantos dispositivos seran ejecutados y saca addrs
+
+		print("lenAdr:",len(self.addrs))
+
+		numDis = len(self.addrs)
+
+		tottal = 100 / numDis
+		numberRd = round(tottal,2)
+		print("tottal:",numberRd)
 
 		self.textEdit.clear()
 		self.textEdit.setVisible(False)
+
+		#Ui_downloadProgress(self).exec() #verificar como usarlo
+		#pgress = Ui_downloadProgress(self)
+		
 		for i in range(len(self.addrs)):
 			print("valueAddr:",self.addrs[i])
+			
 		
 			x = BCmb.writeProgramClient(useHostname,self.addrs[i],self.programJson)
 			if x == None:
 				self.textEdit.insertPlainText("Falla Addr: "+self.addrs[i]+'\n')
 				self.textEdit.setVisible(True)
+
+			#pgress.progressBar.setValue(numberRd * (i+1))
 				
 		#solo falta realizar pruebas con comunicacion
 	

@@ -32,6 +32,7 @@ class Paint(QtWidgets.QGraphicsView):
 
 		self.flagRelease = False
 		self.flagSelection = False
+		
 
 	#	self.retranslateUi(self)
 	#	QtCore.QMetaObject.connectSlotsByName(self)
@@ -58,10 +59,12 @@ class Paint(QtWidgets.QGraphicsView):
 
 	def showEvent(self,event):
 		print("showE")
-		if self.parent.flagNormal != False:
-			self.setSceneRect(0.0,0.0,1454,448)
-		else:
-			self.setSceneRect(0.0,110.0,1454,448)
+		if self.parent.flagZoom != True:
+			if self.parent.flagNormal != False: 
+				self.setSceneRect(0.0,0.0,1454,448)
+			else:
+				self.setSceneRect(0.0,110.0,1454,448) #110
+
 		#print("rect1:",self.sceneRect())
 		self.populateCircuit()
 		self.populateLabel()
@@ -69,9 +72,13 @@ class Paint(QtWidgets.QGraphicsView):
 
 	def populateZoom(self):
 		print("populateZoom")
+		print(self.parent.flagZoom)
 		if len(self.parent.valueZoom) != 0:
 			tr = self.parent.valueZoom[0]
 			self.setTransform(tr)
+
+			if self.parent.flagZoom != False:
+				self.setSceneRect(0.0,0.0,0.0,0.0)
 
 	def populateCircuit(self): 
 		print("PopulateCircuit")
@@ -103,26 +110,39 @@ class Paint(QtWidgets.QGraphicsView):
 						coordx = y[2]
 						y1 = int(coordx)*50
 						y2 = y1 + 50
-					#	print("cy1:",y1)
-					#	print("cy2:",y2)
-						self.Pm1[1] = y1
-						self.Pm2[1] = y2
+						print("cy1:",y1)
+						print("cy2:",y2)
+						if self.parent.flagZoom != False:
+							print("TRUE")
+							self.Pm1[1] = y1*1.5
+							self.Pm2[1] = (y1*1.5) + 75
+							print("Pm1[1]:",y1*1.5)
+							print("Pm2[1]:",(y1*1.5) + 75)
+						else:
+							self.Pm1[1] = y1
+							self.Pm2[1] = y2
 					else:
 						y = tmp[1].partition('Y=')
 						coordy = y[2]
 						x1 = int(coordy)*75
 						x2 = x1 + 75
-						self.Pm1[0] = x1
-						self.Pm2[0] = x2
-					#	print("cx1:",x1)
-					#	print("cx2:",x2)
+
+						if self.parent.flagZoom != False:
+							print("true2")
+							self.Pm1[0] = (x1*1.5) + 56
+							self.Pm2[0] = (x1*1.5) + 56 + 110
+						else:
+							self.Pm1[0] = x1
+							self.Pm2[0] = x2
+						print("cx1:",x1)
+						print("cx2:",x2)
 
 				cbText = self.parent.comboBox.currentText()
 
 				if self.flagRelease != False: #Se hizo una seleccion
 					print("SELECTION")
 					if self.P1 > self.P2:
-						print("1 es mayor")
+						#print("1 es mayor")
 						#print("x1:",self.posicion_1[0])
 						#print("y1:",self.posicion_1[1])
 						if ((self.P2[0]<=self.Pm1[0]) and (self.P2[1] <= self.Pm1[1])) and ((self.P2[0]<=self.Pm2[0]) and (self.P2[1]<= self.Pm2[1])) and ((self.P4[0]<=self.Pm1[0]) and (self.P4[1]>=self.Pm1[1])) and ((self.P4[0]<=self.Pm2[0]) and (self.P4[1]>=self.Pm2[1])) and ((self.P1[0]>=self.Pm1[0]) and (self.P1[1]>=self.Pm1[1])) and ((self.P1[0]>=self.Pm2[0]) and (self.P1[1]>=self.Pm2[1])) and ((self.P3[0]>=self.Pm1[0]) and (self.P3[1]<= self.Pm1[1])) and ((self.P3[0]>=self.Pm2[0]) and (self.P3[1]<=self.Pm2[1])):
@@ -170,7 +190,7 @@ class Paint(QtWidgets.QGraphicsView):
 							self.flagSelection = True
 
 					else:
-						print("2 es mayor")
+						#print("2 es mayor")
 						##verificar checar funcionamiento
 						if ((self.P1[0]<=self.Pm1[0]) and (self.P1[1] <= self.Pm1[1])) and ((self.P1[0]<=self.Pm2[0]) and (self.P1[1]<= self.Pm2[1])) and ((self.P3[0]<=self.Pm1[0]) and (self.P3[1]>=self.Pm1[1])) and ((self.P3[0]<=self.Pm2[0]) and (self.P3[1]>=self.Pm2[1])) and ((self.P2[0]>=self.Pm1[0]) and (self.P2[1]>=self.Pm1[1])) and ((self.P2[0]>=self.Pm2[0]) and (self.P2[1]>=self.Pm2[1])) and ((self.P4[0]>=self.Pm1[0]) and (self.P4[1]<= self.Pm1[1])) and ((self.P4[0]>=self.Pm2[0]) and (self.P4[1]<=self.Pm2[1])):
 						#	print("entra0")
@@ -216,6 +236,11 @@ class Paint(QtWidgets.QGraphicsView):
 						#	print("entra10")
 							self.flagSelection = True
 
+				print("Name:",nameF[2])
+				print("x1:",self.Pm1[0])
+				print("y1:",self.Pm1[1])
+				print("x2:",self.Pm2[0])
+				print("y2:",self.Pm2[1])
 
 				self.form = Ui_FormModule(nameF[2],cbText,self)
 				if self.flagSelection != False: #checar que modulos entran en las coordenadas y con respecto a eso hacer la seleccion 
@@ -305,7 +330,6 @@ class Paint(QtWidgets.QGraphicsView):
 	def totalMylist(self):
 		self.auxMylist = self.parent.mylist[:]
 
-
 	def	mousePressEvent(self,event):
 		if event.button() ==  QtCore.Qt.LeftButton:
 			self.flagRelease = False
@@ -317,6 +341,9 @@ class Paint(QtWidgets.QGraphicsView):
 			self.origin = QtCore.QPoint(event.pos())
 			self.rubberBand.setGeometry(QtCore.QRect(self.origin,QtCore.QSize()))
 			self.rubberBand.show()
+			print("P1G:",event.globalPos())
+			print("P1D:",event.localPos())
+
 
 	def mouseMoveEvent(self, event):
 		if self.flagRelease != True:
@@ -340,11 +367,21 @@ class Paint(QtWidgets.QGraphicsView):
 			print("P3:",self.P3)
 			print("P4:",self.P4)
 
+			print("P2G:",event.globalPos())
+			print("P1D:",event.localPos())
+
 			self.populateCircuit()
 
 	def zoomCmb(self,det):
 		#print("zoom comb")
 		#print("det:",det)
+
+		if det > 0.8:
+			print("flagZoom")
+			self.parent.flagZoom = True
+			self.setSceneRect(0.0,0.0,2000,1000) #rango a posible cambio
+		else:
+			self.parent.flagZoom = False
 		
 		scale_tr = QtGui.QTransform()
 		scale_tr.scale(Paint.factor,Paint.factor)
@@ -353,6 +390,7 @@ class Paint(QtWidgets.QGraphicsView):
 		scale_tr2.scale(det,det)
 
 		tr = scale_tr2 * scale_tr
+		print("tr:",tr)
 		self.setTransform(tr)
 		#print("2:",self.transform().determinant())
 

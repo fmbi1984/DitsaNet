@@ -24,7 +24,7 @@ class Ui_MainWindow(object):
 		object.__init__(parent)
 
 		MainWindow.setObjectName("MainWindow")
-		MainWindow.resize(1280, 700) #1280,703  1476 523
+		MainWindow.resize(1280, 523) #1280,700  1476 523
 		#MainWindow.setFixedSize(1280,523)
 		self.centralWidget = QtWidgets.QWidget(MainWindow)
 		self.centralWidget.setObjectName("centralWidget")
@@ -161,6 +161,7 @@ class Ui_MainWindow(object):
 		self.flagStart = False
 		self.flagPage = False
 		self.flagNormal = True
+		self.flagZoom = False
 		#self.flagWmin = False 	#Flag para ubuntu
 
 		#self.valueZoomOut = list()
@@ -223,7 +224,8 @@ class Ui_MainWindow(object):
 					tabC = self.tabWidget.count()
 	
 					MainWindow.showFullScreen()
-					self.paint.setSceneRect(0.0,110,1454,448)
+				#	self.paint.setSceneRect(0.0,110,1454,448)
+					self.paint.setSceneRect(0.0,110.0,1454,448)
 
 					if (self.settingsList != None  and len(self.settingsList)!=0) or (self.settingsLabel != None and len(self.settingsLabel)!=0):
 						for i in range(int(self.numTabT)-tabC):
@@ -253,7 +255,8 @@ class Ui_MainWindow(object):
 		self.flagPage = True
 		#form = Ui_Form(self)
 		self.paint = Paint(self)
-		self.paint.setSceneRect(0.0,110,1454,448)
+		self.paint.setSceneRect(0.0,110.0,1454,448)
+	#	self.paint.setSceneRect(0.0,110,1454,448)
 		#paint = Paint(self)
 		#paint.setSceneRect(0.0,110,1454,448)
 		self.tabWidget.addTab(self.paint,"Page "+str(self.tabWidget.count()+1))
@@ -268,7 +271,7 @@ class Ui_MainWindow(object):
 		textcmb = self.cmbZoom.currentText()
 		y = textcmb.split('%')
 		value = ''.join(y)
-		#print("value:",value)
+		print("value:",value)
 		det = int(value) / 125
 		
 		form = self.tabWidget.currentWidget()
@@ -304,8 +307,8 @@ class Ui_MainWindow(object):
 		Ui_pauseModule(self).exec_()
 		#BCmb.pauseClient(useHostname, i)
 
-	def btnIniciar(self):
-		print("Iniciar")
+	#def btnIniciar(self):
+	#	print("Iniciar")
 		#BCmb.runClient(useHostname, i)
 
 	def btnCargar(self):
