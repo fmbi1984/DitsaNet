@@ -348,11 +348,13 @@ if __name__ == "__main__":
 	'''
 	
 	#BCmb.runClient(useHostname, 2)
-
+	#BCmb.startPollingClient(useHostname) 
+	#sleep(.2)
 	#for i in range(0,100):
-	#	BCmb.startPollingClient(useHostname)
-	#	sleep(.2)
 	#	BCmb.memoryDataClient(useHostname)
+
+	#BCmb.stopPollingClient(useHostname)
+
 	#	BCmb.pingClient(useHostname,1)
 		#BCmb.readDataClient(useHostname, 2)
 

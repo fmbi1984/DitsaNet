@@ -40,7 +40,6 @@ class DataListenerMemory(Thread):
 		self._stop_event.clear()
 
 	def run(self):
-
 		print(self._name+" started")
 		while not self._stop_event.is_set():
 

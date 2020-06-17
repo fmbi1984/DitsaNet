@@ -149,7 +149,7 @@ class Ui_WindowCh(QtWidgets.QDialog):
 					self.newlist.append(self.parent.mylist[j])
 					self.newlist.append(self.parent.mylist[j+1])
 
-		print("new:",self.newlist)
+		#print("new:",self.newlist)
 		self.loadTableW() ##verificar lo que sucede si no hay programas
 
 	def closeEvent(self,event):
@@ -243,7 +243,7 @@ class Ui_WindowCh(QtWidgets.QDialog):
 				self.listWidget.addItem(item)
 
 	def on_cb_textPrograms(self):
-		files=self.ls2("/Users/cex/Documents/github/DitsaNetApp/ProfileEditorPrograms/")
+		files=self.ls2("/home/ditsa/Escritorio/DitsaNetApp/ProfileEditorPrograms/")
 		for file in files:
 			nf = file.replace('.txt','')
 			self.textPrograms.addItem(nf)
@@ -254,12 +254,12 @@ class Ui_WindowCh(QtWidgets.QDialog):
 
 	def on_clicked_textPrograms(self):
 		nameFile = self.textPrograms.currentText()
-		print("nameFile:",nameFile)
+		#print("nameFile:",nameFile)
 		openFile = nameFile+".txt"
-		archivo_texto = open("/Users/cex/Documents/github/DitsaNetApp/ProfileEditorPrograms/"+openFile,"r")
+		archivo_texto = open("/home/ditsa/Escritorio/DitsaNetApp/ProfileEditorPrograms/"+openFile,"r")
 		self.programJson = archivo_texto.read()
 		archivo_texto.close()
-		print(self.programJson)
+		#print(self.programJson)
 
 	def on_bttnDoneClicked(self):
 		print("clickDone")
@@ -270,8 +270,7 @@ class Ui_WindowCh(QtWidgets.QDialog):
 			addr = self.loadProg[i].split('A=')
 			self.addrs.append(addr[1])
 
-		#print("loadProg:",self.loadProg)
-		print("addr:",self.addrs)
+		#print("addr:",self.addrs)
 		self.loadProg.clear()
 
 		##realiza un len de cuantos dispositivos seran ejecutados y saca addr
@@ -282,7 +281,7 @@ class Ui_WindowCh(QtWidgets.QDialog):
 		for i in range(len(self.addrs)):
 			#num = self.addrs[i]
 			self.textEdit.setVisible(False)
-			print("valueAddr:",int(self.addrs[i]))
+			#print("valueAddr:",int(self.addrs[i]))
 			x = BCmb.writeProgramClient(useHostname,int(self.addrs[i]),self.programJson)
 	
 			#necesita un delay en lo que espera respuesta del xmega

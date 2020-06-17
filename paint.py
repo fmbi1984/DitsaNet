@@ -1,7 +1,7 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-
+import shared
 from formmodule import Ui_FormModule
 
 class Paint(QtWidgets.QGraphicsView):
@@ -14,9 +14,6 @@ class Paint(QtWidgets.QGraphicsView):
 	#	QtWidgets.QGraphicsView.__init__(self)
 
 		#self.setObjectName("Paint")
-
-		#self.setSceneRect(QtCore.QRectF(self.viewport().rect()))
-		#self.setSceneRect(0.0,70,1454.0,448.0)
 		
 		self.scene	=	QtWidgets.QGraphicsScene()
 		self.rubberBand = QtWidgets.QRubberBand(QtWidgets.QRubberBand.Rectangle, self)
@@ -61,9 +58,10 @@ class Paint(QtWidgets.QGraphicsView):
 		print("showE")
 		if self.parent.flagZoom != True:
 			if self.parent.flagNormal != False: 
-				self.setSceneRect(0.0,0.0,1454,448)
+				self.setSceneRect(0,90,1280,523)
 			else:
-				self.setSceneRect(0.0,110.0,1454,448) #110
+				self.setSceneRect(0,0,1280,523)
+
 
 		#print("rect1:",self.sceneRect())
 		self.populateCircuit()
@@ -72,12 +70,13 @@ class Paint(QtWidgets.QGraphicsView):
 
 	def populateZoom(self):
 		print("populateZoom")
-		print(self.parent.flagZoom)
+		#print(self.parent.flagZoom)
 		if len(self.parent.valueZoom) != 0:
 			tr = self.parent.valueZoom[0]
 			self.setTransform(tr)
 
 			if self.parent.flagZoom != False:
+				print("entraZoom")
 				self.setSceneRect(0.0,0.0,0.0,0.0)
 
 	def populateCircuit(self): 
@@ -110,14 +109,14 @@ class Paint(QtWidgets.QGraphicsView):
 						coordx = y[2]
 						y1 = int(coordx)*57
 						y2 = y1 + 57
-						print("cy1:",y1)
-						print("cy2:",y2)
+					#	print("cy1:",y1)
+					#	print("cy2:",y2)
 						if self.parent.flagZoom != False:
-							print("TRUE")
+					#		print("TRUE")
 							self.Pm1[1] = y1*1.5
 							self.Pm2[1] = (y1*1.5) + 75
-							print("Pm1[1]:",y1*1.5)
-							print("Pm2[1]:",(y1*1.5) + 75)
+					#		print("Pm1[1]:",y1*1.5)
+					#		print("Pm2[1]:",(y1*1.5) + 75)
 						else:
 							self.Pm1[1] = y1
 							self.Pm2[1] = y2
@@ -128,19 +127,19 @@ class Paint(QtWidgets.QGraphicsView):
 						x2 = x1 + 75
 
 						if self.parent.flagZoom != False:
-							print("true2")
+					#		print("true2")
 							self.Pm1[0] = (x1*1.5) + 56
 							self.Pm2[0] = (x1*1.5) + 56 + 110
 						else:
 							self.Pm1[0] = x1
 							self.Pm2[0] = x2
-						print("cx1:",x1)
-						print("cx2:",x2)
+					#	print("cx1:",x1)
+					#	print("cx2:",x2)
 
 				cbText = self.parent.comboBox.currentText()
-
+				cbText2 =  self.parent.comboBox.currentIndex()+1
 				if self.flagRelease != False: #Se hizo una seleccion
-					print("SELECTION")
+				#	print("SELECTION")
 					if self.P1 > self.P2:
 						#print("1 es mayor")
 						#print("x1:",self.posicion_1[0])
@@ -236,13 +235,15 @@ class Paint(QtWidgets.QGraphicsView):
 						#	print("entra10")
 							self.flagSelection = True
 
-				print("Name:",nameF[2])
-				print("x1:",self.Pm1[0])
-				print("y1:",self.Pm1[1])
-				print("x2:",self.Pm2[0])
-				print("y2:",self.Pm2[1])
-
-				self.form = Ui_FormModule(nameF[2],cbText,"0.0",self)
+			#	print("Name:",nameF[2])
+			#	print("x1:",self.Pm1[0])
+			#	print("y1:",self.Pm1[1])
+			#	print("x2:",self.Pm2[0])
+			#	print("y2:",self.Pm2[1])
+				#print("cbtext2:",cbText2)
+				#print("addr:",int(addrCell[1]))
+				print("sharedprueba:",shared.DEV[int(addrCell[1])][cbText2])
+				self.form = Ui_FormModule(nameF[2],cbText,shared.DEV[int(addrCell[1])][cbText2],self)
 				if self.flagSelection != False: #checar que modulos entran en las coordenadas y con respecto a eso hacer la seleccion 
 					self.flagSelection = False
 					self.form.selectionModule()
@@ -256,6 +257,12 @@ class Paint(QtWidgets.QGraphicsView):
 					self.parent.listSelect.append(addrCell[1])
 
 					#print("listSelect:",self.parent.listSelect)
+
+				elif (shared.DEV[int(addrCell[1])][8] == 'I') or (shared.DEV[int(addrCell[1])][8] == 'S') or (shared.DEV[int(addrCell[1])][8] == 'R') or (shared.DEV[int(addrCell[1])][8] == 'P') or (shared.DEV[int(addrCell[1])][8] == 'E'):
+					print("entraOPt")
+					self.form.stateModule(str(shared.DEV[int(addrCell[1])][8]))
+					
+
 				self.form.setAttribute(QtCore.Qt.WA_TranslucentBackground,True)
 				self.form.move(x1,y1)
 
@@ -308,7 +315,6 @@ class Paint(QtWidgets.QGraphicsView):
 				self.scene.addWidget(lbltext)
 				self.setScene(self.scene)
 
-
 	def contextMenuEvent(self,event):
 		print("contextEvent")
 		self.rubberBand.hide()
@@ -338,12 +344,12 @@ class Paint(QtWidgets.QGraphicsView):
 			self.P1[0] = event.pos().x()
 			self.P1[1] = event.pos().y()
 
-			print("P1:",self.P1)
+		#	print("P1:",self.P1)
 			self.origin = QtCore.QPoint(event.pos())
 			self.rubberBand.setGeometry(QtCore.QRect(self.origin,QtCore.QSize()))
 			self.rubberBand.show()
-			print("P1G:",event.globalPos())
-			print("P1D:",event.localPos())
+		#	print("P1G:",event.globalPos())
+		#	print("P1D:",event.localPos())
 
 
 	def mouseMoveEvent(self, event):
@@ -364,12 +370,12 @@ class Paint(QtWidgets.QGraphicsView):
 			self.P4[0] = self.P2[0]  #alineado con P2 x P1 y
 			self.P4[1] = self.P1[1]
 
-			print("P2:",self.P2)
-			print("P3:",self.P3)
-			print("P4:",self.P4)
+		#	print("P2:",self.P2)
+		#	print("P3:",self.P3)
+		#	print("P4:",self.P4)
 
-			print("P2G:",event.globalPos())
-			print("P1D:",event.localPos())
+		#	print("P2G:",event.globalPos())
+		#	print("P1D:",event.localPos())
 
 			self.populateCircuit()
 

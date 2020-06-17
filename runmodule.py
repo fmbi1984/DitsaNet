@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'stopmodule.ui'
+# Form implementation generated from reading ui file 'runmodule.ui'
 #
 # Created by: PyQt5 UI code generator 5.13.0
 #
@@ -16,13 +16,13 @@ from appsettings import useHostname
 from ordened import NameOrdened
 
 
-class Ui_stopModule(QtWidgets.QDialog):
-	#def setupUi(self, stopModule):
+class Ui_runModule(QtWidgets.QDialog):
+	#def setupUi(self, runModule):
 	def __init__(self,parent=None):
-		super(Ui_stopModule, self).__init__()
+		super(Ui_runModule, self).__init__()
 		self.parent = parent
 
-		self.setObjectName("stopModule")
+		self.setObjectName("runModule")
 		self.setFixedSize(332,331) #332,331
 		#self.resize(472, 331)
 		self.buttonBox = QtWidgets.QDialogButtonBox(self)
@@ -76,12 +76,12 @@ class Ui_stopModule(QtWidgets.QDialog):
 
 		self.flagChange = False
 
-	def retranslateUi(self, stopModule):
+	def retranslateUi(self, runModule):
 		_translate = QtCore.QCoreApplication.translate
-		stopModule.setWindowTitle(_translate("stopModule", "Stop"))
-		self.label.setText(_translate("stopModule", "-"))
-		self.lblModules.setText(_translate("stopModule", "Selection of Modules"))
-		self.BtnArrowR.setText(_translate("stopModule", ">>"))
+		runModule.setWindowTitle(_translate("runModule", "run"))
+		self.label.setText(_translate("runModule", "-"))
+		self.lblModules.setText(_translate("runModule", "Selection of Modules"))
+		self.BtnArrowR.setText(_translate("runModule", ">>"))
 
 		#conexion a funciones
 		self.BtnArrowR.clicked.connect(self.on_bttnArrowR)
@@ -96,7 +96,7 @@ class Ui_stopModule(QtWidgets.QDialog):
 		self.lineEditMax.textChanged.connect(self.on_editMax)
 
 	def showEvent(self,event):
-		print("showStop")
+		print("showrun")
 		for i in range(2,len(self.parent.mylist),4):
 			self.newlist.append(self.parent.mylist[i].replace('N=',''))
 
@@ -116,7 +116,7 @@ class Ui_stopModule(QtWidgets.QDialog):
 		#print("new:",self.newlist)
 
 	def closeEvent(self,event):
-		print("closeStop")
+		print("closerun")
 
 	def on_editMin(self):
 		y = self.lineEditMin.text()
@@ -134,6 +134,9 @@ class Ui_stopModule(QtWidgets.QDialog):
 		self.data2 = "N="+txt
 
 		self.flagChange = False
+
+		#print("data1:",self.data1)
+		#print("data1:",self.data2)
 
 		try:
 			self.flagOutL = False
@@ -184,24 +187,28 @@ class Ui_stopModule(QtWidgets.QDialog):
 			addr = self.loadProg[i].split('A=')
 			self.addrs.append(addr[1])
 
+		#print("loadProg:",self.loadProg)
+		#print("addr:",self.addrs)
 		self.loadProg.clear()
 
+		#print("espera que se carguen todos los programas...")
 		##realiza un len de cuantos dispositivos seran ejecutados y saca addrs
 
 		self.textEdit.clear()
 		self.textEdit.setVisible(False)
 		for i in range(len(self.addrs)):
+			#print("valueAddr:",self.addrs[i])
 		
-			x = BCmb.stopClient(useHostname,int(self.addrs[i]))
+			x = BCmb.runClient(useHostname,int(self.addrs[i]))
 			time.sleep(0.3)#sujeto a cambios
 
 			if x != None:
-				if x == 'PASS,STOP':
-					self.textEdit.insertPlainText("Stop successful in Addr: "+self.addrs[i]+'\n')
+				if x == 'PASS,RUN':
+					self.textEdit.insertPlainText("run successful in Addr: "+self.addrs[i]+'\n')
 					self.textEdit.setVisible(True)
 
 				else:
-					self.textEdit.insertPlainText("Fail Stop Addr: "+self.addrs[i]+'\n')
+					self.textEdit.insertPlainText("Fail run Addr: "+self.addrs[i]+'\n')
 					self.textEdit.setVisible(True)
 
 			else:

@@ -52,7 +52,7 @@ class DataListenerServer(Thread):
         #try:
         print(self._name+" started")
         
-        self.pingForDevicesPresent()
+        self.pingForDevicesPresent() #verificar ping hacer pruebas 
         
         while not self._stop_event.is_set():
             

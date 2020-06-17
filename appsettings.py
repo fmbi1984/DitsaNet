@@ -7,7 +7,7 @@ import shared
 useDesktopToSaveReports = True
 useDongle = True
 useMac = True
-useHostname = 'ditsa-Lenovo-C20-00.local'  #'MacBook-Pro-de-CEX-7.local'    	
+useHostname = 'raspberrypi.local' #'ditsa-Lenovo-C20-00.local'  #'MacBook-Pro-de-CEX-7.local'    	
 
 measureWMVoltage = False
 jlinkSNforPIC32 = 820100854

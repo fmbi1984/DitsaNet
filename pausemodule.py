@@ -137,9 +137,6 @@ class Ui_pauseModule(QtWidgets.QDialog):
 
 		self.flagChange = False
 
-		print("data1:",self.data1)
-		print("data1:",self.data2)
-
 		try:
 			self.flagOutL = False
 			value1 = self.newlist.index(self.data1)
@@ -159,7 +156,6 @@ class Ui_pauseModule(QtWidgets.QDialog):
 
 		except:
 			self.flagChange = True
-			print("except")
 			if self.data1 != None and self.data1 !='N=':
 				try:
 					val1 = self.newlist.index(self.data1)
@@ -191,22 +187,22 @@ class Ui_pauseModule(QtWidgets.QDialog):
 			self.addrs.append(addr[1])
 
 		#print("loadProg:",self.loadProg)
-		print("addr:",self.addrs)
+		#print("addr:",self.addrs)
 		self.loadProg.clear()
 
-		print("espera que se carguen todos los programas...")
+		#print("espera que se carguen todos los programas...")
 		##realiza un len de cuantos dispositivos seran ejecutados y saca addrs
 
 		self.textEdit.clear()
 		self.textEdit.setVisible(False)
 		for i in range(len(self.addrs)):
-			print("valueAddr:",self.addrs[i])
+			#print("valueAddr:",self.addrs[i])
 			
 			x = BCmb.pauseClient(useHostname, int(self.addrs[i]))
 
 			#probablemente necesite un sleep
 			
-			#time.sleep(0.5)
+			time.sleep(0.3)#sujeto a cmabios
 
 			if x != None:
 				if x == 'PASS,PAUSE':

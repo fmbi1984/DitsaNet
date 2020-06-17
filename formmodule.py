@@ -121,11 +121,11 @@ class Ui_FormModule(QtWidgets.QWidget):
 		if self.cbOption == 'Step':
 			self.label.setText(self.value+" S")
 
-		if self.cbOption == 'Address':
-			self.label.setText(self.value+" #")
+		#if self.cbOption == 'Address':
+		#	self.label.setText(self.value+" #")
 
 	def selectionModule(self):
-		print("entreModule")
+		#print("entreModule")
 		ft = QtGui.QFont()
 		ft.setPointSize(12)
 		ft.setBold(True)
@@ -146,7 +146,27 @@ class Ui_FormModule(QtWidgets.QWidget):
 "	margin: 0.5px;\n"
 "}")
 
+	#limegreen #darkorange #yellow-gold #crimsom -red #mediumpurple #black #lightblue
+	def stateModule(self,opt):
+		print("stateModule")
+		print("opt:",opt)
 
+		if (opt == 'I') or (opt == 'S'):
+			self.label.setStyleSheet("QLabel {background-color : lightblue; color : black; border: 1px solid black;} ")
+			self.label.setAlignment(QtCore.Qt.AlignCenter)
+
+		elif opt == 'E':
+			self.label.setStyleSheet("QLabel {background-color : darkorange; color : black; border: 1px solid black;} ")
+			self.label.setAlignment(QtCore.Qt.AlignCenter)
+
+		elif opt == 'R':
+			self.label.setStyleSheet("QLabel {background-color : limegreen; color : black; border: 1px solid black;} ")
+			self.label.setAlignment(QtCore.Qt.AlignCenter)
+
+		
+		elif opt == 'P':
+			self.label.setStyleSheet("QLabel {background-color : mediumpurple; color : black; border: 1px solid black;} ")
+			self.label.setAlignment(QtCore.Qt.AlignCenter)
 
 
 '''

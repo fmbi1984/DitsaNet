@@ -14,10 +14,17 @@ from paint import Paint
 from windowch import Ui_WindowCh
 from pausemodule import Ui_pauseModule
 from stopmodule import Ui_stopModule
+from runmodule import Ui_runModule
 
 from devicemainboard import BCmb
+import shared
+import time
+import threading
+
+from appsettings import useHostname
 
 from datalistenermemory import DataListenerMemory
+#from dataclient import DataClient
 
 
 class Ui_MainWindow(object):
@@ -34,13 +41,13 @@ class Ui_MainWindow(object):
 		self.gridLayout.setContentsMargins(11, 11, 11, 11)
 		self.gridLayout.setSpacing(6)
 		self.gridLayout.setObjectName("gridLayout")
-	#	self.cmdIniciar = QtWidgets.QPushButton(self.centralWidget)
-	#	self.cmdIniciar.setObjectName("cmdIniciar")
-	#	self.gridLayout.addWidget(self.cmdIniciar, 0, 1, 1, 1)
+		self.cmdIniciar = QtWidgets.QPushButton(self.centralWidget) ######
+		self.cmdIniciar.setObjectName("cmdIniciar")
+		self.gridLayout.addWidget(self.cmdIniciar, 0, 1, 1, 1)
 
 		self.comboBox = QtWidgets.QComboBox(self.centralWidget)
 		self.comboBox.setObjectName("comboBox")
-		self.gridLayout.addWidget(self.comboBox, 0, 3, 1, 1)
+		self.gridLayout.addWidget(self.comboBox, 0, 4, 1, 1)  #0,3,1,1
 		self.cmdCargar = QtWidgets.QPushButton(self.centralWidget)
 		self.cmdCargar.setObjectName("cmdCargar")
 		self.gridLayout.addWidget(self.cmdCargar, 0, 0, 1, 1) 
@@ -52,13 +59,13 @@ class Ui_MainWindow(object):
 		sizePolicy.setHeightForWidth(self.cmbZoom.sizePolicy().hasHeightForWidth())
 		self.cmbZoom.setSizePolicy(sizePolicy)
 		self.cmbZoom.setObjectName("cmbZoom")
-		self.gridLayout.addWidget(self.cmbZoom, 0, 4, 1, 1) 
+		self.gridLayout.addWidget(self.cmbZoom, 0, 5, 1, 1) #0,4,1,1
 		self.cmdDetener = QtWidgets.QPushButton(self.centralWidget)
 		self.cmdDetener.setObjectName("cmdDetener")
-		self.gridLayout.addWidget(self.cmdDetener, 0, 2, 1, 1) 
+		self.gridLayout.addWidget(self.cmdDetener, 0, 3, 1, 1) #0,2,1,1
 		self.cmdPausar = QtWidgets.QPushButton(self.centralWidget)
 		self.cmdPausar.setObjectName("cmdPausar")
-		self.gridLayout.addWidget(self.cmdPausar, 0, 1, 1, 1) 
+		self.gridLayout.addWidget(self.cmdPausar, 0, 2, 1, 1) #0,1,1,1 
 		self.tabWidget = QtWidgets.QTabWidget(self.centralWidget)
 		font = QtGui.QFont()
 		#font.setFamily("Ubuntu")
@@ -80,7 +87,7 @@ class Ui_MainWindow(object):
 		#self.tab_2 = QtWidgets.QWidget()
 		#self.tab_2.setObjectName("tab_2")
 		#self.tabWidget.addTab(self.tab_2, "")
-		self.gridLayout.addWidget(self.tabWidget, 1, 0, 1, 5) 
+		self.gridLayout.addWidget(self.tabWidget, 1, 0, 1, 6) #1,0,1,5
 		MainWindow.setCentralWidget(self.centralWidget)
 		self.menuBar = QtWidgets.QMenuBar(MainWindow)
 		self.menuBar.setGeometry(QtCore.QRect(0, 0, 1476, 22))
@@ -124,7 +131,7 @@ class Ui_MainWindow(object):
 		self.tabWidget.setCurrentIndex(0)
 		QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
-		self.comboBox.addItems(['Current','Voltage','Temperature','Time left','Step','Address'])
+		self.comboBox.addItems(['Current','Voltage','Temperature','Step','Time left']) #addr pendiente, tiempo transcurrido
 		
 		self.cmbZoom.setEditable(True)
 		self.cmbZoom.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp("\\d\\d\\d?$"),self.centralWidget))
@@ -137,7 +144,7 @@ class Ui_MainWindow(object):
 
 		self.cmdDetener.clicked.connect(self.btnDetener)
 		self.cmdPausar.clicked.connect(self.btnPausar)
-	#	self.cmdIniciar.clicked.connect(self.btnIniciar)
+		self.cmdIniciar.clicked.connect(self.btnIniciar)
 		self.cmdCargar.clicked.connect(self.btnCargar)
 	
 		#self.paint = Paint(self)
@@ -164,17 +171,16 @@ class Ui_MainWindow(object):
 		self.flagPage = False
 		self.flagNormal = True
 		self.flagZoom = False
-		#self.flagWmin = False 	#Flag para ubuntu
+		self.flagWmin = False 	#Flag para ubuntu
 
 		#self.valueZoomOut = list()
 		#self.scaleFactor = 1.0
-
 		self.MainWindow = MainWindow
 
 	def retranslateUi(self, MainWindow):
 		_translate = QtCore.QCoreApplication.translate
 		MainWindow.setWindowTitle(_translate("MainWindow", "Formation Viewer"))
-	#	self.cmdIniciar.setText(_translate("MainWindow", "Start"))
+		self.cmdIniciar.setText(_translate("MainWindow", "Start"))
 		self.cmdCargar.setText(_translate("MainWindow", "Load Programs / Start"))
 		self.cmdDetener.setText(_translate("MainWindow", "Stop"))
 		self.cmdPausar.setText(_translate("MainWindow", "Pause"))
@@ -193,13 +199,13 @@ class Ui_MainWindow(object):
 
 	def showEvent(self,event):
 		print("ShowEvent") 
-		#if self.flagWmin != True: #Para ubuntu se necesito esta bandera
-		#	self.flagWmin = True
-		if MainWindow.isMinimized(): #Para mac
-			pass
-		else:
-			settings = QtCore.QSettings('/Users/cex/Documents/github/DitsaNetEditorApp/Settings/archivo.ini', QtCore.QSettings.NativeFormat)
-			if settings.value('/Users/cex/Documents/github/DitsaNetEditorApp/Settings/archivo.ini')!='':
+		if self.flagWmin != True: #Para ubuntu se necesito esta bandera
+			self.flagWmin = True
+		#if MainWindow.isMinimized(): #Para mac
+		#	pass
+		#else:
+			settings = QtCore.QSettings('/home/ditsa/Settings/archivo.ini', QtCore.QSettings.NativeFormat)
+			if settings.value('/home/ditsa/Settings/archivo.ini')!='':
 				self.settingsList = settings.value("mylist")
 				self.settingsLabel = settings.value("mylabel")
 				self.settingsRowCol = settings.value("rowcol")
@@ -224,11 +230,9 @@ class Ui_MainWindow(object):
 					self.paint = Paint(self)
 					self.tabWidget.addTab(self.paint, "Page 1")
 					tabC = self.tabWidget.count()
-	
-					
-					MainWindow.showFullScreen()
-				#	self.paint.setSceneRect(0.0,110,1454,448)
-					self.paint.setSceneRect(0.0,110.0,1454,448)
+
+					MainWindow.showMaximized()
+					self.paint.setSceneRect(0,0,0,0)
 
 					if (self.settingsList != None  and len(self.settingsList)!=0) or (self.settingsLabel != None and len(self.settingsLabel)!=0):
 						for i in range(int(self.numTabT)-tabC):
@@ -237,13 +241,19 @@ class Ui_MainWindow(object):
 
 					self.onCmbZoom()
 
-				#	print("Inicia Poleo") #por el momento estara comentado
-				#	self.dataThread = DataListenerMemory(self.testsCallback)
-				#	self.dataThread.start()
+					
+					print("Inicia Poleo") #poleo es lo primero en iniciar despues de llenar screen
+					self.dataThread = DataListenerMemory(self.testsCallback)
+					self.dataThread.start()
+
+					self.valueData() #obtiene los valores del poleo
+
 
 	def closeEvent(self,event):
 		print("closeEvent")
-
+		self.t.cancel() #fin de actualizacion de display comm pc-raspb
+		self.dataThread.stop() #fin de thread poleo comm raspb - xmega
+		
 	def populateTabs(self):
 		print("populateTabs")
 		for i in range(0,len(self.settingsList),4):
@@ -260,15 +270,13 @@ class Ui_MainWindow(object):
 	def newPage(self): 
 		print("newPage")
 		self.flagPage = True
+		self.flagNormal = False
 		#form = Ui_Form(self)
 		self.paint = Paint(self)
-		self.paint.setSceneRect(0.0,110.0,1454,448)
-	#	self.paint.setSceneRect(0.0,110,1454,448)
-		#paint = Paint(self)
-		#paint.setSceneRect(0.0,110,1454,448)
+		self.paint.setSceneRect(0,0,0,0)
 		self.tabWidget.addTab(self.paint,"Page "+str(self.tabWidget.count()+1))
 
-	def onCombo(self):
+	def onCombo(self): #seleccion I,V,T,time,Step,addr
 		print("comboBox")
 		form = self.tabWidget.currentWidget() #ya estamos en form, ingresa a la propiedad
 		form.populateCircuit()
@@ -285,52 +293,108 @@ class Ui_MainWindow(object):
 		form.zoomCmb(det)
 
 	def testsCallback(self, msg):
-		#for i in range(1,3):
-		#address = 1
+		
+		#print("testCallback:",msg)
+		#msg = msg.replace("DL[PASS]:","")
+		#print(msg)
+
 		if "DL[X]" in msg:
 			msg = msg.replace("DL[PASS]:","")
 
 			print("ENT")
+			#currentDisplay = self.tabWidget.currentWidget()
+			#currentDisplay.currentCircuit()
 			#actualizar valores 
-			
 			#self.cmdDisplay1_1.repaint()
 			#self.cmdDisplay1_1.update()
 			#self.cmdDisplay1_1.setUpdatesEnabled(True)
 
+	def valueData(self):
+		print("VALUEDATA")
+		memoryData = BCmb.memoryDataClient(useHostname)
+		
+		for i in range (shared.devStart, shared.devStop+1): #checar con otros ping
+			address = i
+		
+			if memoryData!= None:
+				#print("ValueM:",memoryData)
+				TempData = memoryData[address-1].split(',')
+				#print("TempData:",TempData)
+				dat1 = str(TempData[0]).replace('{','')
+				#print("data1:",dat1)
+				if dat1 == 'True':
+					TempData[8] = str(TempData[8]).replace('}','')
+					TempData[0] = True
+
+					shared.DEV[address][0] = TempData[0]
+					#we store current
+					shared.DEV[address][1] = str(TempData[1].replace('I',''))
+					#we store voltage
+					shared.DEV[address][2] = str(TempData[2].replace('V',''))
+					#we store temperature
+					shared.DEV[address][3] = str(TempData[3].replace('T',''))
+					#we store step number and type
+					shared.DEV[address][4] = str(TempData[4].replace('P',''))
+					#we store time of current step
+					shared.DEV[address][5] = str(TempData[5].replace('t',''))
+					#we store current time program
+					shared.DEV[address][6] = str(TempData[6].replace('Tt',''))
+					#we store the total time program
+					shared.DEV[address][7] = str(TempData[7].replace('TT',''))
+					#we store the total time program
+					shared.DEV[address][8] = str(TempData[8].replace('',''))
+
+					#if shared.DEV[address][8] == '':
+					#	print("Dato3")
+					#print("shared8:",shared.DEV[address][8])
+
+				if dat1 == 'False}':
+					TempData[0] = str(TempData[0]).replace('}','')
+					shared.DEV[address][0] = False
+					print("FalsePing")
+				
+				print("TempData2:",TempData)
+			
+		self.t = threading.Timer(1, self.valueData)
+		self.t.start()
 
 	count = 0
 	def resizeEvent(self,event): #verificar con ubuntu como trabaja
 		print("changeEvent")
 		self.count+= 1
 		if self.count != 1:
-			if MainWindow.isFullScreen() and self.flagPage != True:
+
+			if MainWindow.isMaximized() and self.flagNormal != True:
 				self.flagNormal = True
-				MainWindow.showNormal() #asigna el valor original del resize
-				#print("normal")
+				#MainWindow.showNormal() #asigna el valor original del resize
 				x = self.tabWidget.currentWidget()
 				x.showEvent(event)
-
+			
 			else:
+				#print("else max")
 				self.flagPage = False
 				self.flagNormal = False
-				MainWindow.showFullScreen()
-				#print("full")
+				#MainWindow.showMaximized()
 				x = self.tabWidget.currentWidget()
 				x.showEvent(event)
 
 	def btnDetener(self):
 		print("Detener")
 		Ui_stopModule(self).exec_()
-		#BCmb.stopClient(useHostname, i)
+		form = self.tabWidget.currentWidget() #ya estamos en form, ingresa a la propiedad
+		form.populateCircuit()
 
 	def btnPausar(self):
 		print("Pausar")
 		Ui_pauseModule(self).exec_()
-		#BCmb.pauseClient(useHostname, i)
+		form = self.tabWidget.currentWidget() #ya estamos en form, ingresa a la propiedad
+		form.populateCircuit()
 
-	#def btnIniciar(self):
-	#	print("Iniciar")
-		#BCmb.runClient(useHostname, i)
+	def btnIniciar(self): #se debe pausar la actualizacion display y reanudar al finalizar(poleo verificar )
+		print("Iniciar")
+		Ui_runModule(self).exec_()
+		form = self.tabWidget.currentWidget() #ya estamos en form, ingresa a la propiedad
+		form.populateCircuit()
 
 	def btnCargar(self):
 		print("Cargar")
