@@ -11,16 +11,17 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 class Ui_FormModule(QtWidgets.QWidget):
 	#def setupUi(self, FormModule):
-	def __init__(self,nameModule,cbOption,parent=None):
+	def __init__(self,nameModule,cbOption,value,parent=None):
 		super(Ui_FormModule, self).__init__()
 		self.parent = parent
 		self.nameModule = nameModule
 		self.cbOption = cbOption
+		self.value = value
 
 		self.setObjectName("FormModule")
 		self.resize(73, 70)
 		self.label = QtWidgets.QLabel(self)
-		self.label.setGeometry(QtCore.QRect(0, 15, 73, 20)) #(0, 15, 74, 20))
+		self.label.setGeometry(QtCore.QRect(0, 16, 73, 22)) #(0, 15, 74, 20))
 		font = QtGui.QFont()
 		font.setFamily("Ubuntu Light")
 		font.setPointSize(12)
@@ -32,7 +33,7 @@ class Ui_FormModule(QtWidgets.QWidget):
 		self.label.setAlignment(QtCore.Qt.AlignHCenter|QtCore.Qt.AlignTop)
 		self.label.setObjectName("label")
 		self.pbProgram = QtWidgets.QProgressBar(self)
-		self.pbProgram.setGeometry(QtCore.QRect(0, 35, 73, 15)) #(0, 35, 74, 15))
+		self.pbProgram.setGeometry(QtCore.QRect(0, 37, 73, 19)) #(0, 35, 74, 15))
 		self.pbProgram.setStyleSheet("QProgressBar\n"
 "{\n"
 "	border: 1px solid black;\n"
@@ -48,7 +49,7 @@ class Ui_FormModule(QtWidgets.QWidget):
 		self.pbProgram.setProperty("value",0)
 		self.pbProgram.setObjectName("pbProgram")
 		self.lblmodule = QtWidgets.QLabel(self)
-		self.lblmodule.setGeometry(QtCore.QRect(0, 0, 73, 15)) #(0, 0, 74, 15))
+		self.lblmodule.setGeometry(QtCore.QRect(0, 0, 73, 16)) #(0, 0, 74, 15))
 		font = QtGui.QFont()
 		font.setPointSize(11)
 		self.lblmodule.setFont(font)
@@ -99,29 +100,29 @@ class Ui_FormModule(QtWidgets.QWidget):
 		self.lblmodule.setText(_translate("FormModule", "1-01"))
 
 	def showEvent(self,event):
-		print("FormShow")
+		print("FormShow") #agregar value para actualizar valores de datos!!!!
 		self.lblmodule.setText(self.nameModule)
 		#self.label.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
 		
 		#self.lblmodule.setTextInteractionFlags(QtCore.Qt.TextSelectableByKeyboard)
 
 		if self.cbOption == 'Current':
-			self.label.setText("0.0"+" A")
+			self.label.setText(self.value+" A")
 
 		if self.cbOption == 'Voltage':
-			self.label.setText("00.0"+" V")
+			self.label.setText(self.value+" V")
 
 		if self.cbOption == 'Temperature':
-			self.label.setText("0.0"+" C")
+			self.label.setText(self.value+" C")
 
 		if self.cbOption == 'Time left':
-			self.label.setText("0.0"+" t")
+			self.label.setText(self.value+" t")
 
 		if self.cbOption == 'Step':
-			self.label.setText("0.0"+" S")
+			self.label.setText(self.value+" S")
 
 		if self.cbOption == 'Address':
-			self.label.setText("1"+" #")
+			self.label.setText(self.value+" #")
 
 	def selectionModule(self):
 		print("entreModule")
@@ -145,31 +146,8 @@ class Ui_FormModule(QtWidgets.QWidget):
 "	margin: 0.5px;\n"
 "}")
 
-	def deselectModule(self):
-		print("deselec")
-		ft = QtGui.QFont()
-		ft.setPointSize(12)
-		ft.setBold(True)
-		ft.setWeight(75)
-		self.label.setStyleSheet("QLabel {background-color : lightblue; color : black; border: 1px solid black;} ")
-		self.label.setAlignment(QtCore.Qt.AlignCenter)
-		self.label.setFont(ft)
-		self.pbProgram.setStyleSheet("QProgressBar\n"
-"{\n"
-"	border: 1px solid black;\n"
-"	border-radius: 0px;\n"
-"	text-align: center;\n"
-"}\n"
-"QProgressBar::chunk\n"
-"{\n"
-"	background-color: blue;\n"
-"	width: 2.15px;\n"
-"	margin: 0.5px;\n"
-"}")
 
-	def selectionLabel(self):
-		print("selectionLabel")
-		self.lblmodule.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
+
 
 '''
 if __name__ == "__main__":

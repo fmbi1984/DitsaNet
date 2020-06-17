@@ -108,8 +108,8 @@ class Paint(QtWidgets.QGraphicsView):
 					if i == 0:
 						y = tmp[0].partition('X=')
 						coordx = y[2]
-						y1 = int(coordx)*50
-						y2 = y1 + 50
+						y1 = int(coordx)*57
+						y2 = y1 + 57
 						print("cy1:",y1)
 						print("cy2:",y2)
 						if self.parent.flagZoom != False:
@@ -242,7 +242,7 @@ class Paint(QtWidgets.QGraphicsView):
 				print("x2:",self.Pm2[0])
 				print("y2:",self.Pm2[1])
 
-				self.form = Ui_FormModule(nameF[2],cbText,self)
+				self.form = Ui_FormModule(nameF[2],cbText,"0.0",self)
 				if self.flagSelection != False: #checar que modulos entran en las coordenadas y con respecto a eso hacer la seleccion 
 					self.flagSelection = False
 					self.form.selectionModule()
@@ -304,9 +304,10 @@ class Paint(QtWidgets.QGraphicsView):
 						y = tmpL[1].partition('Y=')
 						coordy = y[2]
 
-				lbltext.move(int(coordy)*75,int(coordx)*50)
+				lbltext.move(int(coordy)*75,int(coordx)*57)
 				self.scene.addWidget(lbltext)
 				self.setScene(self.scene)
+
 
 	def contextMenuEvent(self,event):
 		print("contextEvent")
@@ -390,7 +391,7 @@ class Paint(QtWidgets.QGraphicsView):
 		scale_tr2.scale(det,det)
 
 		tr = scale_tr2 * scale_tr
-		print("tr:",tr)
+		#print("tr:",tr)
 		self.setTransform(tr)
 		#print("2:",self.transform().determinant())
 

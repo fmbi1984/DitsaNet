@@ -12,12 +12,14 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from io import open 
 from os import scandir
 
+import time 
+
 from devicemainboard import BCmb
+
 from appsettings import useHostname
 
 from ordened import NameOrdened
 from downloadprogress import Ui_downloadProgress #verificar si usarlo o no
-
 
 class Ui_WindowCh(QtWidgets.QDialog):
 	#def setupUi(self, WindowCh):
@@ -272,33 +274,55 @@ class Ui_WindowCh(QtWidgets.QDialog):
 		print("addr:",self.addrs)
 		self.loadProg.clear()
 
-		##realiza un len de cuantos dispositivos seran ejecutados y saca addrs
-
-		print("lenAdr:",len(self.addrs))
-
-		numDis = len(self.addrs)
-
-		tottal = 100 / numDis
-		numberRd = round(tottal,2)
-		print("tottal:",numberRd)
+		##realiza un len de cuantos dispositivos seran ejecutados y saca addr
 
 		self.textEdit.clear()
-		self.textEdit.setVisible(False)
-
-		#Ui_downloadProgress(self).exec() #verificar como usarlo
-		#pgress = Ui_downloadProgress(self)
+		
 		
 		for i in range(len(self.addrs)):
-			print("valueAddr:",self.addrs[i])
+			#num = self.addrs[i]
+			self.textEdit.setVisible(False)
+			print("valueAddr:",int(self.addrs[i]))
+			x = BCmb.writeProgramClient(useHostname,int(self.addrs[i]),self.programJson)
+	
+			#necesita un delay en lo que espera respuesta del xmega
+			time.sleep(10)
+
+			if x != None:
+				if x == 'PASS':
+					self.textEdit.insertPlainText("Load successful in Addr: "+self.addrs[i]+'\n')
+					self.textEdit.setVisible(True)
+					#time.sleep(1)
+
+				else:
+					self.textEdit.insertPlainText("Fail Load Addr: "+self.addrs[i]+'\n')
+					self.textEdit.setVisible(True)
+					#time.sleep(1)
+
 			
-		
-			x = BCmb.writeProgramClient(useHostname,self.addrs[i],self.programJson)
-			if x == None:
-				self.textEdit.insertPlainText("Falla Addr: "+self.addrs[i]+'\n')
+
+
+		for i in range(len(self.addrs)):
+			x = BCmb.runClient(useHostname,int(self.addrs[i]))
+
+			if x != None:
+				if x == 'PASS,RUN':
+					self.textEdit.insertPlainText("Run successful in Addr: "+self.addrs[i]+'\n')
+					self.textEdit.setVisible(True)
+					#time.sleep(1)
+
+				else:
+					self.textEdit.insertPlainText("Fail Run Addr: "+self.addrs[i]+'\n')
+					self.textEdit.setVisible(True)
+					#time.sleep(1)
+
+			else:
+				self.textEdit.insertPlainText("ERROR COM"+'\n')
 				self.textEdit.setVisible(True)
 
-			#pgress.progressBar.setValue(numberRd * (i+1))
-				
+
+		#time.sleep(2)
+		#self.close()
 		#solo falta realizar pruebas con comunicacion
 	
 	def on_bttnCancelClicked(self):

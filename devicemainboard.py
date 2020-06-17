@@ -38,12 +38,12 @@ class BCmb(object):
 	def writeProgramClient(hostname,addr,program_in_json):
 		result = ACTION.FAIL
 		result = devInterface.sendClientCommandAndGetResponse(hostname,addr, 0x57,program_in_json, 10)
-		print(result)
+		print("resultW:",result)
 		if result != None:
 			if result[1] == 'PASS':
-				result = ACTION.PASS
+				result = result[1]
 			else:
-				result = ACTION.FAIL
+				result = result[1]
 		return result  
 	
 	'''
@@ -64,26 +64,25 @@ class BCmb(object):
 	def runClient(hostname,addr):
 		result = ACTION.FAIL
 		result = devInterface.sendClientCommandAndGetResponse(hostname,addr, 0x33, "", BCmb.timeout)
-		print("RUN")
-		print(result)
+		print("resultRun:",result)
 		if result != None:
 			if result[1] == 'PASS,RUN':
-				result = ACTION.PASS
-				print(result)
+				result = result[1]
 			else:
-				result = ACTION.FAIL
+				result = result[1]
 		return result
 
 	@staticmethod
 	def pauseClient(hostname,addr):
 		result = ACTION.FAIL
 		result = devInterface.sendClientCommandAndGetResponse(hostname,addr, 0x34, "", BCmb.timeout)
-		print(result)
+		print("resultP:",result)
 		if result != None:
 			if result[1] == 'PASS,PAUSE':
-				result = ACTION.PASS
+				result = result[1]
 			else:
-				result = ACTION.FAIL
+				result = result[1]
+				
 		return result
 	
 	@staticmethod
@@ -94,9 +93,9 @@ class BCmb(object):
 		print(result)
 		if result != None:
 			if result[1] == 'PASS,STOP':
-				result = ACTION.PASS
+				result = result[1]
 			else:
-				result = ACTION.FAIL
+				result = result[1]
 		return result
 
 	@staticmethod
@@ -358,24 +357,26 @@ if __name__ == "__main__":
 		#BCmb.readDataClient(useHostname, 2)
 
 	#BCmb.pingClient(useHostname,1)
+	#BCmb.pingClient(useHostname,2)
 	#BCmb.runClient(useHostname, 1)
 	#BCmb.pauseClient(useHostname, 2)
 	BCmb.stopClient(useHostname, 1)
-	#BCmb.stopClient(useHostname, 1)
+	BCmb.stopClient(useHostname, 2)
 	#BCmb.readDataClient(useHostname,1)
 	#BCmb.readStepClient(useHostname, 1)
 	#BCmb.currentTimeClient(useHostname, 1)
 	#BCmb.readProgramClient(useHostname,1)
-	#BCmb.writeProgramClient(useHostname,2,"[{\"Type\":\"Begin\"},{\"Type\":\"Pause\",\"Time\":\"10\"},{\"Type\":\"Charge\",\"Time\":\"900\",\"Current\":\"22.7\"},{\"Type\":\"Charge\",\"Time\":\"600\",\"Current\":\"30.0\"},{\"Type\":\"Pause\",\"Time\":\"16\"},{\"Type\":\"Charge\",\"Time\":\"180\",\"Current\":\"24.0\"},{\"Type\":\"End\"}]")
-	#BCmb.writeProgramClient(useHostname,1,"[{\"Type\":\"Begin\"},{\"Type\":\"Pause\",\"Time\":\"10\"},{\"Type\":\"Charge\",\"Time\":\"1200\",\"Current\":\"20.0\"},{\"Type\":\"Charge\",\"Time\":\"900\",\"Current\":\"22.7\"},{\"Type\":\"Carga\",\"Time\":\"1200\",\"Current\":\"27.0\"},{\"Type\":\"Charge\",\"Time\":\"180\",\"Current\":\"24.0\"},{\"Type\":\"Pause\",\"Time\":\"60\"},{\"Type\":\"Charge\",\"Time\":\"1200\",\"Current\":\"26.5\"},{\"Type\":\"Charge\",\"Time\":\"600\",\"Current\":\"30.0\"},{\"Type\":\"End\"}]")
+	#BCmb.writeProgramClient(useHostname,1,"[{\"Type\":\"Begin\"},{\"Type\":\"Pause\",\"Time\":\"10\"},{\"Type\":\"Pause\",\"Time\":\"16\"},{\"Type\":\"End\"}]")
+	#BCmb.writeProgramClient(useHostname,2,"[{\"Type\":\"Begin\"},{\"Type\":\"Pause\",\"Time\":\"10\"},{\"Type\":\"Charge\",\"Time\":\"1200\",\"Current\":\"20.0\"},{\"Type\":\"Charge\",\"Time\":\"900\",\"Current\":\"22.7\"},{\"Type\":\"Carga\",\"Time\":\"1200\",\"Current\":\"27.0\"},{\"Type\":\"Charge\",\"Time\":\"180\",\"Current\":\"24.0\"},{\"Type\":\"Pause\",\"Time\":\"60\"},{\"Type\":\"Charge\",\"Time\":\"1200\",\"Current\":\"26.5\"},{\"Type\":\"Charge\",\"Time\":\"600\",\"Current\":\"30.0\"},{\"Type\":\"End\"}]")
 	#BCmb.writeProgramClient(useHostname,1,"[{\"Type\":\"Begin\"},{\"Type\":\"Pause\",\"Time\":\"25\"},{\"Type\":\"Charge\",\"Time\":\"30\",\"Current\":\"30.0\"},{\"Type\":\"Charge\",\"Time\":\"1800\",\"Current\":\"27.4\"},{\"Type\":\"Carga\",\"Time\":\"1200\",\"Current\":\"18.6\"},{\"Type\":\"Pause\",\"Time\":\"180\"},{\"Type\":\"Charge\",\"Time\":\"1200\",\"Current\":\"9.0\"},{\"Type\":\"Charge\",\"Time\":\"900\",\"Current\":\"12.4\"},{\"Type\":\"Pause\",\"Time\":\"300\"},{\"Type\":\"Charge\",\"Time\":\"1200\",\"Current\":\"22.2\"},{\"Type\":\"Charge\",\"Time\":\"1200\",\"Current\":\"8.8\"},{\"Type\":\"Charge\",\"Time\":\"1500\",\"Current\":\"25.6\"},{\"Type\":\"Pause\",\"Time\":\"180\"},{\"Type\":\"Charge\",\"Time\":\"1500\",\"Current\":\"17.2\"},{\"Type\":\"End\"}]")
 	#BCmb.writeProgramClient(useHostname,1,"[{\"Type\":\"Begin\"},{\"Type\":\"Pause\",\"Time\":\"15\"},{\"Type\":\"Charge\",\"Time\":\"60\",\"Current\":\"28.3\"},{\"Type\":\"Pause\",\"Time\":\"46\"},{\"Type\":\"Charge\",\"Time\":\"180\",\"Current\":\"20.8\"},{\"Type\":\"Carga\",\"Time\":\"40\",\"Current\":\"30.0\"},{\"Type\":\"Pause\",\"Time\":\"15\"},{\"Type\":\"Charge\",\"Time\":\"60\",\"Current\":\"25.7\"},{\"Type\":\"Pause\",\"Time\":\"20\"},{\"Type\":\"Charge\",\"Time\":\"120\",\"Current\":\"26.4\"},{\"Type\":\"Charge\",\"Time\":\"30\",\"Current\":\"18.9\"},{\"Type\":\"End\"}]")
 	#BCmb.writeProgramClient(useHostname,1,"[{\"Type\":\"Begin\"},{\"Type\":\"Charge\",\"Time\":\"180\",\"Current\":\"30.0\"},{\"Type\":\"Charge\",\"Time\":\"1200\",\"Current\":\"25.6\"},{\"Type\":\"Pause\",\"Time\":\"300\"},{\"Type\":\"Carga\",\"Time\":\"600\",\"Current\":\"10.5\"},{\"Type\":\"Carga\",\"Time\":\"1200\",\"Current\":\"19.2\"},{\"Type\":\"Carga\",\"Time\":\"600\",\"Current\":\"28.4\"},{\"Type\":\"Charge\",\"Time\":\"900\",\"Current\":\"23.5\"},{\"Type\":\"Charge\",\"Time\":\"1200\",\"Current\":\"14.7\"},{\"Type\":\"Pause\",\"Time\":\"300\"},{\"Type\":\"Pause\",\"Time\":\"120\"},{\"Type\":\"Charge\",\"Time\":\"1200\",\"Current\":\"17.7\"},{\"Type\":\"Charge\",\"Time\":\"900\",\"Current\":\"9.5\"},{\"Type\":\"Charge\",\"Time\":\"1500\",\"Current\":\"24.8\"},{\"Type\":\"End\"}]")
-	
+	#x = BCmb.memoryDataClient(useHostname)
+	#print("x:",x)
 	'''
 	while True:
 		#BCmb.readData(1)
-		BCmb.memoryDataClient(useHostname, 1)
+		
 		#BCmb.readDataClient(useHostname, 1)
 		#BCmb.readDataClient(useHostname, 2)
 		#BCmb.readStepClient(useHostname, 2)

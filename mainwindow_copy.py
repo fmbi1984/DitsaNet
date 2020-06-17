@@ -17,6 +17,8 @@ from stopmodule import Ui_stopModule
 
 from devicemainboard import BCmb
 
+from datalistenermemory import DataListenerMemory
+
 
 class Ui_MainWindow(object):
 	def __init__(self,MainWindow, parent=None):
@@ -166,7 +168,7 @@ class Ui_MainWindow(object):
 
 		#self.valueZoomOut = list()
 		#self.scaleFactor = 1.0
-		#MainWindow.showFullScreen()
+
 		self.MainWindow = MainWindow
 
 	def retranslateUi(self, MainWindow):
@@ -223,6 +225,7 @@ class Ui_MainWindow(object):
 					self.tabWidget.addTab(self.paint, "Page 1")
 					tabC = self.tabWidget.count()
 	
+					
 					MainWindow.showFullScreen()
 				#	self.paint.setSceneRect(0.0,110,1454,448)
 					self.paint.setSceneRect(0.0,110.0,1454,448)
@@ -233,6 +236,10 @@ class Ui_MainWindow(object):
 							self.newPage()
 
 					self.onCmbZoom()
+
+				#	print("Inicia Poleo") #por el momento estara comentado
+				#	self.dataThread = DataListenerMemory(self.testsCallback)
+				#	self.dataThread.start()
 
 	def closeEvent(self,event):
 		print("closeEvent")
@@ -276,6 +283,20 @@ class Ui_MainWindow(object):
 		
 		form = self.tabWidget.currentWidget()
 		form.zoomCmb(det)
+
+	def testsCallback(self, msg):
+		#for i in range(1,3):
+		#address = 1
+		if "DL[X]" in msg:
+			msg = msg.replace("DL[PASS]:","")
+
+			print("ENT")
+			#actualizar valores 
+			
+			#self.cmdDisplay1_1.repaint()
+			#self.cmdDisplay1_1.update()
+			#self.cmdDisplay1_1.setUpdatesEnabled(True)
+
 
 	count = 0
 	def resizeEvent(self,event): #verificar con ubuntu como trabaja

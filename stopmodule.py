@@ -199,10 +199,21 @@ class Ui_stopModule(QtWidgets.QDialog):
 		for i in range(len(self.addrs)):
 			print("valueAddr:",self.addrs[i])
 		
-			x = BCmb.stopClient(useHostname,self.addrs[i])
-			if x == None:
-				self.textEdit.insertPlainText("Falla Addr: "+self.addrs[i]+'\n')
+			x = BCmb.stopClient(useHostname,int(self.addrs[i]))
+
+			if x != None:
+				if x == 'PASS,STOP':
+					self.textEdit.insertPlainText("Stop successful in Addr: "+self.addrs[i]+'\n')
+					self.textEdit.setVisible(True)
+
+				else:
+					self.textEdit.insertPlainText("Fail Stop Addr: "+self.addrs[i]+'\n')
+					self.textEdit.setVisible(True)
+
+			else:
+				self.textEdit.insertPlainText("ERROR COM"+'\n')
 				self.textEdit.setVisible(True)
+				
 				
 		#solo falta realizar pruebas con comunicacion
 

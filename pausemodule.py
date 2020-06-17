@@ -9,6 +9,9 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+
+import time 
+
 from devicemainboard import BCmb
 from appsettings import useHostname
 
@@ -198,10 +201,24 @@ class Ui_pauseModule(QtWidgets.QDialog):
 		self.textEdit.setVisible(False)
 		for i in range(len(self.addrs)):
 			print("valueAddr:",self.addrs[i])
-		
-			x = BCmb.pauseClient(useHostname, self.addrs[i])
-			if x == None:
-				self.textEdit.insertPlainText("Falla Addr: "+self.addrs[i]+'\n')
+			
+			x = BCmb.pauseClient(useHostname, int(self.addrs[i]))
+
+			#probablemente necesite un sleep
+			
+			#time.sleep(0.5)
+
+			if x != None:
+				if x == 'PASS,PAUSE':
+					self.textEdit.insertPlainText("Pause successful in Addr: "+self.addrs[i]+'\n')
+					self.textEdit.setVisible(True)
+
+				else:
+					self.textEdit.insertPlainText("Fail Pause Addr: "+self.addrs[i]+'\n')
+					self.textEdit.setVisible(True)
+
+			else:
+				self.textEdit.insertPlainText("ERROR COM"+'\n')
 				self.textEdit.setVisible(True)
 				
 		#solo falta realizar pruebas con comunicacion
