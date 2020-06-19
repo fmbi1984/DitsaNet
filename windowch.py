@@ -18,8 +18,7 @@ from devicemainboard import BCmb
 
 from appsettings import useHostname
 
-from ordened import NameOrdened
-from downloadprogress import Ui_downloadProgress #verificar si usarlo o no
+#from ordened import NameOrdened
 
 class Ui_WindowCh(QtWidgets.QDialog):
 	#def setupUi(self, WindowCh):
@@ -91,7 +90,7 @@ class Ui_WindowCh(QtWidgets.QDialog):
 		self.retranslateUi(self)
 		QtCore.QMetaObject.connectSlotsByName(self)
 
-		self.newlist = list()
+		#self.newlist = list()
 		self.loadProg = list()
 		self.addrs = list()
 		self.check = list()
@@ -132,24 +131,6 @@ class Ui_WindowCh(QtWidgets.QDialog):
 		print("showEventWindowCh")
 		self.on_cb_textPrograms()
 
-		for i in range(2,len(self.parent.mylist),4):
-			self.newlist.append(self.parent.mylist[i].replace('N=',''))
-
-		ordName = NameOrdened(self.newlist) #manda a llamar la clase NameOrdened
-		x = ordName.cod()					#ordena los elementos de la lista de < a >
-
-		#print("xW:",x)
-		self.newlist.clear()
-
-		for i in range(len(x)):
-			for j in range(2,len(self.parent.mylist),4):
-				if "N="+str(x[i]) == self.parent.mylist[j]:
-					self.newlist.append(self.parent.mylist[j-2])
-					self.newlist.append(self.parent.mylist[j-1])
-					self.newlist.append(self.parent.mylist[j])
-					self.newlist.append(self.parent.mylist[j+1])
-
-		#print("new:",self.newlist)
 		self.loadTableW() ##verificar lo que sucede si no hay programas
 
 	def closeEvent(self,event):
@@ -170,19 +151,17 @@ class Ui_WindowCh(QtWidgets.QDialog):
 		self.data2 = "N="+txt
 
 		self.flagChange = False
-		#print("data1:",self.data1)
-		#print("data2:",self.data2)
 		
 		try:
 			self.flagOutL = False
-			value1 = self.newlist.index(self.data1)
-			value2 = self.newlist.index(self.data2)
+			value1 = self.parent.newlist.index(self.data1)
+			value2 = self.parent.newlist.index(self.data2)
 
 			self.flagChange = True
 			value1 = value1 - 2
 			value2 = value2 + 2
 
-			valF = self.newlist[value1:value2]
+			valF = self.parent.newlist[value1:value2]
 			#print("valF:",valF)
 			self.check.clear()
 			for i in range(2,len(valF),4):
@@ -194,10 +173,10 @@ class Ui_WindowCh(QtWidgets.QDialog):
 			self.flagChange = True
 			if self.data1 != None and self.data1 !='N=':
 				try:
-					val1 = self.newlist.index(self.data1)
+					val1 = self.parent.newlist.index(self.data1)
 
 					val1 = val1 - 2
-					valF = self.newlist[val1:val1+3]
+					valF = self.parent.newlist[val1:val1+3]
 					self.check.clear()
 					for i in range(2,len(valF),4):
 						self.check.append(valF[i].replace('N=',''))
@@ -223,13 +202,13 @@ class Ui_WindowCh(QtWidgets.QDialog):
 				#print("check:",self.listWidget.item(index).text())
 				self.tempList.append(self.listWidget.item(index).text())
 
-		for i in range(2,len(self.newlist),4):
+		for i in range(2,len(self.parent.newlist),4):
 			for j in range(len(self.tempList)):
-				if 'N='+self.tempList[j] == self.newlist[i]:
-					self.loadProg.append(self.newlist[i-2])
-					self.loadProg.append(self.newlist[i-1])
-					self.loadProg.append(self.newlist[i])
-					self.loadProg.append(self.newlist[i+1])
+				if 'N='+self.tempList[j] == self.parent.newlist[i]:
+					self.loadProg.append(self.parent.newlist[i-2])
+					self.loadProg.append(self.parent.newlist[i-1])
+					self.loadProg.append(self.parent.newlist[i])
+					self.loadProg.append(self.parent.newlist[i+1])
 
 	def btnCheckBox(self):
 		if self.flagChange != False:
@@ -259,7 +238,7 @@ class Ui_WindowCh(QtWidgets.QDialog):
 		archivo_texto = open("/home/ditsa/Escritorio/DitsaNetApp/ProfileEditorPrograms/"+openFile,"r")
 		self.programJson = archivo_texto.read()
 		archivo_texto.close()
-		#print(self.programJson)
+		print("jason:",self.programJson)
 
 	def on_bttnDoneClicked(self):
 		print("clickDone")
@@ -300,7 +279,7 @@ class Ui_WindowCh(QtWidgets.QDialog):
 
 			
 
-
+		'''
 		for i in range(len(self.addrs)):
 			x = BCmb.runClient(useHostname,int(self.addrs[i]))
 
@@ -318,7 +297,7 @@ class Ui_WindowCh(QtWidgets.QDialog):
 			else:
 				self.textEdit.insertPlainText("ERROR COM"+'\n')
 				self.textEdit.setVisible(True)
-
+		'''
 
 		#time.sleep(2)
 		#self.close()

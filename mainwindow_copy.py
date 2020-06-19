@@ -22,6 +22,7 @@ import time
 import threading
 
 from appsettings import useHostname
+from ordened import NameOrdened
 
 from datalistenermemory import DataListenerMemory
 #from dataclient import DataClient
@@ -161,6 +162,10 @@ class Ui_MainWindow(object):
 		self.mylabel = list()
 		self.rowCol = list()
 
+		self.newlist = list()
+		self.addrsT = list()
+		self.tempAddr = list()
+
 		self.Tabs = list()
 		self.maxTabs = list()
 
@@ -217,12 +222,33 @@ class Ui_MainWindow(object):
 					self.rowCol.append('R=10 C=10')
 
 				if self.settingsList != None:
-					self.mylist = self.settingsList[:] #para que no se corresponden con el mismo objeto
+					self.mylist = self.settingsList[:] #para que no correspondan con el mismo objeto
+					
+					for i in range(2,len(self.mylist),4):
+						self.newlist.append(self.mylist[i].replace('N=',''))
+
+					ordName = NameOrdened(self.newlist) #manda a llamar la clase NameOrdened
+					x = ordName.cod()					#ordena los elementos de la lista de < a >
+					self.newlist.clear()
+					self.tempAddr.clear()
+					self.addrsT.clear()
+
+					for i in range(len(x)):
+						for j in range(2,len(self.mylist),4):
+							if "N="+str(x[i]) == self.mylist[j]:
+								self.newlist.append(self.mylist[j-2])
+								self.newlist.append(self.mylist[j-1])
+								self.newlist.append(self.mylist[j])
+								self.newlist.append(self.mylist[j+1])
+								valAddr = self.mylist[j+1].split('A=')
+								self.tempAddr.append(valAddr[1])
+					#print("new:",self.newlist)
+					self.addrsT.append(str(self.tempAddr))
 
 				if self.settingsLabel != None:
-					self.mylabel = self.settingsLabel[:] #para que no se corresponden con el mismo objeto
+					self.mylabel = self.settingsLabel[:] #para que no correspondan con el mismo objeto
 
-				if self.settingsList != None or self.settingsLabel != None:
+				if self.settingsList != None or self.settingsLabel != None: # Populate Tables
 					self.populateTabs()
 
 					#print("mylist:",self.mylist)
@@ -241,19 +267,28 @@ class Ui_MainWindow(object):
 
 					self.onCmbZoom()
 
-					
-					print("Inicia Poleo") #poleo es lo primero en iniciar despues de llenar screen
-					self.dataThread = DataListenerMemory(self.testsCallback)
-					self.dataThread.start()
+					BCmb.pingDataClient(useHostname,self.addrsT[0])
+					#print("Inicia Poleo") #poleo es lo primero en iniciar despues de llenar screen
+					#self.dataThread = DataListenerMemory(self.testsCallback)
+					#self.dataThread.start()
 
-					self.valueData() #obtiene los valores del poleo
+					#siempre que termine de hacer ping primero
+					#self.valueData() #obtiene los valores del poleo
 
 
 	def closeEvent(self,event):
 		print("closeEvent")
-		self.t.cancel() #fin de actualizacion de display comm pc-raspb
-		self.dataThread.stop() #fin de thread poleo comm raspb - xmega
+		#self.t.cancel() #fin de actualizacion de display comm pc-raspb
+		#time.sleep(0.5) #verificar si sigue colgandose
+		#self.dataThread.stop() #fin de thread poleo comm raspb - xmega
 		
+		#cl = BCmb.stopPollingClient(useHostname) #realiza verificacion para cerrar poleo
+		#print("cl:",cl)
+		#if cl != None:
+		#	if cl == 'FAIL':
+		#		print("cl:FIAL")
+				
+
 	def populateTabs(self):
 		print("populateTabs")
 		for i in range(0,len(self.settingsList),4):

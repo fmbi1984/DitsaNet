@@ -6,7 +6,7 @@ import logging
 from enum import Enum
 from communicate import Communicate
 
-from shared import lock_uart, lock_memory,devStart,devStop,DEV,DEV_PAGE
+from shared import lock_uart, lock_memory,devStart,devStop,DEV,DEV_PAGE,DA_PI
 #import shared
 import appsettings
 
@@ -52,7 +52,7 @@ class DataListenerServer(Thread):
         #try:
         print(self._name+" started")
         
-        self.pingForDevicesPresent() #verificar ping hacer pruebas 
+        #self.pingForDevicesPresent() #verificar ping hacer pruebas 
         
         while not self._stop_event.is_set():
             
@@ -148,9 +148,10 @@ class DataListenerServer(Thread):
         super(DataListenerServer,self).join(*args, **kwargs)
 
     def pingForDevicesPresent(self):
-        # we do ping to the devices 
-        for i in range( devStart, devStop+1):
-            address=i
+        # we do ping to the devices
+        print("shared99:",DA_PI)
+        for i in range(len(DA_PI)):
+            address = DA_PI[i]
 
             if DEV[i][0] == False:
                 print("Doing ping to device No."+str(address))
