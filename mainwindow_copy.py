@@ -178,6 +178,14 @@ class Ui_MainWindow(object):
 		self.flagZoom = False
 		self.flagWmin = False 	#Flag para ubuntu
 
+
+		self.flagCircuit = False
+		self.tmpTabs = list()
+		
+		self.labels = list()
+		self.progress = list()
+		self.lblmodule = list()
+
 		#self.valueZoomOut = list()
 		#self.scaleFactor = 1.0
 		self.MainWindow = MainWindow
@@ -244,6 +252,7 @@ class Ui_MainWindow(object):
 								self.tempAddr.append(valAddr[1])
 					#print("new:",self.newlist)
 					self.addrsT.append(str(self.tempAddr))
+					
 
 				if self.settingsLabel != None:
 					self.mylabel = self.settingsLabel[:] #para que no correspondan con el mismo objeto
@@ -268,26 +277,24 @@ class Ui_MainWindow(object):
 					self.onCmbZoom()
 
 					BCmb.pingDataClient(useHostname,self.addrsT[0])
-					#print("Inicia Poleo") #poleo es lo primero en iniciar despues de llenar screen
-					#self.dataThread = DataListenerMemory(self.testsCallback)
-					#self.dataThread.start()
+					#print("adrrLEN:",len(self.tempAddr))
+					print("Inicia Poleo") #poleo es lo primero en iniciar despues de llenar screen
+					#BCmb.startPollingClient(useHostname)
+					#time.sleep(0.3)
+					
+					self.dataThread = DataListenerMemory(self.testsCallback)
+					self.dataThread.start()
+					time.sleep(0.3)
 
-					#siempre que termine de hacer ping primero
-					#self.valueData() #obtiene los valores del poleo
-
+					self.valueData() #obtiene los valores del poleo
 
 	def closeEvent(self,event):
 		print("closeEvent")
-		#self.t.cancel() #fin de actualizacion de display comm pc-raspb
-		#time.sleep(0.5) #verificar si sigue colgandose
-		#self.dataThread.stop() #fin de thread poleo comm raspb - xmega
-		
-		#cl = BCmb.stopPollingClient(useHostname) #realiza verificacion para cerrar poleo
-		#print("cl:",cl)
-		#if cl != None:
-		#	if cl == 'FAIL':
-		#		print("cl:FIAL")
-				
+		self.t.cancel() #fin de actualizacion de display comm pc-raspb
+		time.sleep(0.5) #verificar si sigue colgandose
+		self.dataThread.stop() #fin de thread poleo comm raspb - xmega
+		#x = BCmb.stopPollingClient(useHostname)
+		#print("x:",x)
 
 	def populateTabs(self):
 		print("populateTabs")
@@ -306,15 +313,12 @@ class Ui_MainWindow(object):
 		print("newPage")
 		self.flagPage = True
 		self.flagNormal = False
-		#form = Ui_Form(self)
 		self.paint = Paint(self)
 		self.paint.setSceneRect(0,0,0,0)
 		self.tabWidget.addTab(self.paint,"Page "+str(self.tabWidget.count()+1))
 
 	def onCombo(self): #seleccion I,V,T,time,Step,addr
 		print("comboBox")
-		form = self.tabWidget.currentWidget() #ya estamos en form, ingresa a la propiedad
-		form.populateCircuit()
 		
 	def onCmbZoom(self): ###verificar funcionamiento 
 		print("cmbZoom") ##se puede cambiar aun no finalizado
@@ -328,27 +332,78 @@ class Ui_MainWindow(object):
 		form.zoomCmb(det)
 
 	def testsCallback(self, msg):
-		
-		#print("testCallback:",msg)
-		#msg = msg.replace("DL[PASS]:","")
-		#print(msg)
-
-		if "DL[X]" in msg:
+		if "DL[PASS]" in msg:
 			msg = msg.replace("DL[PASS]:","")
 
-			print("ENT")
-			#currentDisplay = self.tabWidget.currentWidget()
-			#currentDisplay.currentCircuit()
-			#actualizar valores 
-			#self.cmdDisplay1_1.repaint()
-			#self.cmdDisplay1_1.update()
-			#self.cmdDisplay1_1.setUpdatesEnabled(True)
+			print("ENT-Display")
+		
+			cbText = self.comboBox.currentText()
+			cbText2 =  self.comboBox.currentIndex()+1
+
+			if cbText == 'Current':
+				pref = " A"
+
+			elif cbText == 'Voltage':
+				pref = " V"
+
+			elif cbText == 'Temperature':
+				pref = " C"
+
+			elif cbText == 'Time left':
+				pref = " t"
+
+			elif cbText == 'Step':
+				pref = " S"
+			 
+			font = QtGui.QFont()
+			font.setFamily("Ubuntu Light")
+			font.setPointSize(12)
+			font.setBold(True)
+			font.setWeight(75)
+			
+			for i in range(1,len(self.labels),3):
+				addr = self.labels[i+1]
+
+				self.labels[i].setFont(font)
+				self.labels[i].setText(shared.DEV[addr][cbText2]+pref)
+
+				if shared.DEV[addr][0] == False: # state - No comm
+					font = QtGui.QFont()
+					font.setFamily("Ubuntu Light")
+					font.setPointSize(10)
+					font.setBold(True)
+					font.setWeight(75)
+					self.labels[i].setFont(font)
+					self.labels[i].setText("NO COMM")
+					self.labels[i].setStyleSheet("QLabel {background-color : gold; color : black; border: 1px solid black;} ")
+					self.labels[i].setAlignment(QtCore.Qt.AlignCenter)
+
+				elif (shared.DEV[addr][8] == 'I') or (shared.DEV[addr][8] == 'S'): #state - Stop or Initial
+					self.labels[i].setStyleSheet("QLabel {background-color : lightblue; color : black; border: 1px solid black;} ")
+					self.labels[i].setAlignment(QtCore.Qt.AlignCenter)
+
+				elif shared.DEV[addr][8] == 'E': #state - End Program
+					self.labels[i].setStyleSheet("QLabel {background-color : darkorange; color : black; border: 1px solid black;} ")
+					self.labels[i].setAlignment(QtCore.Qt.AlignCenter)
+
+				elif shared.DEV[addr][8] == 'R': #state - Running
+					self.labels[i].setStyleSheet("QLabel {background-color : limegreen; color : black; border: 1px solid black;} ")
+					self.labels[i].setAlignment(QtCore.Qt.AlignCenter)
+
+				elif shared.DEV[addr][8] == 'P': #state - Pause
+					self.labels[i].setStyleSheet("QLabel {background-color : mediumpurple; color : black; border: 1px solid black;} ")
+					self.labels[i].setAlignment(QtCore.Qt.AlignCenter)
+
+				elif (shared.DEV[addr][8] == 'T') or (shared.DEV[addr][8] == 'W'): #state - temp-hight or current warning
+					self.labels[i].setStyleSheet("QLabel {background-color : red; color : black; border: 1px solid black;} ")
+					self.labels[i].setAlignment(QtCore.Qt.AlignCenter) #red
+
 
 	def valueData(self):
 		print("VALUEDATA")
 		memoryData = BCmb.memoryDataClient(useHostname)
 		
-		for i in range (shared.devStart, shared.devStop+1): #checar con otros ping
+		for i in range (len(self.tempAddr)): 
 			address = i
 		
 			if memoryData!= None:
@@ -386,12 +441,13 @@ class Ui_MainWindow(object):
 				if dat1 == 'False}':
 					TempData[0] = str(TempData[0]).replace('}','')
 					shared.DEV[address][0] = False
-					print("FalsePing")
+					#print("FalsePing")
 				
 				print("TempData2:",TempData)
 			
 		self.t = threading.Timer(1, self.valueData)
 		self.t.start()
+
 
 	count = 0
 	def resizeEvent(self,event): #verificar con ubuntu como trabaja
@@ -416,20 +472,14 @@ class Ui_MainWindow(object):
 	def btnDetener(self):
 		print("Detener")
 		Ui_stopModule(self).exec_()
-		form = self.tabWidget.currentWidget() #ya estamos en form, ingresa a la propiedad
-		form.populateCircuit()
 
 	def btnPausar(self):
 		print("Pausar")
 		Ui_pauseModule(self).exec_()
-		form = self.tabWidget.currentWidget() #ya estamos en form, ingresa a la propiedad
-		form.populateCircuit()
 
-	def btnIniciar(self): #se debe pausar la actualizacion display y reanudar al finalizar(poleo verificar )
+	def btnIniciar(self): 
 		print("Iniciar")
 		Ui_runModule(self).exec_()
-		form = self.tabWidget.currentWidget() #ya estamos en form, ingresa a la propiedad
-		form.populateCircuit()
 
 	def btnCargar(self):
 		print("Cargar")

@@ -109,17 +109,28 @@ class Ui_FormModule(QtWidgets.QWidget):
 		if self.cbOption == 'Current':
 			self.label.setText(self.value+" A")
 
-		if self.cbOption == 'Voltage':
+		elif self.cbOption == 'Voltage':
 			self.label.setText(self.value+" V")
 
-		if self.cbOption == 'Temperature':
+		elif self.cbOption == 'Temperature':
 			self.label.setText(self.value+" C")
 
-		if self.cbOption == 'Time left':
+		elif self.cbOption == 'Time left':
 			self.label.setText(self.value+" t")
 
-		if self.cbOption == 'Step':
+		elif self.cbOption == 'Step':
 			self.label.setText(self.value+" S")
+
+		elif self.cbOption == '--':
+			font = QtGui.QFont()
+			font.setFamily("Ubuntu Light")
+			font.setPointSize(10)
+			font.setBold(True)
+			font.setWeight(75)
+			self.label.setFont(font)
+			self.label.setText("NO COMM")
+
+
 
 		#if self.cbOption == 'Address':
 		#	self.label.setText(self.value+" #")
@@ -149,7 +160,7 @@ class Ui_FormModule(QtWidgets.QWidget):
 	#limegreen #darkorange #yellow-gold #crimsom -red #mediumpurple #black #lightblue
 	def stateModule(self,opt):
 		print("stateModule")
-		print("opt:",opt)
+		#print("opt:",opt)
 
 		if (opt == 'I') or (opt == 'S'):
 			self.label.setStyleSheet("QLabel {background-color : lightblue; color : black; border: 1px solid black;} ")
@@ -163,10 +174,14 @@ class Ui_FormModule(QtWidgets.QWidget):
 			self.label.setStyleSheet("QLabel {background-color : limegreen; color : black; border: 1px solid black;} ")
 			self.label.setAlignment(QtCore.Qt.AlignCenter)
 
-		
 		elif opt == 'P':
 			self.label.setStyleSheet("QLabel {background-color : mediumpurple; color : black; border: 1px solid black;} ")
 			self.label.setAlignment(QtCore.Qt.AlignCenter)
+
+		elif opt == 'F':
+			self.label.setStyleSheet("QLabel {background-color : gold; color : black; border: 1px solid black;} ")
+			self.label.setAlignment(QtCore.Qt.AlignCenter)
+
 
 
 '''

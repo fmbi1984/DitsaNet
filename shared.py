@@ -18,7 +18,33 @@ lock_memory = threading.Lock() # lock will be used as a lock for the memory
 devStart = 1
 devStop = 2
 
-DA_PI = []
+DA_PI = [] #todos los modulos
+ON_PI = [] #solo los que dieron TRUE
+
+
+#la cantidad de DEV_ADDR dependera de cuantos dip. sean por raspb(15aprx)
+DEV_ADDR = [
+	[],
+	[],
+	[],
+	[],
+	[],
+	[],
+	[],
+	[],
+	[],
+	[],
+	[],
+	[],
+	[],
+	[],
+	[],
+	[],
+	[],
+	[],
+	[],
+	[]
+]
 
 #ping #I #V #T #P #t #Tt #TT #I #Name #Show #Address
 DEV = [
@@ -319,16 +345,6 @@ DEV = [
     [False, '', '', '', '', '', '', '', '', True, 112], 
 ]
 
- #TabName #Title #Show
-DEV_PAGE = [
-    ['Page 0', 'Name', True],
-    ['Page 1', 'Name', True], 
-    ['Page 2', 'Name', True], 
-    ['Page 3', 'Name', True], 
-    ['Page 4', 'Name', True], 
-    ['Page 5', 'Name', True], 
-    ['Page 6', 'Name', True]
-]
 
 '''
 [1-28]

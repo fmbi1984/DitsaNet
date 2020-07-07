@@ -1,1 +1,1 @@
-[{Type:Begin},{Type:Carga,Current:25,AH:2400,MaxTemp:30,MinTemp:20},{Type:Pausa,Time:1800},{Type:Carga,Current:23,Time:1800,MaxTemp:0.0,MinTemp:0.0},{Type:Pausa,Time:1200},{Type:Carga,Current:15,AH:600,MaxTemp:36,MinTemp:15},{Type:End}]]
+[{Type:Begin},{Type:Carga,Current:25,Time:600,MaxTemp:30,MinTemp:25},{Type:Carga,Current:15,Time:600,MaxTemp:31,MinTemp:25},{Type:Pausa,Time:60},{Type:Carga,Current:10,AH:0.831,MaxTemp:33,MinTemp:26},{Type:Carga,Current:18.5,AH:1.54,MaxTemp:30,MinTemp:26},{Type:End}]
