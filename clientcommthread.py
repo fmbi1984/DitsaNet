@@ -51,8 +51,6 @@ class ClientCommThread(Thread):
         self._portname = None
 
 
-
-
         if callbackFunc != None:
             self._callback = Communicate()
             self._callback.myGUI_signal.connect(callbackFunc)
@@ -157,22 +155,17 @@ class ClientCommThread(Thread):
             self._dataBytesLiteral = ''.join(str( bytes(self._dataByteArray), 'ISO-8859-1') )
             self.flag_command = True
             self.process_data()
-            #print(c)
             self._packet_being_received = False
-            #print("END")
         elif (c == self._begin_char) and (len(self._dataByteArray)<2):
-            #print("BEGIN")
             self._packet_being_received = True
             self._flagcommand = False
             self.inicbuff()
             self._dataByteArray.append(ord(c))
             self._dataBytesLiteral = ''.join(str( bytes(self._dataByteArray), 'ISO-8859-1') )
-            #print(c)
         else:
             if self._packet_being_received == True:
                 self._dataByteArray.append(ord(c))
                 self._dataBytesLiteral = ''.join(str( bytes(self._dataByteArray), 'ISO-8859-1') )
-                #print(c)
 
     def inicbuff(self):
         self._dataByteArray.clear()

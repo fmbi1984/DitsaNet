@@ -74,6 +74,7 @@ class Ui_runModule(QtWidgets.QDialog):
 		self.addrs = list()
 
 		self.flagChange = False
+		self.flagFail = False	#flag para controlar el cierre de runmodule
 
 	def retranslateUi(self, runModule):
 		_translate = QtCore.QCoreApplication.translate
@@ -100,7 +101,7 @@ class Ui_runModule(QtWidgets.QDialog):
 	def closeEvent(self,event):
 		print("closerun")
 
-	def on_editMin(self):
+	def on_editMin(self): #captura el dato en lineeditMin
 		y = self.lineEditMin.text()
 		txt = y.upper()
 		self.lineEditMin.setText(txt)
@@ -108,8 +109,7 @@ class Ui_runModule(QtWidgets.QDialog):
 		self.data1 = "N="+txt
 		self.on_editMax()
 
-	def on_editMax(self):
-		#print("on_editMax")
+	def on_editMax(self): #captura el dato en lineeditMax
 		y = self.lineEditMax.text()
 		txt = y.upper()
 		self.lineEditMax.setText(txt)
@@ -153,47 +153,59 @@ class Ui_runModule(QtWidgets.QDialog):
 				self.listWidget.clear()
 
 			if self.data2 != None and self.data2 != 'N=':
-				#print("no se encuentra")
 				self.flagOutL = True
 				self.listWidget.clear()
 
+	def chtext(self,flag,addr):
+		if flag == 'msg':
+			self.textEdit.append("Comm Run")
+		elif flag == 'None':
+			self.textEdit.append("ERROR COMM: "+addr)
+		elif flag == 'PASS,RUN':
+			self.textEdit.append("run successful in Addr: "+addr)
+		elif flag == 'FAIL,RUN':
+			self.textEdit.append("Fail run Addr: "+addr)
+
+		QtGui.QGuiApplication.processEvents()
+
 	def btnOk(self):
-		print("btnOk")
+		print("btnOkRun")
+		#----------------------------- Detiene thread -----------------------------#
+		time.sleep(0.5)
+		self.parent.threadData(False) 
+		#---------------------------- Extrae valor Addr ---------------------------#	
 		self.uncheck_check()
-	
 		self.addrs.clear()
 		for i in range(3,len(self.loadProg),4):
 			addr = self.loadProg[i].split('A=')
 			self.addrs.append(addr[1])
 
-		#print("loadProg:",self.loadProg)
-		#print("addr:",self.addrs)
 		self.loadProg.clear()
-
-		#print("espera que se carguen todos los programas...")
-		##realiza un len de cuantos dispositivos seran ejecutados y saca addrs
-
 		self.textEdit.clear()
-		self.textEdit.setVisible(False)
+
+		#---------------------------- Envia comando run ---------------------------#
+		self.chtext("msg","None")
 		for i in range(len(self.addrs)):
 			#print("valueAddr:",self.addrs[i])
-		
 			x = BCmb.runClient(useHostname,int(self.addrs[i]))
 			time.sleep(0.3)#sujeto a cambios
 
 			if x != None:
 				if x == 'PASS,RUN':
-					self.textEdit.insertPlainText("run successful in Addr: "+self.addrs[i]+'\n')
-					self.textEdit.setVisible(True)
+					self.chtext(x,self.addrs[i])
 
 				else:
-					self.textEdit.insertPlainText("Fail run Addr: "+self.addrs[i]+'\n')
-					self.textEdit.setVisible(True)
+					self.chtext(x,self.addrs[i])
+					self.flagFail = True
 
 			else:
-				self.textEdit.insertPlainText("ERROR COM"+'\n')
-				self.textEdit.setVisible(True)
-				
+				self.chtext('None',self.addrs[i])
+				self.flagFail = True
+
+		
+		if self.flagFail != True:
+			time.sleep(3)
+			self.close()
 				
 		#solo falta realizar pruebas con comunicacion
 

@@ -32,7 +32,7 @@ class SerialCommThread(Thread):
     _callback = None
     _serialport = None
     _serialnumber = None
-    _baudrate = 9600
+    _baudrate = 115200
     _messagetosend = None
     _timeout = 1
     _attemps = 1
@@ -115,7 +115,7 @@ class SerialCommThread(Thread):
         while not self._msgwasreceived and not self._stopevent.is_set():
             if self._serialport != None:
                 
-                print("clear result")
+                #print("clear result")
                 serial_cmd_result[0] = None
                 self._msgwasreceived = False
                 for n in range(0, self._attemps):
@@ -128,7 +128,7 @@ class SerialCommThread(Thread):
 
                     if self._messagetosend != None:
                        
-                        print("doing attempt no."+str(n+1)+" msg:"+ ''.join(str( bytes(self._messagetosend), 'ISO-8859-1')))
+                        print("doing attemptS no."+str(n+1)+" msg:"+ ''.join(str( bytes(self._messagetosend), 'ISO-8859-1')))
                         self._serialport.flushOutput()
                         self._serialport.flushInput()
                         if appsettings.useMac == False:
@@ -222,22 +222,17 @@ class SerialCommThread(Thread):
             self._dataBytesLiteral = ''.join(str( bytes(self._dataByteArray), 'ISO-8859-1') )
             self.flag_command = True
             self.process_data(self._serialport)
-            #print(c)
             self._packet_being_received = False
-            print("END")
         elif (c == self._begin_char) and (len(self._dataByteArray)<2):
-            print("BEGIN")
             self._packet_being_received = True
             self._flagcommand = False
             self.inicbuff()
             self._dataByteArray.append(ord(c))
             self._dataBytesLiteral = ''.join(str( bytes(self._dataByteArray), 'ISO-8859-1') )
-            #print(c)
         else:
             if self._packet_being_received == True:
                 self._dataByteArray.append(ord(c))
                 self._dataBytesLiteral = ''.join(str( bytes(self._dataByteArray), 'ISO-8859-1') )
-                #print(c)
         lock_uart.release()
 
     def inicbuff(self):
@@ -267,10 +262,10 @@ class SerialCommThread(Thread):
                         self.handle_data(ser, reading)
 
     def process_data(self, ser):
-        print("process")
+        #print("process")
         self._msgwasreceived = True
         serial_cmd_result[0] = self._dataByteArray.copy()
-        print(serial_cmd_result[0])
+        #print(serial_cmd_result[0])
 
     def tryToReconnect(self):
         print("try to reconnect")

@@ -73,7 +73,8 @@ class Ui_stopModule(QtWidgets.QDialog):
 		self.loadProg = list()
 		self.addrs = list()
 
-		self.flagChange = False
+		self.flagChange = False		
+		self.flagFail = False	#flag para controlar el cierre de stopmodule
 
 	def retranslateUi(self, stopModule):
 		_translate = QtCore.QCoreApplication.translate
@@ -157,40 +158,55 @@ class Ui_stopModule(QtWidgets.QDialog):
 				self.flagOutL = True
 				self.listWidget.clear()
 
+	def chtext(self,flag,addr):
+		if flag == 'msg':
+			self.textEdit.append("Comm Stop")
+		elif flag == 'None':
+			self.textEdit.append("ERROR COMM: "+addr)
+		elif flag == 'PASS,STOP':
+			self.textEdit.append("Stop successful in Addr: "+addr)
+		elif flag == 'FAIL,STOP':
+			self.textEdit.append("Fail Stop Addr: "+addr)
+
+		QtGui.QGuiApplication.processEvents()
+
 	def btnOk(self):
-		print("btnOk")
-		self.uncheck_check()
-	
+		print("btnOkStop")
+		#----------------------------- Detiene thread -----------------------------#
+		time.sleep(0.5)
+		self.parent.threadData(False) 
+		#---------------------------- Extrae valor Addr ---------------------------#	
+		self.uncheck_check()	
 		self.addrs.clear()
 		for i in range(3,len(self.loadProg),4):
 			addr = self.loadProg[i].split('A=')
 			self.addrs.append(addr[1])
 
 		self.loadProg.clear()
-
-		##realiza un len de cuantos dispositivos seran ejecutados y saca addrs
-
 		self.textEdit.clear()
-		self.textEdit.setVisible(False)
-		for i in range(len(self.addrs)):
-		
+
+		#---------------------------- Envia comando stop ---------------------------#
+		self.chtext("msg","None")
+		for i in range(len(self.addrs)):		
 			x = BCmb.stopClient(useHostname,int(self.addrs[i]))
 			time.sleep(0.3)#sujeto a cambios
 
 			if x != None:
 				if x == 'PASS,STOP':
-					self.textEdit.insertPlainText("Stop successful in Addr: "+self.addrs[i]+'\n')
-					self.textEdit.setVisible(True)
+					self.chtext(x,self.addrs[i])
 
 				else:
-					self.textEdit.insertPlainText("Fail Stop Addr: "+self.addrs[i]+'\n')
-					self.textEdit.setVisible(True)
-
+					self.chtext(x,self.addrs[i])
+					self.flagFail = True
 			else:
-				self.textEdit.insertPlainText("ERROR COM"+'\n')
-				self.textEdit.setVisible(True)
-				
-				
+				self.chtext("None",self.addrs[i])
+				self.flagFail = True
+
+
+		if self.flagFail != True:
+			time.sleep(3)
+			self.close()
+
 		#solo falta realizar pruebas con comunicacion
 
 	def btnCancel(self):

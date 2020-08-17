@@ -10,30 +10,23 @@ class Paint(QtWidgets.QGraphicsView):
 	def __init__(self,parent=None):
 		super(Paint, self).__init__()
 		self.parent = parent
-
-	#def	__init__(self):
-	#	QtWidgets.QGraphicsView.__init__(self)
-
-		#self.setObjectName("Paint")
 		
 		self.scene	=	QtWidgets.QGraphicsScene()
-		self.rubberBand = QtWidgets.QRubberBand(QtWidgets.QRubberBand.Rectangle, self)
-		self.origin = QtCore.QPoint() 
+		#sirve para seleccionar cuadro azul
+	#	self.rubberBand = QtWidgets.QRubberBand(QtWidgets.QRubberBand.Rectangle, self)
+	#	self.origin = QtCore.QPoint() 
 
-		self.P1 = [0,0]
-		self.P2 = [0,0]
-		self.P3 = [0,0] #alineado con P1 x P2 y
-		self.P4 = [0,0] #alineado con P2 x P1 y
+	#	self.P1 = [0,0]
+	#	self.P2 = [0,0]
+	#	self.P3 = [0,0] #alineado con P1 x P2 y
+	#	self.P4 = [0,0] #alineado con P2 x P1 y
 
-		self.Pm1 = [0,0]
-		self.Pm2 = [0,0]
+	#	self.Pm1 = [0,0]
+	#	self.Pm2 = [0,0]
 
 		self.flagRelease = False
 		self.flagSelection = False
 		self.flagTab = False
-
-	#	self.retranslateUi(self)
-	#	QtCore.QMetaObject.connectSlotsByName(self)
 
 		self.contextMenuEvent
 		self.mousePressEvent
@@ -59,9 +52,11 @@ class Paint(QtWidgets.QGraphicsView):
 		print("showE")
 		if self.parent.flagZoom != True:
 			if self.parent.flagNormal != False: 
-				self.setSceneRect(0,90,1280,523)
+				self.setSceneRect(110,90,1280,523) #0,90,1280,523
+				print("IFshowE")
 			else:
 				self.setSceneRect(0,0,1280,523)
+				print("elseShowE")
 
 		if self.parent.flagCircuit != True:
 			self.populateCircuit()
@@ -97,7 +92,7 @@ class Paint(QtWidgets.QGraphicsView):
 						self.setScene(self.scene)
 				
 				#-------------- For labels -------------------#
-				for i in range(0,len(self.parent.labels),2):
+				for i in range(0,len(self.parent.labels),3):
 					numberTab = self.parent.labels[i]
 					k = numberTab.replace('%','')
 
@@ -108,7 +103,7 @@ class Paint(QtWidgets.QGraphicsView):
 						self.setScene(self.scene)
 
 				#-------------- For progress -----------------#
-				for i in range(0,len(self.parent.progress),2):
+				for i in range(0,len(self.parent.progress),3):
 					numberTab = self.parent.progress[i]
 					k = numberTab.replace('%','')
 
@@ -127,6 +122,7 @@ class Paint(QtWidgets.QGraphicsView):
 		if len(self.parent.valueZoom) != 0:
 			tr = self.parent.valueZoom[0]
 			self.setTransform(tr)
+			#print("tr:",tr)
 
 			if self.parent.flagZoom != False:
 				print("entraZoom")
@@ -137,7 +133,6 @@ class Paint(QtWidgets.QGraphicsView):
 		self.parent.flagCircuit = True
 		self.parent.listSelect.clear()
 
-		cbText = self.parent.comboBox.currentText()
 		cbText2 =  self.parent.comboBox.currentIndex()+1
 
 		for i in range(0,len(self.parent.mylist),4):
@@ -171,10 +166,10 @@ class Paint(QtWidgets.QGraphicsView):
 			lb.setFont(font)
 			lb.setStyleSheet("QLabel { background-color : ghostwhite;}")
 			lb.setFrameShape(QtWidgets.QFrame.Box)
-			lb.setAlignment(QtCore.Qt.AlignHCenter|QtCore.Qt.AlignTop)
+			lb.setAlignment(QtCore.Qt.AlignCenter)
 
 			#------------label options value A,V,T,S,t,TT...------------#
-			lb2 = QtWidgets.QLabel(shared.DEV[int(addrCell[1])][cbText2]+cbText)
+			lb2 = QtWidgets.QLabel(shared.DEV[int(addrCell[1])][cbText2])
 
 			lb2.setFont(font)
 			lb2.setStyleSheet("QLabel { background-color : lightblue; color : black;  border: 1px solid black; }")
@@ -207,10 +202,10 @@ class Paint(QtWidgets.QGraphicsView):
 					y = tmp[1].partition('Y=')
 					coordy = int(y[2])
 
-			lb.setGeometry(QtCore.QRect(75*coordy,0+(60*coordx), 73, 18))
-			lb2.setGeometry(QtCore.QRect(75*coordy,18+(60*coordx), 73, 22))
+			lb.setGeometry(QtCore.QRect(75*coordy,0+(61*coordx), 73, 18))
+			lb2.setGeometry(QtCore.QRect(75*coordy,18+(61*coordx), 73, 23))
 			pbProgram.setAttribute(QtCore.Qt.WA_TranslucentBackground,True)
-			pbProgram.setGeometry(QtCore.QRect(75*coordy, 38+(60*coordx), 73, 19)) 
+			pbProgram.setGeometry(QtCore.QRect(75*coordy,39+(61*coordx), 73,19)) 
 
 			#---------- Add list-----------#
 			self.parent.lblmodule.append(numberTab)
@@ -218,9 +213,11 @@ class Paint(QtWidgets.QGraphicsView):
 
 			self.parent.labels.append(numberTab)
 			self.parent.labels.append(lb2)
+			self.parent.labels.append(int(addrCell[1]))
 
 			self.parent.progress.append(numberTab)
 			self.parent.progress.append(pbProgram)
+			self.parent.progress.append(int(addrCell[1]))
 
 			#------------------Add scene------------------#
 			if k == str(z):
@@ -247,12 +244,10 @@ class Paint(QtWidgets.QGraphicsView):
 			if z == 0:
 				z = 1
 
-			#print("z2",z)
-			#print("k2",k)
+			#---------------------- Labels items---------------------#
 			label = nameCellL.split('#')
 			number = label[1].split('$')
 			lblt = QtGui.QFont("Arial",int(number[0]), QtGui.QFont.Black)
-			#item = QtWidgets.QTableWidgetItem(label[0])
 			lbltext = QtWidgets.QLabel(label[0])
 
 			if number[1] == 'AT':
@@ -262,9 +257,8 @@ class Paint(QtWidgets.QGraphicsView):
 
 			lbltext.setFont(lblt)
 			lbltext.setStyleSheet("QLabel { background-color : white; }")
-			#item.setFont(lblt)
-			#item.setBackground(QtGui.QColor('white'))
 
+			#------------------ coord ------------------#
 			if k == str(z):
 				tmpL = coordCellL[i+1].split()
 				for i in range(2):
@@ -281,7 +275,7 @@ class Paint(QtWidgets.QGraphicsView):
 
 	def contextMenuEvent(self,event):
 		print("contextEvent")
-		self.rubberBand.hide()
+	#	self.rubberBand.hide()
 		self.popMenu = QtWidgets.QMenu(self)
 		startAct = self.popMenu.addAction('LoadPrograms/Start')
 		pauseAct = self.popMenu.addAction('Pause')
@@ -301,25 +295,26 @@ class Paint(QtWidgets.QGraphicsView):
 	def totalMylist(self):
 		self.auxMylist = self.parent.newlist[:]
 
+	'''
 	def	mousePressEvent(self,event):
 		if event.button() ==  QtCore.Qt.LeftButton:
 			self.flagRelease = False
 
-			self.P1[0] = event.pos().x()
-			self.P1[1] = event.pos().y()
-
-		#	print("P1:",self.P1)
-			self.origin = QtCore.QPoint(event.pos())
-			self.rubberBand.setGeometry(QtCore.QRect(self.origin,QtCore.QSize()))
-			self.rubberBand.show()
+		#	self.P1[0] = event.pos().x()
+		#	self.P1[1] = event.pos().y()
+			#print("P1:",self.P1)
+		#	self.origin = QtCore.QPoint(event.pos())
+		#	self.rubberBand.setGeometry(QtCore.QRect(self.origin,QtCore.QSize()))
+		#	self.rubberBand.show()
 		#	print("P1G:",event.globalPos())
 		#	print("P1D:",event.localPos())
 
 
 	def mouseMoveEvent(self, event):
 		if self.flagRelease != True:
-			if not self.origin.isNull():
-				self.rubberBand.setGeometry(QtCore.QRect(self.origin,event.pos()).normalized())		
+			if not self.origin.isNull():				
+				pass
+				#self.rubberBand.setGeometry(QtCore.QRect(self.origin,event.pos()).normalized())		
 
 
 	def mouseReleaseEvent(self, event):
@@ -338,10 +333,11 @@ class Paint(QtWidgets.QGraphicsView):
 		#	print("P3:",self.P3)
 		#	print("P4:",self.P4)
 
-		#	print("P2G:",event.globalPos())
-		#	print("P1D:",event.localPos())
+			#print("P2G:",event.globalPos())
+			#print("P2D:",event.localPos())
 
 			self.populateCircuit()
+	'''
 
 	def zoomCmb(self,det):
 		#print("zoom comb")

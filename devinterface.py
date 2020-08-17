@@ -32,8 +32,8 @@ class devInterface(object):
         crc16 = xmodem_crc_func(bytes(msg_data[0:len(msg_data)]))
         crc16_high, crc16_low = crc16 >> 8, crc16 & 0x00FF
         packet_data.extend([0x03, crc16_low, crc16_high, 0x04])
-        print("packet_data:")
-        print(packet_data)
+        #print("packet_data:")
+        #print(packet_data)
         return packet_data
     
     @staticmethod
@@ -47,8 +47,8 @@ class devInterface(object):
         crc16 = xmodem_crc_func(bytes(msg_data[0:len(msg_data)]))
         crc16_high, crc16_low = crc16 >> 8, crc16 & 0x00FF
         packet_data.extend([0x03, crc16_low, crc16_high, 0x04])
-        print("packet_dataAddr:")
-        print(packet_data)
+        #print("packet_dataAddr:")
+        #print(packet_data)
         return packet_data
 
     @staticmethod
@@ -99,13 +99,13 @@ class devInterface(object):
             else:
                 print("Test Raspbian")
                 sp = SerialPortUtil.getPortByName("/dev/ttyS0")
-                print(sp)
+                #print(sp)
             #sp = SerialPortUtil.getPortBySerialNumber(appsettings.FTDI_serialNumber)
             #sp = SerialPortUtil.getFirstPortByVID_PID(0x067b,0x2303)
             #sp = SerialPortUtil.getFirstPortByVID_PID(0x10c4,0xea60)
             if sp == None:
                 raise Exception("devInterface", "No serial device found -I!")
-            sct = SerialCommThread(None, sp, appsettings.FTDI_baudRate, p_data, b'\x04',timeout,2)
+            sct = SerialCommThread(None, sp, appsettings.FTDI_baudRate, p_data, b'\x04',timeout,1)
             sct.start()
             sct.join()
             print("serial thread stopped")
@@ -114,8 +114,6 @@ class devInterface(object):
                 print("\033[1;31;40m"+str(e)+"\033[0;37;40m")
 
             data = serial_cmd_result[0]
-            #print("Frank:")
-            #print(data)
             result = None
             if data != None:
                 result = devInterface.decodeMessage(data)

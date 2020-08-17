@@ -15,6 +15,7 @@ from os import scandir
 import time 
 
 from devicemainboard import BCmb
+#from datalistenermemory import DataListenerMemory
 
 from appsettings import useHostname
 
@@ -95,10 +96,13 @@ class Ui_WindowCh(QtWidgets.QDialog):
 		self.addrs = list()
 		self.check = list()
 		self.tempList = list()
+
 		self.data1 = None
 		self.data2 = None
 		self.flagOutL = False
 		self.flagChange = False
+
+		self.flagFail = False	#flag para controlar el cierre de windowch
 
 	def retranslateUi(self, WindowCh):
 		_translate = QtCore.QCoreApplication.translate
@@ -122,10 +126,11 @@ class Ui_WindowCh(QtWidgets.QDialog):
 		self.lineEditMax.textChanged.connect(self.on_editMax)
 		self.BttnDone.clicked.connect(self.on_bttnDoneClicked)
 		self.BttnCancel.clicked.connect(self.on_bttnCancelClicked)
-		
+
+		self.textPrograms.addItem('')		
 		self.textPrograms.activated.connect(self.loadTableW)
 		#self.listWidget.itemClicked.connect(self.uncheck_check)
-
+		#self.textEdit.textChanged.connect(self.chtext)
 
 	def showEvent(self,event):
 		print("showEventWindowCh")
@@ -222,7 +227,7 @@ class Ui_WindowCh(QtWidgets.QDialog):
 				self.listWidget.addItem(item)
 
 	def on_cb_textPrograms(self):
-		files=self.ls2("/home/ditsa/Escritorio/DitsaNetApp/ProfileEditorPrograms/")
+		files=self.ls2("/home/ditsa/DitsaNet/ProfileEditorPrograms/")
 		for file in files:
 			nf = file.replace('.txt','')
 			self.textPrograms.addItem(nf)
@@ -232,77 +237,125 @@ class Ui_WindowCh(QtWidgets.QDialog):
 
 
 	def on_clicked_textPrograms(self):
-		nameFile = self.textPrograms.currentText()
-		#print("nameFile:",nameFile)
-		openFile = nameFile+".txt"
-		archivo_texto = open("/home/ditsa/Escritorio/DitsaNetApp/ProfileEditorPrograms/"+openFile,"r")
-		self.programJson = archivo_texto.read()
-		archivo_texto.close()
-		print("jason:",self.programJson)
+		self.nameFile = self.textPrograms.currentText()
+		if self.nameFile != '':
+			openFile = self.nameFile+".txt"
+			archivo_texto = open("/home/ditsa/DitsaNet/ProfileEditorPrograms/"+openFile,"r")
+			self.programJson = archivo_texto.read()
+			archivo_texto.close()
+			print("jason:",self.programJson)
+
+	def chtext(self,flag,addr):
+		if flag == 'msg':
+			self.textEdit.append("Send programs...")
+		elif flag == 'None':
+			self.textEdit.append("ERROR COMMf.checkPrograms(): "+addr)
+		elif flag == 'PASS':
+			self.textEdit.append("Load successful in Addr: "+addr)
+		elif flag == 'FAIL':
+			self.textEdit.append("Fail Load Addr: "+addr)
+		elif flag == 'PASS,RUN':
+			self.textEdit.append("run successful in Addr: "+addr)
+		elif flag == 'FAIL,RUN':
+			self.textEdit.append("Fail run Addr: "+addr)
+
+		QtGui.QGuiApplication.processEvents()
 
 	def on_bttnDoneClicked(self):
 		print("clickDone")
+		#----------------------------- Detiene thread -----------------------------#
+		time.sleep(0.5) 
+		self.parent.threadTimer(False)
+		self.parent.threadData(False)
+		self.parent.threadTimer(False)
+
+		#---------------------------- Extrae valor Addr ---------------------------#
 		self.uncheck_check()
-	
 		self.addrs.clear()
 		for i in range(3,len(self.loadProg),4):
 			addr = self.loadProg[i].split('A=')
 			self.addrs.append(addr[1])
 
-		#print("addr:",self.addrs)
 		self.loadProg.clear()
-
-		##realiza un len de cuantos dispositivos seran ejecutados y saca addr
-
 		self.textEdit.clear()
-		
-		
-		for i in range(len(self.addrs)):
-			#num = self.addrs[i]
-			self.textEdit.setVisible(False)
-			#print("valueAddr:",int(self.addrs[i]))
-			x = BCmb.writeProgramClient(useHostname,int(self.addrs[i]),self.programJson)
-	
-			#necesita un delay en lo que espera respuesta del xmega
-			time.sleep(10)
+		#---------------------------- Envia json a xmegas -------------------------#		
+		self.chtext("msg","None")
 
-			if x != None:
-				if x == 'PASS':
-					self.textEdit.insertPlainText("Load successful in Addr: "+self.addrs[i]+'\n')
-					self.textEdit.setVisible(True)
-					#time.sleep(1)
+		#for j in range(len(self.parent.saveprograms)):
+		if self.textPrograms.currentText() != '':
+
+			for i in range(len(self.addrs)):
+				x = BCmb.writeProgramClient(useHostname,int(self.addrs[i]),self.programJson)
+				print("xx:",x)
+				if x != None:
+					if x == 'PASS':
+						self.chtext(x,self.addrs[i])
+
+						self.checkPrograms()
+						self.parent.saveprograms.append(self.nameFile)
+						self.parent.saveprograms.append('A='+self.addrs[i])
+
+						self.settingsPrograms()
+						
+						run = BCmb.runClient(useHostname,int(self.addrs[i]))
+		
+						if run != None:
+							if run == 'PASS,RUN':
+								self.chtext(run,self.addrs[i])
+
+							else:
+								self.chtext(run,self.addrs[i])
+								self.flagFail = True
+
+						else:
+							self.chtext('None',self.addrs[i])
+							self.flagFail = True
+				
+					else:
+						self.chtext(x,self.addrs[i])
+						self.flagFail = True
+		else:
+
+			for i in range(len(self.addrs)):
+				x = BCmb.runClient(useHostname,int(self.addrs[i]))
+
+				if x != None:
+					if x == 'PASS,RUN':
+						self.chtext(x,self.addrs[i])
+
+					else:
+						self.chtext(x,self.addrs[i])
+						self.flagFail = True
 
 				else:
-					self.textEdit.insertPlainText("Fail Load Addr: "+self.addrs[i]+'\n')
-					self.textEdit.setVisible(True)
-					#time.sleep(1)
+					self.chtext('None',self.addrs[i])
+					self.flagFail = True
+					
 
-			
-
-		'''
-		for i in range(len(self.addrs)):
-			x = BCmb.runClient(useHostname,int(self.addrs[i]))
-
-			if x != None:
-				if x == 'PASS,RUN':
-					self.textEdit.insertPlainText("Run successful in Addr: "+self.addrs[i]+'\n')
-					self.textEdit.setVisible(True)
-					#time.sleep(1)
-
-				else:
-					self.textEdit.insertPlainText("Fail Run Addr: "+self.addrs[i]+'\n')
-					self.textEdit.setVisible(True)
-					#time.sleep(1)
-
-			else:
-				self.textEdit.insertPlainText("ERROR COM"+'\n')
-				self.textEdit.setVisible(True)
-		'''
-
-		#time.sleep(2)
-		#self.close()
+		if self.flagFail != True:
+			time.sleep(3)
+			self.close()
 		#solo falta realizar pruebas con comunicacion
-	
+
+	def checkPrograms(self):
+		print("checkPrograms")
+		if self.parent.saveprograms!= None:
+			if len(self.parent.saveprograms) != 0:
+				for k in range(len(self.addrs)):
+					for j in range(len(self.parent.saveprograms)-1):
+						if 'A='+self.addrs[k] == self.parent.saveprograms[j]:
+							print("entra",'A='+self.addrs[k])
+							self.parent.saveprograms.pop(j)	
+							self.parent.saveprograms.pop(j-1)			
+							break			
+
+	def settingsPrograms(self):
+		print("settingsPr")
+		settings = QtCore.QSettings('/home/ditsa/DitsaNet/Settings/fileprograms.ini', QtCore.QSettings.NativeFormat)
+		settings.setValue("saveprograms",self.parent.saveprograms)
+
+		print("saveP:",self.parent.saveprograms)
+			
 	def on_bttnCancelClicked(self):
 		self.close()
 		#cambiar este widget estructuralo mejor
@@ -310,77 +363,82 @@ class Ui_WindowCh(QtWidgets.QDialog):
 	def loadTableW(self):
 		print("loadProgramsTable")
 		self.on_clicked_textPrograms()
-		x = self.programJson.replace('[','')
-		y = x.replace(']','')
-		w = y.replace('{','')
-		v = w.replace('}','')
-		new = v.split('Type:')
+		if self.nameFile != '':
+			x = self.programJson.replace('[','')
+			y = x.replace(']','')
+			w = y.replace('{','')
+			v = w.replace('}','')
+			z = v.replace('"','')
+			new = z.split('Type:')
 
-		#print("pJ:",programJson)
-		#print("v:",v)
-		#print("new:",new)
-		steps = len(new)-3
-		print("Steps:",steps) #rows este valor es el numero de steps -3 (begin,end,'')
-		self.tableWidget.setRowCount(steps)
-		
-		self.st = 0
-		for i in range(len(new)):
-			comp= new[i].split(',')
-			for j in range(len(comp)-1):
-				typeName = comp[j]
-				if comp[j] == 'Carga':
-					self.st += 1
-					#print("Carga")
-					#print("comp:",comp)
-					#print("len:",len(comp)-1) 
-					self.tabItem(typeName,self.st-1,j)
-					if len(comp)-1 == 5: # 5 implica /Carga/Current/AH-T/MaxTmp/MinTmp
+			#print("pJ:",programJson)
+			#print("y:",y)
+			#print("w:",w)
+			#print("v:",v)
+			#print("z:",z)
+			#print("new:",new)
+			steps = len(new)-3
+			#print("Steps:",steps) #rows este valor es el numero de steps -3 (begin,end,'')
+			self.tableWidget.setRowCount(steps)
+			
+			self.st = 0
+			for i in range(len(new)):
+				comp= new[i].split(',')
+				for j in range(len(comp)-1):
+					typeName = comp[j]
+					if comp[j] == 'Charge':
+						self.st += 1
+						#print("Carga")
+						#print("comp:",comp)
+						#print("len:",len(comp)-1) 
+						self.tabItem(typeName,self.st-1,j)
+						if len(comp)-1 == 5: # 5 implica /Carga/Current/AH-T/MaxTmp/MinTmp
+							comp2 = comp[j+1].split(':')
+							comp3 = comp[j+2].split(':')
+							comp4 = comp[j+3].split(':')
+							comp5 = comp[j+4].split(':')
+							
+							if comp2[0]=='Current':
+								current = comp2[1]
+								self.tabItem(current,self.st-1,j+1)
+							if comp3[0]=='AH':
+								ampH = comp3[1]
+								self.tabItem(ampH+'    AH',self.st-1,j+2)
+							else:
+								ampH = comp3[1]
+								self.tabItem(ampH+'    T',self.st-1,j+2)
+							if comp4[0]=='MaxTemp':
+								maxTmp = comp4[1]
+								self.tabItem(maxTmp,self.st-1,j+3)
+							if comp5[0]=='MinTemp':
+								minTmp = comp5[1]
+								self.tabItem(minTmp,self.st-1,j+4)
+
+						else: # 3 implica /Carga/Current/AH-T
+							comp2 = comp[j+1].split(':')
+							comp3 = comp[j+2].split(':')
+							
+							if comp2[0]=='Current':
+								current = comp2[1]
+								self.tabItem(current,self.st-1,j+1)
+
+							if comp3[0]=='AH':
+								ampH = comp3[1]
+								self.tabItem(ampH+'    AH',self.st-1,j+2)
+							else:
+								ampH = comp3[1]
+								self.tabItem(ampH+'    T',self.st-1,j+2)
+
+					elif comp[j] =='Pause':
+						self.st +=1
+						self.tabItem(typeName,self.st-1,j)
 						comp2 = comp[j+1].split(':')
-						comp3 = comp[j+2].split(':')
-						comp4 = comp[j+3].split(':')
-						comp5 = comp[j+4].split(':')
-						
-						if comp2[0]=='Current':
-							current = comp2[1]
-							self.tabItem(current,self.st-1,j+1)
-						if comp3[0]=='AH':
-							ampH = comp3[1]
-							self.tabItem(ampH+'    AH',self.st-1,j+2)
-						else:
-							ampH = comp3[1]
-							self.tabItem(ampH+'    T',self.st-1,j+2)
-						if comp4[0]=='MaxTemp':
-							maxTmp = comp4[1]
-							self.tabItem(maxTmp,self.st-1,j+3)
-						if comp5[0]=='MinTemp':
-							minTmp = comp5[1]
-							self.tabItem(minTmp,self.st-1,j+4)
-
-					else: # 3 implica /Carga/Current/AH-T
-						comp2 = comp[j+1].split(':')
-						comp3 = comp[j+2].split(':')
-						
-						if comp2[0]=='Current':
-							current = comp2[1]
-							self.tabItem(current,self.st-1,j+1)
-
-						if comp3[0]=='AH':
-							ampH = comp3[1]
-							self.tabItem(ampH+'    AH',self.st-1,j+2)
-						else:
-							ampH = comp3[1]
-							self.tabItem(ampH+'    T',self.st-1,j+2)
-
-				elif comp[j] == 'Pausa':
-					self.st +=1
-					self.tabItem(typeName,self.st-1,j)
-					comp2 = comp[j+1].split(':')
-					if comp2[0] == 'Time':
-						time = comp2[1]
-						self.tabItem('-',self.st-1,j+1)
-						self.tabItem(time+'    T',self.st-1,j+2)
-						self.tabItem('-',self.st-1,j+3)
-						self.tabItem('-',self.st-1,j+4)
+						if comp2[0] =='Time':
+							time = comp2[1]
+							self.tabItem('-',self.st-1,j+1)
+							self.tabItem(time+'    T',self.st-1,j+2)
+							self.tabItem('-',self.st-1,j+3)
+							self.tabItem('-',self.st-1,j+4)
 
 	def tabItem(self,name,rw,col):
 		lblt = QtGui.QFont("Arial",10, QtGui.QFont.Normal)

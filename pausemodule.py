@@ -75,6 +75,7 @@ class Ui_pauseModule(QtWidgets.QDialog):
 		self.addrs = list()
 
 		self.flagChange = False
+		self.flagFail = False	#flag para controlar el cierre de pausemodule
 
 	def retranslateUi(self, pauseModule):
 		_translate = QtCore.QCoreApplication.translate
@@ -154,49 +155,55 @@ class Ui_pauseModule(QtWidgets.QDialog):
 				self.listWidget.clear()
 
 			if self.data2 != None and self.data2 != 'N=':
-				#print("no se encuentra")
 				self.flagOutL = True
 				self.listWidget.clear()
 
+	def chtext(self,flag,addr):
+		if flag == 'None':
+			self.textEdit.append("ERROR COMM: "+addr)
+		elif flag == 'PASS,PAUSE':
+			self.textEdit.append("Pause successful in Addr: "+addr)
+		elif flag == 'FAIL,PAUSE':
+			self.textEdit.append("Fail Pause Addr: "+addr)
+
+		QtGui.QGuiApplication.processEvents()
+
 	def btnOk(self):
 		print("btnOk")
+		#----------------------------- Detiene thread -----------------------------#
+		time.sleep(0.5)
+		self.parent.threadData(False) 
+		#---------------------------- Extrae valor Addr ---------------------------#
 		self.uncheck_check()
-	
 		self.addrs.clear()
 		for i in range(3,len(self.loadProg),4):
 			addr = self.loadProg[i].split('A=')
 			self.addrs.append(addr[1])
 
-		#print("loadProg:",self.loadProg)
-		#print("addr:",self.addrs)
 		self.loadProg.clear()
-
-		#print("espera que se carguen todos los programas...")
-		##realiza un len de cuantos dispositivos seran ejecutados y saca addrs
-
 		self.textEdit.clear()
-		self.textEdit.setVisible(False)
+	
+		#---------------------------- Envia comando pause ---------------------------#
 		for i in range(len(self.addrs)):
-			#print("valueAddr:",self.addrs[i])
-			
+			#print("valueAddr:",self.addrs[i])			
 			x = BCmb.pauseClient(useHostname, int(self.addrs[i]))
-
-			#probablemente necesite un sleep
-			
 			time.sleep(0.3)#sujeto a cmabios
 
 			if x != None:
-				if x == 'PASS,PAUSE':
-					self.textEdit.insertPlainText("Pause successful in Addr: "+self.addrs[i]+'\n')
-					self.textEdit.setVisible(True)
+				if x == 'PASS,PAUSE':				
+					self.chtext(x,self.addrs[i])
 
-				else:
-					self.textEdit.insertPlainText("Fail Pause Addr: "+self.addrs[i]+'\n')
-					self.textEdit.setVisible(True)
-
+				else:				
+					self.chtext(x,self.addrs[i])
+					self.flagFail = True
 			else:
-				self.textEdit.insertPlainText("ERROR COM"+'\n')
-				self.textEdit.setVisible(True)
+				self.chtext("None",self.addrs[i])
+				self.flagFail = True
+
+		
+		if self.flagFail != True:
+			time.sleep(3)
+			self.close()
 				
 		#solo falta realizar pruebas con comunicacion
 

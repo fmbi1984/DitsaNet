@@ -89,8 +89,7 @@ class BCmb(object):
 	def stopClient(hostname,addr):
 		result = ACTION.FAIL
 		result = devInterface.sendClientCommandAndGetResponse(hostname,addr, 0x35, "", BCmb.timeout)
-		print("STP")
-		print(result)
+		print("STP:",result)
 		if result != None:
 			if result[1] == 'PASS,STOP':
 				result = result[1]
@@ -246,7 +245,7 @@ class BCmb(object):
 	def readDataClient(hostname, addr):
 		result = ACTION.FAIL
 		res = devInterface.sendClientCommandAndGetResponse(hostname,addr, 0x43, "", BCmb.timeout)
-		print(res)
+		print("rDataCl:",res)
 		result=None
 		if res != None:
 			if res[0] == 'VALUE':
@@ -259,7 +258,7 @@ class BCmb(object):
 	def pingClient(hostname,addr):
 		result = ACTION.FAIL
 		result = devInterface.sendClientCommandAndGetResponse(hostname,addr,0x64, "", BCmb.timeout)
-		print(result)
+		print("pingCL:",result)
 		if result != None:
 			if result[1] == 'PASS':
 				result = True
@@ -271,7 +270,7 @@ class BCmb(object):
 	@staticmethod
 	def ping(addr):
 		result = ACTION.FAIL
-		result = devInterface.sendCommandAndGetResponse(addr,0x64, "", 2)
+		result = devInterface.sendCommandAndGetResponse(addr,0x64, "",BCmb.timeout)
 		print(result)
 		if result != None:
 			if result[1] == 'PASS':
@@ -321,7 +320,7 @@ class BCmb(object):
 	def memoryDataClient(hostname):
 		result = ACTION.FAIL
 		result = devInterface.sendClientCommandAndGetResponseWithoutAddr(hostname,0x38, "", BCmb.timeout)
-		print(result)
+		#print("mDataCl:",result)
 		if result != None:
 			if result[0] == 'VALUE':
 				result = result[1].split(';')
@@ -371,29 +370,25 @@ if __name__ == "__main__":
 	#for i in range(0,100):
 	#   BCmb.memoryDataClient(useHostname)
 
-	BCmb.stopPollingClient(useHostname)
+	#BCmb.stopPollingClient(useHostname)
 
 	#   BCmb.pingClient(useHostname,1)
 		#BCmb.readDataClient(useHostname, 2)
 
 	#BCmb.pingDataClient(useHostname,"[1,2,3,9,15,16,21,23,27,30]")
-	#BCmb.pingClient(useHostname,1)
+	BCmb.pingClient(useHostname,3)
 	#BCmb.pingClient(useHostname,2)
 	#BCmb.runClient(useHostname, 1)
 	#BCmb.pauseClient(useHostname, 2)
-	#BCmb.stopClient(useHostname, 1)
+	#BCmb.stopClient(useHostname, 3)
 	#BCmb.stopClient(useHostname, 2)
 	#BCmb.readDataClient(useHostname,1)
 	#BCmb.readStepClient(useHostname, 1)
 	#BCmb.currentTimeClient(useHostname, 1)
 	#BCmb.readProgramClient(useHostname,1)
-	#BCmb.writeProgramClient(useHostname,1,"[{\"Type\":\"Begin\"},{\"Type\":\"Pause\",\"Time\":\"10\"},{\"Type\":\"Pause\",\"Time\":\"16\"},{\"Type\":\"End\"}]")
-	#BCmb.writeProgramClient(useHostname,2,"[{\"Type\":\"Begin\"},{\"Type\":\"Pause\",\"Time\":\"10\"},{\"Type\":\"Charge\",\"Time\":\"1200\",\"Current\":\"20.0\"},{\"Type\":\"Charge\",\"Time\":\"900\",\"Current\":\"22.7\"},{\"Type\":\"Carga\",\"Time\":\"1200\",\"Current\":\"27.0\"},{\"Type\":\"Charge\",\"Time\":\"180\",\"Current\":\"24.0\"},{\"Type\":\"Pause\",\"Time\":\"60\"},{\"Type\":\"Charge\",\"Time\":\"1200\",\"Current\":\"26.5\"},{\"Type\":\"Charge\",\"Time\":\"600\",\"Current\":\"30.0\"},{\"Type\":\"End\"}]")
-	#BCmb.writeProgramClient(useHostname,1,"[{\"Type\":\"Begin\"},{\"Type\":\"Pause\",\"Time\":\"25\"},{\"Type\":\"Charge\",\"Time\":\"30\",\"Current\":\"30.0\"},{\"Type\":\"Charge\",\"Time\":\"1800\",\"Current\":\"27.4\"},{\"Type\":\"Carga\",\"Time\":\"1200\",\"Current\":\"18.6\"},{\"Type\":\"Pause\",\"Time\":\"180\"},{\"Type\":\"Charge\",\"Time\":\"1200\",\"Current\":\"9.0\"},{\"Type\":\"Charge\",\"Time\":\"900\",\"Current\":\"12.4\"},{\"Type\":\"Pause\",\"Time\":\"300\"},{\"Type\":\"Charge\",\"Time\":\"1200\",\"Current\":\"22.2\"},{\"Type\":\"Charge\",\"Time\":\"1200\",\"Current\":\"8.8\"},{\"Type\":\"Charge\",\"Time\":\"1500\",\"Current\":\"25.6\"},{\"Type\":\"Pause\",\"Time\":\"180\"},{\"Type\":\"Charge\",\"Time\":\"1500\",\"Current\":\"17.2\"},{\"Type\":\"End\"}]")
-	#BCmb.writeProgramClient(useHostname,1,"[{\"Type\":\"Begin\"},{\"Type\":\"Pause\",\"Time\":\"15\"},{\"Type\":\"Charge\",\"Time\":\"60\",\"Current\":\"28.3\"},{\"Type\":\"Pause\",\"Time\":\"46\"},{\"Type\":\"Charge\",\"Time\":\"180\",\"Current\":\"20.8\"},{\"Type\":\"Carga\",\"Time\":\"40\",\"Current\":\"30.0\"},{\"Type\":\"Pause\",\"Time\":\"15\"},{\"Type\":\"Charge\",\"Time\":\"60\",\"Current\":\"25.7\"},{\"Type\":\"Pause\",\"Time\":\"20\"},{\"Type\":\"Charge\",\"Time\":\"120\",\"Current\":\"26.4\"},{\"Type\":\"Charge\",\"Time\":\"30\",\"Current\":\"18.9\"},{\"Type\":\"End\"}]")
-	#BCmb.writeProgramClient(useHostname,1,"[{\"Type\":\"Begin\"},{\"Type\":\"Charge\",\"Time\":\"180\",\"Current\":\"30.0\"},{\"Type\":\"Charge\",\"Time\":\"1200\",\"Current\":\"25.6\"},{\"Type\":\"Pause\",\"Time\":\"300\"},{\"Type\":\"Carga\",\"Time\":\"600\",\"Current\":\"10.5\"},{\"Type\":\"Carga\",\"Time\":\"1200\",\"Current\":\"19.2\"},{\"Type\":\"Carga\",\"Time\":\"600\",\"Current\":\"28.4\"},{\"Type\":\"Charge\",\"Time\":\"900\",\"Current\":\"23.5\"},{\"Type\":\"Charge\",\"Time\":\"1200\",\"Current\":\"14.7\"},{\"Type\":\"Pause\",\"Time\":\"300\"},{\"Type\":\"Pause\",\"Time\":\"120\"},{\"Type\":\"Charge\",\"Time\":\"1200\",\"Current\":\"17.7\"},{\"Type\":\"Charge\",\"Time\":\"900\",\"Current\":\"9.5\"},{\"Type\":\"Charge\",\"Time\":\"1500\",\"Current\":\"24.8\"},{\"Type\":\"End\"}]")
-	#x = BCmb.memoryDataClient(useHostname)
-	#print("x:",x)
+	
+	#BCmb.writeProgramClient(useHostname,1,"[{\"Type\":\"Begin\"},{\"Type\":\"Pause\",\"Time\":\"0.2\"},{\"Type\":\"Charge\",\"Current\":\"23.0\",\"Time\":\"0.3\",\"MaxTemp\":\"0.0\",\"MinTemp\":\"0.0\"},{\"Type\":\"Charge\",\"Current\":\"17.1\",\"AH\":\"3.1\",\"MaxTemp\":\"27.0\",\"MinTemp\":\"23.0\"},{\"Type\":\"Charge\",\"Current\":\"20.0\",\"AH\":\"5.2\",\"MaxTemp\":\"0.0\",\"MinTemp\":\"0.0\"},{\"Type\":\"Pause\",\"Time\":\"0.0166\"},{\"Type\":\"Charge\",\"Current\":\"26.5\",\"Time\":\"0.120\",\"MaxTemp\":\"32.0\",\"MinTemp\":\"20.0\"},{\"Type\":\"Charge\",\"Current\":\"24.3\",\"AH\":\"0.585\",\"MaxTemp\":\"0.0\",\"MinTemp\":\"0.0\"},{\"Type\":\"End\"}]")
+	#BCmb.writeProgramClient(useHostname,1,"[{\"Type\":\"Begin\"},{\"Type\":\"Charge\",\"Current\":\"23\",\"AH\":\"5.4\",\"MaxTemp\":\"33.0\",\"MinTemp\":\"23.0\"},{\"Type\":\"Pause\",\"Time\":\"0.2\"},{\"Type\":\"Charge\",\"Current\":\"23.0\",\"AH\":\"2.1\",\"MaxTemp\":\"0.0\",\"MinTemp\":\"0.0\"},{\"Type\":\"Charge\",\"Current\":\"13.5\",\"Time\":\"0.3\",\"MaxTemp\":\"35.0\",\"MinTemp\":\"25.0\"},{\"Type\":\"Pause\",\"Time\":\"0.5\"},{\"Type\":\"End\"}]")
 	'''
 	while True:
 		#BCmb.readData(1)

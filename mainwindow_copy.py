@@ -25,8 +25,6 @@ from appsettings import useHostname
 from ordened import NameOrdened
 
 from datalistenermemory import DataListenerMemory
-#from dataclient import DataClient
-
 
 class Ui_MainWindow(object):
 	def __init__(self,MainWindow, parent=None):
@@ -140,7 +138,7 @@ class Ui_MainWindow(object):
 		self.cmbZoom.lineEdit().setAlignment(QtCore.Qt.AlignCenter)
 		self.cmbZoom.setCurrentIndex(3)
 
-		self.comboBox.activated.connect(self.onCombo)
+	#	self.comboBox.activated.connect(self.onCombo)
 		self.cmbZoom.activated.connect(self.onCmbZoom)
 
 		self.cmdDetener.clicked.connect(self.btnDetener)
@@ -171,20 +169,22 @@ class Ui_MainWindow(object):
 
 		self.valueZoom = list()
 		self.listSelect = list() #guarda valores de addr cuando se seleccionan modulos
+		self.saveprograms = list() #guarda programs's name 
 
 		self.flagStart = False
 		self.flagPage = False
 		self.flagNormal = True
 		self.flagZoom = False
 		self.flagWmin = False 	#Flag para ubuntu
-
+		self.flagClose = False
+		self.flagProg = False
 
 		self.flagCircuit = False
 		self.tmpTabs = list()
 		
 		self.labels = list()
 		self.progress = list()
-		self.lblmodule = list()
+		self.lblmodule = list()		
 
 		#self.valueZoomOut = list()
 		#self.scaleFactor = 1.0
@@ -217,8 +217,17 @@ class Ui_MainWindow(object):
 		#if MainWindow.isMinimized(): #Para mac
 		#	pass
 		#else:
-			settings = QtCore.QSettings('/home/ditsa/Settings/archivo.ini', QtCore.QSettings.NativeFormat)
-			if settings.value('/home/ditsa/Settings/archivo.ini')!='':
+			settprog = QtCore.QSettings('/home/ditsa/DitsaNet/Settings/fileprograms.ini', QtCore.QSettings.NativeFormat)
+			if settprog.value('/home/ditsa/DitsaNet/Settings/fileprograms.ini') !='':
+				tmp = settprog.value("saveprograms")
+
+				if tmp != None and len(tmp) != 0:
+					self.saveprograms = tmp[:]
+					self.flagProg = True
+					print("savePR:",self.saveprograms)
+
+			settings = QtCore.QSettings('/home/ditsa/DitsaNet/Settings/archivo.ini', QtCore.QSettings.NativeFormat)
+			if settings.value('/home/ditsa/DitsaNet/Settings/archivo.ini')!='':
 				self.settingsList = settings.value("mylist")
 				self.settingsLabel = settings.value("mylabel")
 				self.settingsRowCol = settings.value("rowcol")
@@ -250,7 +259,7 @@ class Ui_MainWindow(object):
 								self.newlist.append(self.mylist[j+1])
 								valAddr = self.mylist[j+1].split('A=')
 								self.tempAddr.append(valAddr[1])
-					#print("new:",self.newlist)
+
 					self.addrsT.append(str(self.tempAddr))
 					
 
@@ -260,8 +269,6 @@ class Ui_MainWindow(object):
 				if self.settingsList != None or self.settingsLabel != None: # Populate Tables
 					self.populateTabs()
 
-					#print("mylist:",self.mylist)
-					#form = Ui_Form(self)
 					self.paint = Paint(self)
 					self.tabWidget.addTab(self.paint, "Page 1")
 					tabC = self.tabWidget.count()
@@ -271,30 +278,50 @@ class Ui_MainWindow(object):
 
 					if (self.settingsList != None  and len(self.settingsList)!=0) or (self.settingsLabel != None and len(self.settingsLabel)!=0):
 						for i in range(int(self.numTabT)-tabC):
-							#print("i",i)
 							self.newPage()
 
 					self.onCmbZoom()
 
-					BCmb.pingDataClient(useHostname,self.addrsT[0])
-					#print("adrrLEN:",len(self.tempAddr))
-					print("Inicia Poleo") #poleo es lo primero en iniciar despues de llenar screen
-					#BCmb.startPollingClient(useHostname)
-					#time.sleep(0.3)
+					BCmb.pingDataClient(useHostname,self.addrsT[0]) #envia las addr de los modulos 
+					#enviar actualizacion del ultimo program guardado 
+					#print("addrT:",self.addrsT[0])
+					#print(self.addrsT[1])
+					#print(self.addrsT[2])
+					#depreferencia que regrese valores addr answer
+					#if self.flagProg != False:
+					#	for i in range(len(self.addrsT)):
+					#		BCmb.writeProgramClient(useHostname,self.addrsT[i],self.programJson)
 					
-					self.dataThread = DataListenerMemory(self.testsCallback)
-					self.dataThread.start()
+					print("Inicia Poleo") #poleo es lo primero en iniciar despues de llenar screen
+					self.threadData(True) #Inicia el poleo
+			
 					time.sleep(0.3)
-
-					self.valueData() #obtiene los valores del poleo
+					self.valueData() #obtiene los valores del poleo del sever
 
 	def closeEvent(self,event):
 		print("closeEvent")
-		self.t.cancel() #fin de actualizacion de display comm pc-raspb
-		time.sleep(0.5) #verificar si sigue colgandose
-		self.dataThread.stop() #fin de thread poleo comm raspb - xmega
-		#x = BCmb.stopPollingClient(useHostname)
-		#print("x:",x)
+		self.flagClose = True
+		time.sleep(0.5)
+		self.threadTimer(False)	
+		self.threadData(False)
+
+	def threadData(self,flag):
+		print("ThreadData")
+		if flag == True:
+			self.dataThread = None
+			self.dataThread = DataListenerMemory(self.testsCallback)
+			self.dataThread.start()
+		else:
+			self.dataThread.stop()
+
+	def threadTimer(self,flag):
+		print("ThreadTimer")
+		if flag == True:
+			self.t = None
+			self.t = threading.Timer(1, self.valueData)
+			self.t.start()
+		else:
+			self.t.cancel()
 
 	def populateTabs(self):
 		print("populateTabs")
@@ -310,22 +337,21 @@ class Ui_MainWindow(object):
 			self.maxTabs.clear()
 
 	def newPage(self): 
-		print("newPage")
+		#print("newPage")
 		self.flagPage = True
 		self.flagNormal = False
 		self.paint = Paint(self)
 		self.paint.setSceneRect(0,0,0,0)
 		self.tabWidget.addTab(self.paint,"Page "+str(self.tabWidget.count()+1))
 
-	def onCombo(self): #seleccion I,V,T,time,Step,addr
-		print("comboBox")
+	#def onCombo(self): #seleccion I,V,T,time,Step,addr
+	#	print("comboBox")
 		
 	def onCmbZoom(self): ###verificar funcionamiento 
 		print("cmbZoom") ##se puede cambiar aun no finalizado
 		textcmb = self.cmbZoom.currentText()
 		y = textcmb.split('%')
 		value = ''.join(y)
-		print("value:",value)
 		det = int(value) / 125
 		
 		form = self.tabWidget.currentWidget()
@@ -334,8 +360,6 @@ class Ui_MainWindow(object):
 	def testsCallback(self, msg):
 		if "DL[PASS]" in msg:
 			msg = msg.replace("DL[PASS]:","")
-
-			print("ENT-Display")
 		
 			cbText = self.comboBox.currentText()
 			cbText2 =  self.comboBox.currentIndex()+1
@@ -350,19 +374,19 @@ class Ui_MainWindow(object):
 				pref = " C"
 
 			elif cbText == 'Time left':
-				pref = " t"
+				pref = ''
 
 			elif cbText == 'Step':
-				pref = " S"
+				pref = ''
 			 
-			font = QtGui.QFont()
-			font.setFamily("Ubuntu Light")
-			font.setPointSize(12)
-			font.setBold(True)
-			font.setWeight(75)
-			
 			for i in range(1,len(self.labels),3):
 				addr = self.labels[i+1]
+
+				font = QtGui.QFont()
+				font.setFamily("Ubuntu Light")
+				font.setPointSize(12)
+				font.setBold(True)
+				font.setWeight(75)
 
 				self.labels[i].setFont(font)
 				self.labels[i].setText(shared.DEV[addr][cbText2]+pref)
@@ -381,10 +405,12 @@ class Ui_MainWindow(object):
 				elif (shared.DEV[addr][8] == 'I') or (shared.DEV[addr][8] == 'S'): #state - Stop or Initial
 					self.labels[i].setStyleSheet("QLabel {background-color : lightblue; color : black; border: 1px solid black;} ")
 					self.labels[i].setAlignment(QtCore.Qt.AlignCenter)
+					self.progress[i].setValue(0)
 
 				elif shared.DEV[addr][8] == 'E': #state - End Program
-					self.labels[i].setStyleSheet("QLabel {background-color : darkorange; color : black; border: 1px solid black;} ")
+					self.labels[i].setStyleSheet("QLabel {background-color : orange; color : black; border: 1px solid black;} ")
 					self.labels[i].setAlignment(QtCore.Qt.AlignCenter)
+					self.progress[i].setValue(0)
 
 				elif shared.DEV[addr][8] == 'R': #state - Running
 					self.labels[i].setStyleSheet("QLabel {background-color : limegreen; color : black; border: 1px solid black;} ")
@@ -398,6 +424,15 @@ class Ui_MainWindow(object):
 					self.labels[i].setStyleSheet("QLabel {background-color : red; color : black; border: 1px solid black;} ")
 					self.labels[i].setAlignment(QtCore.Qt.AlignCenter) #red
 
+			for j in range(1,len(self.progress),3):
+				addr = self.progress[j+1]
+				
+				if shared.DEV[addr][0] != False: 
+					if float(shared.DEV[addr][6])*100 == 0:
+						self.progress[j].setValue(0)
+					else:
+						value = float(shared.DEV[addr][6])*100 / float(shared.DEV[addr][7])
+						self.progress[j].setValue(value)
 
 	def valueData(self):
 		print("VALUEDATA")
@@ -405,14 +440,14 @@ class Ui_MainWindow(object):
 		
 		for i in range (len(self.tempAddr)): 
 			address = i
-		
 			if memoryData!= None:
 				#print("ValueM:",memoryData)
 				TempData = memoryData[address-1].split(',')
 				#print("TempData:",TempData)
 				dat1 = str(TempData[0]).replace('{','')
 				#print("data1:",dat1)
-				if dat1 == 'True':
+			
+				if dat1 == 'True' and len(TempData) == 9:
 					TempData[8] = str(TempData[8]).replace('}','')
 					TempData[0] = True
 
@@ -424,7 +459,7 @@ class Ui_MainWindow(object):
 					#we store temperature
 					shared.DEV[address][3] = str(TempData[3].replace('T',''))
 					#we store step number and type
-					shared.DEV[address][4] = str(TempData[4].replace('P',''))
+					shared.DEV[address][4] = str(TempData[4].replace('S',''))
 					#we store time of current step
 					shared.DEV[address][5] = str(TempData[5].replace('t',''))
 					#we store current time program
@@ -434,19 +469,16 @@ class Ui_MainWindow(object):
 					#we store the total time program
 					shared.DEV[address][8] = str(TempData[8].replace('',''))
 
-					#if shared.DEV[address][8] == '':
-					#	print("Dato3")
-					#print("shared8:",shared.DEV[address][8])
-
-				if dat1 == 'False}':
+				elif dat1 == 'False}':
 					TempData[0] = str(TempData[0]).replace('}','')
 					shared.DEV[address][0] = False
-					#print("FalsePing")
 				
 				print("TempData2:",TempData)
-			
-		self.t = threading.Timer(1, self.valueData)
-		self.t.start()
+		
+		if self.flagClose != True:
+			self.threadTimer(True)
+		else:
+			self.threadTimer(False)
 
 
 	count = 0
@@ -472,18 +504,24 @@ class Ui_MainWindow(object):
 	def btnDetener(self):
 		print("Detener")
 		Ui_stopModule(self).exec_()
+		self.threadData(True)
 
 	def btnPausar(self):
 		print("Pausar")
 		Ui_pauseModule(self).exec_()
+		self.threadData(True)
 
 	def btnIniciar(self): 
 		print("Iniciar")
 		Ui_runModule(self).exec_()
+		self.threadData(True)
 
 	def btnCargar(self):
 		print("Cargar")
 		Ui_WindowCh(self).exec_()
+
+		self.threadData(True)
+		self.valueData()
 
 	'''
 	def zoom_in(self):
