@@ -26,20 +26,22 @@ class DataListenerMemory(Thread):
 
 	mySrc = None
 	_stop_event = None
-	_pause_event = None
 
 	def __init__(self, args):
 		'''Constructor'''
 		Thread.__init__(self)
 		self._args = args
 		self._name = "DataListenerMemory Thread"
-		self.flag = False
 		if args != None:
 			self.mySrc = Communicate()
 			self.mySrc.myGUI_signal.connect(args)
 
 		self._stop_event = Event()
 		self._stop_event.clear()
+
+		#memoryPolling = BCmb.startPollingClient(useHostname)
+		#sleep(.3)
+		
 
 	def run(self):
 		print(self._name+" started")
@@ -52,6 +54,7 @@ class DataListenerMemory(Thread):
 					#self.mySrc.myGUI_signal.emit("DL["+str(address)+"]:DataReady")
 					self.mySrc.myGUI_signal.emit("DL[PASS]:DataReady")
 		
+
 	def stop(self):
 		print("stop was done in "+self._name)
 		self._stop_event.set()
@@ -59,7 +62,6 @@ class DataListenerMemory(Thread):
 	def join(self, *args, **kwargs):
 		self.stop()
 		super(DataListenerMemory,self).join(*args, **kwargs)
-
 
 if __name__ == '__main__':
 	logger.debug("demo")

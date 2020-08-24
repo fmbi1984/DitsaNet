@@ -7,9 +7,9 @@ from appsettings import useHostname
 try:
 	ssh_client = paramiko.SSHClient()
 	ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-	ssh_client.connect(hostname='raspberrypi.local', username='pi', password='raspberry')
+	#ssh_client.connect(hostname='rpitablet.local', username='pi', password='paulina84')
 	#ssh_client.connect(hostname=useHostname, username='CEX', password='rom25123012')
-	#ssh_client.connect(hostname=useHostname, username='ditsa', password='ditsanet')
+	ssh_client.connect(hostname=useHostname, username='ditsa', password='ditsanet')
 
 	'''
 	sftp = ssh_client.open_sftp()
@@ -26,8 +26,7 @@ try:
 	# This will copy a file
 	#scp.get(remote_path='/home/ditsa/TestLogs/4-SGL.txt', local_path='')
 	# This will copy a whole directory
-	#scp.get(remote_path='/home/ditsa/DitsaNet/FormationDataFiles/', local_path='', recursive=True)
-	scp.get(remote_path='/home/pi/DitsaNetServer/FormationDataFiles/', local_path='/home/ditsa/DitsaNet/', recursive=True)
+	scp.get(remote_path='/home/ditsa/FormationDataFiles/', local_path='', recursive=True)
 	#scp.get(remote_path='/Users/cex/TestLogs/', local_path='', recursive=True)
 
 	scp.close()

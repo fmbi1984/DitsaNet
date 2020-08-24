@@ -1,1 +1,0 @@
-[{Type:Begin},{Type:Carga,Current:10,AH:5,MaxTemp:30.0,MinTemp:20.0},{Type:Carga,Current:22,AH:60,MaxTemp:0.0,MinTemp:0.0},{Type:End}]

@@ -53,10 +53,8 @@ class Paint(QtWidgets.QGraphicsView):
 		if self.parent.flagZoom != True:
 			if self.parent.flagNormal != False: 
 				self.setSceneRect(110,90,1280,523) #0,90,1280,523
-				print("IFshowE")
 			else:
 				self.setSceneRect(0,0,1280,523)
-				print("elseShowE")
 
 		if self.parent.flagCircuit != True:
 			self.populateCircuit()
@@ -71,9 +69,8 @@ class Paint(QtWidgets.QGraphicsView):
 				self.parent.tmpTabs.index(str(z)+'%')
 
 			except:
-
 				#-------------- For lblmodule ----------------#
-				for i in range(0,len(self.parent.lblmodule),2):
+				for i in range(0,len(self.parent.lblmodule),3): #2
 					numberTab = self.parent.lblmodule[i]
 					k = numberTab.replace('%','')
 
@@ -101,7 +98,8 @@ class Paint(QtWidgets.QGraphicsView):
 						
 						self.scene.addWidget(val)
 						self.setScene(self.scene)
-
+				
+				'''
 				#-------------- For progress -----------------#
 				for i in range(0,len(self.parent.progress),3):
 					numberTab = self.parent.progress[i]
@@ -112,6 +110,7 @@ class Paint(QtWidgets.QGraphicsView):
 						
 						self.scene.addWidget(val)
 						self.setScene(self.scene)
+				'''
 
 		self.populateLabel()
 		self.populateZoom()
@@ -176,6 +175,7 @@ class Paint(QtWidgets.QGraphicsView):
 			lb2.setFrameShape(QtWidgets.QFrame.Box)
 			lb2.setAlignment(QtCore.Qt.AlignHCenter|QtCore.Qt.AlignTop)
 
+			'''
 			#------------------- value ProgressBar-----------------------#
 			pbProgram = QtWidgets.QProgressBar()
 			pbProgram.setStyleSheet("QProgressBar\n"
@@ -191,7 +191,7 @@ class Paint(QtWidgets.QGraphicsView):
 "	margin: 0.5px;\n"
 "}")
 			pbProgram.setProperty("value",0)
-
+			'''
 			#----------- coord -------------#
 			for i in range(2):
 				if i == 0:
@@ -202,22 +202,23 @@ class Paint(QtWidgets.QGraphicsView):
 					y = tmp[1].partition('Y=')
 					coordy = int(y[2])
 
-			lb.setGeometry(QtCore.QRect(75*coordy,0+(61*coordx), 73, 18))
-			lb2.setGeometry(QtCore.QRect(75*coordy,18+(61*coordx), 73, 23))
-			pbProgram.setAttribute(QtCore.Qt.WA_TranslucentBackground,True)
-			pbProgram.setGeometry(QtCore.QRect(75*coordy,39+(61*coordx), 73,19)) 
+			lb.setGeometry(QtCore.QRect(75*coordy,0+(61*coordx), 73, 20))#18
+			lb2.setGeometry(QtCore.QRect(75*coordy,20+(61*coordx), 73, 37))#23
+			#pbProgram.setAttribute(QtCore.Qt.WA_TranslucentBackground,True)
+			#pbProgram.setGeometry(QtCore.QRect(75*coordy,39+(61*coordx), 73,19)) 
 
 			#---------- Add list-----------#
-			self.parent.lblmodule.append(numberTab)
-			self.parent.lblmodule.append(lb)
+			self.parent.lblmodule.append(numberTab) #tab 
+			self.parent.lblmodule.append(lb) #name
+			self.parent.lblmodule.append(int(addrCell[1])) #addr
 
-			self.parent.labels.append(numberTab)
-			self.parent.labels.append(lb2)
-			self.parent.labels.append(int(addrCell[1]))
+			self.parent.labels.append(numberTab) #tab
+			self.parent.labels.append(lb2)  #option value
+			self.parent.labels.append(int(addrCell[1])) #addr
 
-			self.parent.progress.append(numberTab)
-			self.parent.progress.append(pbProgram)
-			self.parent.progress.append(int(addrCell[1]))
+			#self.parent.progress.append(numberTab)
+			#self.parent.progress.append(pbProgram)
+			#self.parent.progress.append(int(addrCell[1]))
 
 			#------------------Add scene------------------#
 			if k == str(z):
@@ -227,8 +228,8 @@ class Paint(QtWidgets.QGraphicsView):
 				self.scene.addWidget(lb2)
 				self.setScene(self.scene)
 
-				self.scene.addWidget(pbProgram)
-				self.setScene(self.scene)
+				#self.scene.addWidget(pbProgram)
+				#self.setScene(self.scene)
 
 
 	def populateLabel(self):
@@ -269,7 +270,7 @@ class Paint(QtWidgets.QGraphicsView):
 						y = tmpL[1].partition('Y=')
 						coordy = y[2]
 
-				lbltext.move(int(coordy)*75,int(coordx)*57)
+				lbltext.move(int(coordy)*75,int(coordx)*60)
 				self.scene.addWidget(lbltext)
 				self.setScene(self.scene)
 

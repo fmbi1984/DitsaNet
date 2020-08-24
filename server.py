@@ -182,11 +182,7 @@ def client_thread(conn):
                     #print("msg")
                     #print(msg)
                     #tmp = bytes("ACTION: PASS", 'ISO-8859-1')
-                    
-                    
                     #address = int(msg[1])
-                    
-                    
                     #print("started Acquire memory server")
                     tmp = "VALUE: "
                     for i in range (len(DA_PI)): #en vez de solo los que estan pregunta por todos ON_PI
@@ -200,11 +196,14 @@ def client_thread(conn):
                                     "I" + shared.DEV[address][1] + "," +\
                                     "V" + shared.DEV[address][2] + "," +\
                                     "T" + shared.DEV[address][3] + "," +\
-                                    "S" + shared.DEV[address][4] + "," +\
-                                    "t" + shared.DEV[address][5] + "," +\
-                                    "Tt" + shared.DEV[address][6] + "," +\
-                                    "TT" + shared.DEV[address][7] + "," +\
-                                    "" + shared.DEV[address][8]
+                                    "AH" + shared.DEV[address][4] + "," +\
+                                    "AC" + shared.DEV[address][5] + "," +\
+                                    "P" + shared.DEV[address][6] + "," +\
+                                    "S" + shared.DEV[address][7] + "," +\
+                                    "t" + shared.DEV[address][8] + "," +\
+                                    "Tt" + shared.DEV[address][9] + "," +\
+                                    "TT" + shared.DEV[address][10] + "," +\
+                                    "" + shared.DEV[address][11]
                             tmp += "}"
                         else:
                             tmp += "{"

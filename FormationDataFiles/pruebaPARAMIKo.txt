@@ -1,1 +1,0 @@
-[{Type:Begin},{Type:Pausa,Time:100},{Type:End}]

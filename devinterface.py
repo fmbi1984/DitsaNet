@@ -95,7 +95,7 @@ class devInterface(object):
             if appsettings.useDongle == True:
                 print("Test Mac Interface")
                 sp = SerialPortUtil.getFirstPortByVID_PID(0x1a86,0x7523)
-                #print(sp)
+                #print("sp:",sp)
             else:
                 print("Test Raspbian")
                 sp = SerialPortUtil.getPortByName("/dev/ttyS0")
@@ -114,6 +114,8 @@ class devInterface(object):
                 print("\033[1;31;40m"+str(e)+"\033[0;37;40m")
 
             data = serial_cmd_result[0]
+            #print("Frank:")
+            #print(data)
             result = None
             if data != None:
                 result = devInterface.decodeMessage(data)

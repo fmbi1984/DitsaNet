@@ -70,7 +70,7 @@ class DataListenerServer(Thread):
                     #print("ValueDLS:",readData)
                     
                     
-                    if readData!= None and len(readData)==8:
+                    if readData!= None and len(readData)==11:
                         #we store current
                         DEV[address][1] = str(readData[0].replace('I',''))
                         #we store voltage
@@ -78,15 +78,21 @@ class DataListenerServer(Thread):
                         #we store temperature
                         DEV[address][3] = str(readData[2].replace('T',''))
                         #we store step number and type
-                        DEV[address][4] = str(readData[3].replace('S',''))
+                        DEV[address][4] = str(readData[3].replace('AH',''))
+                        #we store step number and type
+                        DEV[address][5] = str(readData[4].replace('AC',''))
+                        #we store step number and type
+                        DEV[address][6] = str(readData[5].replace('P',''))
+                        #we store step number and type
+                        DEV[address][7] = str(readData[6].replace('S',''))
                         #we store time of current step
-                        DEV[address][5] = str(readData[4].replace('t',''))
+                        DEV[address][8] = str(readData[7].replace('t',''))
                         #we store current time program
-                        DEV[address][6] = str(readData[5].replace('Tt',''))
+                        DEV[address][9] = str(readData[8].replace('Tt',''))
                         #we store the total time program
-                        DEV[address][7] = str(readData[6].replace('TT',''))
+                        DEV[address][10] = str(readData[9].replace('TT',''))
                         #we store the total time program
-                        DEV[address][8] = str(readData[7].replace('',''))
+                        DEV[address][11] = str(readData[10].replace('',''))
                         '''
                         print("Current Value:")
                         print(DEV[address][1])
@@ -98,20 +104,22 @@ class DataListenerServer(Thread):
                         print(DEV[address][7])
                         print(DEV[address][8]) 
                         '''
-                        if (DEV[address][8] == 'S' or DEV[address][8] == 'E') and DEV[address][9] == True:
-                            print(DEV[address][9])
-                            DEV[address][9] = False
+                        if (DEV[address][11] == 'S' or DEV[address][11] == 'E') and DEV[address][12] == True:
+                            print(DEV[address][12])
+                            DEV[address][12] = False
                             ireport.appendWithTimeStampUsingFile(","+ DEV[address][1] + "," + DEV[address][2] + "," +\
                                                     DEV[address][3] + "," + DEV[address][4] + "," +\
                                                     DEV[address][5] + "," + DEV[address][6] + "," +\
-                                                    DEV[address][7] + "," + DEV[address][8], str(address))
+                                                    DEV[address][7] + "," + DEV[address][8] + "," +\
+                                                    DEV[address][9] + "," + DEV[address][10] + "," + DEV[address][11],str(address))
 
-                        if DEV[address][8] == 'R' or DEV[address][8] == 'P':
-                            DEV[address][9] = True
+                        if DEV[address][11] == 'R' or DEV[address][11] == 'P':
+                            DEV[address][12] = True
                             ireport.appendWithTimeStampUsingFile(","+ DEV[address][1] + "," + DEV[address][2] + "," +\
                                                     DEV[address][3] + "," + DEV[address][4] + "," +\
                                                     DEV[address][5] + "," + DEV[address][6] + "," +\
-                                                    DEV[address][7] + "," + DEV[address][8], str(address))
+                                                    DEV[address][7] + "," + DEV[address][8] + "," +\
+                                                    DEV[address][9] + "," + DEV[address][10] + "," + DEV[address][11],str(address))
                         
                     
                         #self.dataStr = str(readData[0])

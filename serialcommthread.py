@@ -128,7 +128,7 @@ class SerialCommThread(Thread):
 
                     if self._messagetosend != None:
                        
-                        print("doing attemptS no."+str(n+1)+" msg:"+ ''.join(str( bytes(self._messagetosend), 'ISO-8859-1')))
+                        print("doing attempt no."+str(n+1)+" msg:"+ ''.join(str( bytes(self._messagetosend), 'ISO-8859-1')))
                         self._serialport.flushOutput()
                         self._serialport.flushInput()
                         if appsettings.useMac == False:
@@ -222,17 +222,22 @@ class SerialCommThread(Thread):
             self._dataBytesLiteral = ''.join(str( bytes(self._dataByteArray), 'ISO-8859-1') )
             self.flag_command = True
             self.process_data(self._serialport)
+            #print(c)
             self._packet_being_received = False
+            #print("END")
         elif (c == self._begin_char) and (len(self._dataByteArray)<2):
+            #print("BEGIN")
             self._packet_being_received = True
             self._flagcommand = False
             self.inicbuff()
             self._dataByteArray.append(ord(c))
             self._dataBytesLiteral = ''.join(str( bytes(self._dataByteArray), 'ISO-8859-1') )
+            #print(c)
         else:
             if self._packet_being_received == True:
                 self._dataByteArray.append(ord(c))
                 self._dataBytesLiteral = ''.join(str( bytes(self._dataByteArray), 'ISO-8859-1') )
+                #print(c)
         lock_uart.release()
 
     def inicbuff(self):

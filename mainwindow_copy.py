@@ -130,7 +130,7 @@ class Ui_MainWindow(object):
 		self.tabWidget.setCurrentIndex(0)
 		QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
-		self.comboBox.addItems(['Current','Voltage','Temperature','Step','Time left']) #addr pendiente, tiempo transcurrido
+		self.comboBox.addItems(['Current','Voltage','Temperature','AH step','AH accum','Time left']) #addr pendiente, tiempo transcurrido
 		
 		self.cmbZoom.setEditable(True)
 		self.cmbZoom.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp("\\d\\d\\d?$"),self.centralWidget))
@@ -182,8 +182,9 @@ class Ui_MainWindow(object):
 		self.flagCircuit = False
 		self.tmpTabs = list()
 		
+		# ------- list de moludos , labels,progressB,nameModules --------#
 		self.labels = list()
-		self.progress = list()
+		#self.progress = list()
 		self.lblmodule = list()		
 
 		#self.valueZoomOut = list()
@@ -343,9 +344,6 @@ class Ui_MainWindow(object):
 		self.paint = Paint(self)
 		self.paint.setSceneRect(0,0,0,0)
 		self.tabWidget.addTab(self.paint,"Page "+str(self.tabWidget.count()+1))
-
-	#def onCombo(self): #seleccion I,V,T,time,Step,addr
-	#	print("comboBox")
 		
 	def onCmbZoom(self): ###verificar funcionamiento 
 		print("cmbZoom") ##se puede cambiar aun no finalizado
@@ -358,39 +356,49 @@ class Ui_MainWindow(object):
 		form.zoomCmb(det)
 
 	def testsCallback(self, msg):
+		_translate = QtCore.QCoreApplication.translate
+
 		if "DL[PASS]" in msg:
 			msg = msg.replace("DL[PASS]:","")
 		
 			cbText = self.comboBox.currentText()
-			cbText2 =  self.comboBox.currentIndex()+1
+			#cbText2 =  self.comboBox.currentIndex()+1
 
 			if cbText == 'Current':
+				cbText2 = 1
 				pref = " A"
 
 			elif cbText == 'Voltage':
+				cbText2 = 2
 				pref = " V"
 
 			elif cbText == 'Temperature':
+				cbText2 = 3
 				pref = " C"
 
 			elif cbText == 'Time left':
+				cbText2 = 8
 				pref = ''
 
-			elif cbText == 'Step':
-				pref = ''
+			elif cbText == 'AH step':
+				cbText2 = 4
+				pref = " AH"
+
+			elif cbText == 'AH accum':
+				pref = " AH"
+				cbText2 = 5
 			 
 			for i in range(1,len(self.labels),3):
 				addr = self.labels[i+1]
 
 				font = QtGui.QFont()
 				font.setFamily("Ubuntu Light")
-				font.setPointSize(12)
+				font.setPointSize(12) #checar si es necesario cambiar
 				font.setBold(True)
 				font.setWeight(75)
 
 				self.labels[i].setFont(font)
-				self.labels[i].setText(shared.DEV[addr][cbText2]+pref)
-
+	
 				if shared.DEV[addr][0] == False: # state - No comm
 					font = QtGui.QFont()
 					font.setFamily("Ubuntu Light")
@@ -402,28 +410,48 @@ class Ui_MainWindow(object):
 					self.labels[i].setStyleSheet("QLabel {background-color : gold; color : black; border: 1px solid black;} ")
 					self.labels[i].setAlignment(QtCore.Qt.AlignCenter)
 
-				elif (shared.DEV[addr][8] == 'I') or (shared.DEV[addr][8] == 'S'): #state - Stop or Initial
-					self.labels[i].setStyleSheet("QLabel {background-color : lightblue; color : black; border: 1px solid black;} ")
-					self.labels[i].setAlignment(QtCore.Qt.AlignCenter)
-					self.progress[i].setValue(0)
+				else:
+					self.labels[i].setText(shared.DEV[addr][cbText2]+pref)
+					self.labels[i].setToolTip(_translate("MainWindow", "Name: "+self.lblmodule[i].text()+"\n"
+			"Status: "+shared.DEV[addr][7]+"\n"  #ch,pause,finished
+			"Current: "+shared.DEV[addr][1]+"\n"
+			"Voltage: "+shared.DEV[addr][2]+"\n"
+			"Temperature: "+shared.DEV[addr][3]+"\n"
+			"AH: "+shared.DEV[addr][4]+"\n"
+			"AHc: "+shared.DEV[addr][5]+"\n"
+			"Program Name: 001-SGL\n"
+			#"Program Index: 501\n"
+			"Program Step: "+shared.DEV[addr][6]+"\n"
+			"Step time: "+shared.DEV[addr][8]+"\n"))
+			#"Tiempo Restante: 00:00\n"
+			#"End Time: 12/04/2019 20:13\n"))
+			#"ServerID: 0\n"
+			#"FirstN: 0"))
 
-				elif shared.DEV[addr][8] == 'E': #state - End Program
-					self.labels[i].setStyleSheet("QLabel {background-color : orange; color : black; border: 1px solid black;} ")
-					self.labels[i].setAlignment(QtCore.Qt.AlignCenter)
-					self.progress[i].setValue(0)
+					if (shared.DEV[addr][11] == 'I') or (shared.DEV[addr][11] == 'S'): #state - Stop or Initial
+						self.labels[i].setStyleSheet("QLabel {background-color : lightblue; color : black; border: 1px solid black;} ")
+						self.labels[i].setAlignment(QtCore.Qt.AlignCenter)
+						#self.progress[i].setValue(0)
 
-				elif shared.DEV[addr][8] == 'R': #state - Running
-					self.labels[i].setStyleSheet("QLabel {background-color : limegreen; color : black; border: 1px solid black;} ")
-					self.labels[i].setAlignment(QtCore.Qt.AlignCenter)
+					elif shared.DEV[addr][11] == 'E': #state - End Program
+						self.labels[i].setStyleSheet("QLabel {background-color : orange; color : black; border: 1px solid black;} ")
+						self.labels[i].setAlignment(QtCore.Qt.AlignCenter)
+						#self.progress[i].setValue(0)
 
-				elif shared.DEV[addr][8] == 'P': #state - Pause
-					self.labels[i].setStyleSheet("QLabel {background-color : mediumpurple; color : black; border: 1px solid black;} ")
-					self.labels[i].setAlignment(QtCore.Qt.AlignCenter)
+					elif shared.DEV[addr][11] == 'R': #state - Running
+						self.labels[i].setStyleSheet("QLabel {background-color : limegreen; color : black; border: 1px solid black;} ")
+						self.labels[i].setAlignment(QtCore.Qt.AlignCenter)
 
-				elif (shared.DEV[addr][8] == 'T') or (shared.DEV[addr][8] == 'W'): #state - temp-hight or current warning
-					self.labels[i].setStyleSheet("QLabel {background-color : red; color : black; border: 1px solid black;} ")
-					self.labels[i].setAlignment(QtCore.Qt.AlignCenter) #red
+					elif shared.DEV[addr][11] == 'P': #state - Pause
+						self.labels[i].setStyleSheet("QLabel {background-color : mediumpurple; color : black; border: 1px solid black;} ")
+						self.labels[i].setAlignment(QtCore.Qt.AlignCenter)
+			
+					elif (shared.DEV[addr][11] == 'T') or (shared.DEV[addr][11] == 'W'): #state - temp-hight or current warning
+						self.labels[i].setStyleSheet("QLabel {background-color : red; color : black; border: 1px solid black;} ")
+						self.labels[i].setAlignment(QtCore.Qt.AlignCenter) #red
 
+			'''
+			#-------------------------- Progress Bar ---------------------------#
 			for j in range(1,len(self.progress),3):
 				addr = self.progress[j+1]
 				
@@ -433,6 +461,7 @@ class Ui_MainWindow(object):
 					else:
 						value = float(shared.DEV[addr][6])*100 / float(shared.DEV[addr][7])
 						self.progress[j].setValue(value)
+			'''
 
 	def valueData(self):
 		print("VALUEDATA")
@@ -447,8 +476,8 @@ class Ui_MainWindow(object):
 				dat1 = str(TempData[0]).replace('{','')
 				#print("data1:",dat1)
 			
-				if dat1 == 'True' and len(TempData) == 9:
-					TempData[8] = str(TempData[8]).replace('}','')
+				if dat1 == 'True' and len(TempData) == 12:
+					TempData[11] = str(TempData[11]).replace('}','')
 					TempData[0] = True
 
 					shared.DEV[address][0] = TempData[0]
@@ -459,15 +488,20 @@ class Ui_MainWindow(object):
 					#we store temperature
 					shared.DEV[address][3] = str(TempData[3].replace('T',''))
 					#we store step number and type
-					shared.DEV[address][4] = str(TempData[4].replace('S',''))
+					shared.DEV[address][4] = str(TempData[4].replace('AH',''))
+					#we store step number and type
+					shared.DEV[address][5] = str(TempData[5].replace('AC',''))
+					#we store step number and type
+					shared.DEV[address][6] = str(TempData[6].replace('P',''))
 					#we store time of current step
-					shared.DEV[address][5] = str(TempData[5].replace('t',''))
+					shared.DEV[address][7] = str(TempData[7].replace('S',''))
 					#we store current time program
-					shared.DEV[address][6] = str(TempData[6].replace('Tt',''))
+					shared.DEV[address][8] = str(TempData[8].replace('t',''))
 					#we store the total time program
-					shared.DEV[address][7] = str(TempData[7].replace('TT',''))
+					shared.DEV[address][9] = str(TempData[9].replace('Tt',''))
 					#we store the total time program
-					shared.DEV[address][8] = str(TempData[8].replace('',''))
+					shared.DEV[address][10] = str(TempData[10].replace('TT',''))
+					shared.DEV[address][11] = str(TempData[11].replace('',''))
 
 				elif dat1 == 'False}':
 					TempData[0] = str(TempData[0]).replace('}','')
