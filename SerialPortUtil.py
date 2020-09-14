@@ -62,7 +62,7 @@ def getFirstPortByVID_PID(vid, pid):
     result = []
     for port in ports:
         name = port.device
-        print(port.serial_number)
+        #print(port.serial_number)
         s = port.device
         result.append(s)
         break

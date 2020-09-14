@@ -79,7 +79,6 @@ def client_thread(conn):
                 print("Test Mac Server")
                 sp = SerialPortUtil.getFirstPortByVID_PID(0x1a86,0x7523)
                 #print(sp)
-                
                 #print("p_data")
                 #print(p_data)
                 op_code = 0x57
@@ -94,8 +93,7 @@ def client_thread(conn):
                     print("START_POLLING")
                     #msg = devInterface.unpackMessage(p_data)
                     msg = devInterface.unpackMessageWithoutAddr(p_data)
-                    if ds is None:
-                        print("Does Not Have Value: ")
+                   
                     ds = DataListenerServer(None)
                     ds.start()
                     ds.join()
@@ -112,14 +110,10 @@ def client_thread(conn):
                     msg = devInterface.unpackMessageWithoutAddr(p_data)
                     #print("msg:",msg)
                     tmp = bytes("ACTION: PASS", 'ISO-8859-1')
-                    
-                    
                     if ds is not None:
                         #print("Have Value: ")
                         #print(ds)
-                        ds.stop()
-                    
-                        
+                        ds.stop()                        
                     #data = bytes(devInterface.packMessage(msg[1], msg[2], tmp))
                     data = bytes(devInterface.packMessageWithoutAddr(msg[1], tmp))
                     #print("DATA2:",data)
@@ -163,10 +157,9 @@ def client_thread(conn):
                             print("DEV"+str(address)+" is not Present!")
                             #ireport.end()
                     
-                    dfile = FilesServer()
+                    #dfile = FilesServer()
                     
-                    tmp = bytes("ACTION: PASS", 'ISO-8859-1')
-                    
+                    tmp = bytes("ACTION: PASS", 'ISO-8859-1')                    
                     data = bytes(devInterface.packMessageWithoutAddr(msg[1], tmp))
                     #print("DATA3:",data)
                 
@@ -174,8 +167,7 @@ def client_thread(conn):
                     print("MEMORY_DATA")
 
                     #ds.stop()
-                    #sleep(.2)
-                    
+                    #sleep(.2)                    
                     #msg = devInterface.unpackMessage(p_data)
                     lock_memory.acquire()
                     msg = devInterface.unpackMessageWithoutAddr(p_data)
@@ -220,9 +212,7 @@ def client_thread(conn):
                     data = bytes(devInterface.packMessageWithoutAddr(msg[1],bytes(tmp,'ISO-8859-1')))
                     lock_memory.release()
                     #print("DATA3:")
-                    #print(data)
-                    
-                    
+                    #print(data)           
                 
                 else:
                     
@@ -233,13 +223,15 @@ def client_thread(conn):
                         t_out = 1
                         attempts = 3
                     
-                    try:    
+                    try:
+                        lock_memory.acquire()
                         sct = SerialCommThread(None, sp, appsettings.FTDI_baudRate, p_data, b'\x04',t_out,attempts)
                         sct.start()
                         sct.join()
                         
                         data = bytes(serial_cmd_result[0])
                         #print("DATA11:",data)
+                        lock_memory.release()
                         
                     except:
                         print("Error: Serial Communication")
@@ -278,8 +270,7 @@ def client_thread(conn):
         #print('Received', repr(data))
         if data != None:
             conn.sendall(data)
-            print("Send")
-            print(data)
+            print("Send:",data)
         else:
             conn.sendall(b'None')
     print("[-] Closed connection")

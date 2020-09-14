@@ -96,10 +96,10 @@ class Ui_runModule(QtWidgets.QDialog):
 		self.lineEditMax.textChanged.connect(self.on_editMax)
 
 	def showEvent(self,event):
-		print("showrun")
+		pass
 
 	def closeEvent(self,event):
-		print("closerun")
+		pass
 
 	def on_editMin(self): #captura el dato en lineeditMin
 		y = self.lineEditMin.text()
@@ -188,7 +188,7 @@ class Ui_runModule(QtWidgets.QDialog):
 		for i in range(len(self.addrs)):
 			#print("valueAddr:",self.addrs[i])
 			x = BCmb.runClient(useHostname,int(self.addrs[i]))
-			time.sleep(0.3)#sujeto a cambios
+			#time.sleep(0.3)#sujeto a cambios
 
 			if x != None:
 				if x == 'PASS,RUN':
@@ -210,7 +210,7 @@ class Ui_runModule(QtWidgets.QDialog):
 		#solo falta realizar pruebas con comunicacion
 
 	def btnCancel(self):
-		print("btnCancel")
+		#print("btnCancel")
 		self.close()
 
 	def uncheck_check(self):

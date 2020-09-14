@@ -97,10 +97,10 @@ class Ui_pauseModule(QtWidgets.QDialog):
 		self.lineEditMax.textChanged.connect(self.on_editMax)
 
 	def showEvent(self,event):
-		print("showPause")
+		pass
 
 	def closeEvent(self,event):
-		print("closePause")
+		pass
 
 	def on_editMin(self):
 		y = self.lineEditMin.text()
@@ -187,7 +187,7 @@ class Ui_pauseModule(QtWidgets.QDialog):
 		for i in range(len(self.addrs)):
 			#print("valueAddr:",self.addrs[i])			
 			x = BCmb.pauseClient(useHostname, int(self.addrs[i]))
-			time.sleep(0.3)#sujeto a cmabios
+			#time.sleep(0.3)#sujeto a cmabios
 
 			if x != None:
 				if x == 'PASS,PAUSE':				
@@ -208,7 +208,6 @@ class Ui_pauseModule(QtWidgets.QDialog):
 		#solo falta realizar pruebas con comunicacion
 
 	def btnCancel(self):
-		print("btnCancel")
 		self.close()
 
 	def uncheck_check(self):

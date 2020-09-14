@@ -37,7 +37,7 @@ class BCmb(object):
     @staticmethod
     def writeProgramClient(hostname,addr,program_in_json):
         result = ACTION.FAIL
-        result = devInterface.sendClientCommandAndGetResponse(hostname,addr, 0x57,program_in_json, 10)
+        result = devInterface.sendClientCommandAndGetResponse(hostname,addr, 0x57,program_in_json, 12)
         print("resultW:",result)
         if result != None:
             if result[1] == 'PASS':
@@ -284,7 +284,7 @@ class BCmb(object):
     def pingDataClient(hostname,listaAddr):
         result = ACTION.FAIL
         result = devInterface.sendClientCommandAndGetResponseWithoutAddr(hostname,0x65,listaAddr,BCmb.timeout)
-        print("pingDataCl:",result)
+        #print("pingDataCl:",result)
         if result != None:
             if result[1] == 'PASS':
                 result = True
@@ -381,9 +381,9 @@ if __name__ == "__main__":
     #BCmb.pingClient(useHostname,2)
     #BCmb.runClient(useHostname, 3)
     #BCmb.pauseClient(useHostname, 2)
+    #BCmb.stopClient(useHostname, 1)
     #BCmb.stopClient(useHostname, 3)
-    #BCmb.stopClient(useHostname, 2)
-    #BCmb.readDataClient(useHostname,1)
+    #BCmb.readDataClient(useHostname,3)
     #BCmb.readStepClient(useHostname, 3)
     #BCmb.currentTimeClient(useHostname, 1)
     #BCmb.readProgramClient(useHostname,1)

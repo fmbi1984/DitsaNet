@@ -8,6 +8,7 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+import subprocess
 
 #from form import Ui_Form
 from paint import Paint
@@ -25,8 +26,10 @@ from appsettings import useHostname
 from ordened import NameOrdened
 
 from datalistenermemory import DataListenerMemory
+from donwloadsFiles import FilesReport
+from formtable import Ui_FormTable
 
-class Ui_MainWindow(object):
+class Ui_DitsaNet(object): 
 	def __init__(self,MainWindow, parent=None):
 	#def setupUi(self, MainWindow):
 		object.__init__(parent)
@@ -93,44 +96,44 @@ class Ui_MainWindow(object):
 		self.menuBar.setObjectName("menuBar")
 		self.menuArchivo = QtWidgets.QMenu(self.menuBar)
 		self.menuArchivo.setObjectName("menuArchivo")
-		self.menuVista = QtWidgets.QMenu(self.menuBar)
-		self.menuVista.setObjectName("menuVista")
 		self.menuCircuito = QtWidgets.QMenu(self.menuBar)
 		self.menuCircuito.setObjectName("menuCircuito")
 		self.menuHerramientas = QtWidgets.QMenu(self.menuBar)
 		self.menuHerramientas.setObjectName("menuHerramientas")
-		self.menuReportes = QtWidgets.QMenu(self.menuBar)
-		self.menuReportes.setObjectName("menuReportes")
 		MainWindow.setMenuBar(self.menuBar)
 		self.statusBar = QtWidgets.QStatusBar(MainWindow)
 		self.statusBar.setObjectName("statusBar")
 		MainWindow.setStatusBar(self.statusBar)
-		self.actionhh = QtWidgets.QAction(MainWindow)
-		self.actionhh.setObjectName("actionhh")
-		self.actionjjl = QtWidgets.QAction(MainWindow)
-		self.actionjjl.setObjectName("actionjjl")
-		self.actionhh_2 = QtWidgets.QAction(MainWindow)
-		self.actionhh_2.setObjectName("actionhh_2")
-		self.actionjjk = QtWidgets.QAction(MainWindow)
-		self.actionjjk.setObjectName("actionjjk")
-		self.actionjkjkj = QtWidgets.QAction(MainWindow)
-		self.actionjkjkj.setObjectName("actionjkjkj")
-		self.menuArchivo.addAction(self.actionhh)
-		self.menuVista.addAction(self.actionjjl)
-		self.menuCircuito.addAction(self.actionhh_2)
-		self.menuHerramientas.addAction(self.actionjjk)
-		self.menuReportes.addAction(self.actionjkjkj)
+		self.actionExit = QtWidgets.QAction(MainWindow)
+		self.actionExit.setObjectName("actionExit")
+		self.actionLoadSt = QtWidgets.QAction(MainWindow)
+		self.actionLoadSt.setObjectName("actionLoadSt")
+		self.actionStart = QtWidgets.QAction(MainWindow)
+		self.actionStart.setObjectName("actionStart")
+		self.actionPau = QtWidgets.QAction(MainWindow)
+		self.actionPau.setObjectName("actionPau")
+		self.actionSt = QtWidgets.QAction(MainWindow)
+		self.actionSt.setObjectName("actionSt")
+		self.actionEd = QtWidgets.QAction(MainWindow)
+		self.actionEd.setObjectName("actionEd")
+		self.actionRep = QtWidgets.QAction(MainWindow)
+		self.actionRep.setObjectName("actionRep")
+		self.menuArchivo.addAction(self.actionExit)
+		self.menuCircuito.addAction(self.actionLoadSt)
+		self.menuCircuito.addAction(self.actionStart)
+		self.menuCircuito.addAction(self.actionPau)
+		self.menuCircuito.addAction(self.actionSt)
+		self.menuHerramientas.addAction(self.actionEd)
+		self.menuHerramientas.addAction(self.actionRep)
 		self.menuBar.addAction(self.menuArchivo.menuAction())
-		self.menuBar.addAction(self.menuVista.menuAction())
 		self.menuBar.addAction(self.menuCircuito.menuAction())
 		self.menuBar.addAction(self.menuHerramientas.menuAction())
-		self.menuBar.addAction(self.menuReportes.menuAction())
 
 		self.retranslateUi(MainWindow)
 		self.tabWidget.setCurrentIndex(0)
 		QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
-		self.comboBox.addItems(['Current','Voltage','Temperature','AH step','AH accum','Time left']) #addr pendiente, tiempo transcurrido
+		self.comboBox.addItems(['Current','Voltage','Temperature','AH step','AH accum','Time']) 
 		
 		self.cmbZoom.setEditable(True)
 		self.cmbZoom.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp("\\d\\d\\d?$"),self.centralWidget))
@@ -200,16 +203,24 @@ class Ui_MainWindow(object):
 		self.cmdPausar.setText(_translate("MainWindow", "Pause"))
 		#self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Tab 1"))
 		#self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "Tab 2"))
-		self.menuArchivo.setTitle(_translate("MainWindow", "Archivo"))
-		self.menuVista.setTitle(_translate("MainWindow", "Vista"))
-		self.menuCircuito.setTitle(_translate("MainWindow", "Circuito"))
-		self.menuHerramientas.setTitle(_translate("MainWindow", "Herramientas"))
-		self.menuReportes.setTitle(_translate("MainWindow", "Reportes"))
-		self.actionhh.setText(_translate("MainWindow", "hh"))
-		self.actionjjl.setText(_translate("MainWindow", "jjl"))
-		self.actionhh_2.setText(_translate("MainWindow", "hh"))
-		self.actionjjk.setText(_translate("MainWindow", "jjk"))
-		self.actionjkjkj.setText(_translate("MainWindow", "jkjkj"))
+		self.menuArchivo.setTitle(_translate("MainWindow", "File"))
+		self.menuCircuito.setTitle(_translate("MainWindow", "Circuit"))
+		self.menuHerramientas.setTitle(_translate("MainWindow", "Tools"))
+		self.actionExit.setText(_translate("MainWindow", "Exit"))
+		self.actionLoadSt.setText(_translate("MainWindow", "Load Programs / Start"))
+		self.actionStart.setText(_translate("MainWindow", "Start"))
+		self.actionPau.setText(_translate("MainWindow", "Pause"))
+		self.actionSt.setText(_translate("MainWindow", "Stop"))
+		self.actionEd.setText(_translate("MainWindow", "Profile Editor"))
+		self.actionRep.setText(_translate("MainWindow", "Reports"))
+
+		self.actionExit.triggered.connect(self.exitWindow)
+		self.actionLoadSt.triggered.connect(self.btnCargar)
+		self.actionStart.triggered.connect(self.btnIniciar)
+		self.actionPau.triggered.connect(self.btnPausar)
+		self.actionSt.triggered.connect(self.btnDetener)
+		self.actionEd.triggered.connect(self.execProfileEd)
+		self.actionRep.triggered.connect(self.fileReport)
 
 	def showEvent(self,event):
 		print("ShowEvent") 
@@ -226,7 +237,7 @@ class Ui_MainWindow(object):
 					self.saveprograms = tmp[:]
 					self.flagProg = True
 					print("savePR:",self.saveprograms)
-
+				
 			settings = QtCore.QSettings('/home/ditsa/DitsaNet/Settings/archivo.ini', QtCore.QSettings.NativeFormat)
 			if settings.value('/home/ditsa/DitsaNet/Settings/archivo.ini')!='':
 				self.settingsList = settings.value("mylist")
@@ -289,7 +300,11 @@ class Ui_MainWindow(object):
 					#print(self.addrsT[1])
 					#print(self.addrsT[2])
 					#depreferencia que regrese valores addr answer
-					#if self.flagProg != False:
+
+					#-------------------------- save program name in shared --------------------------#
+					self.addProgramNa()
+
+					
 					#	for i in range(len(self.addrsT)):
 					#		BCmb.writeProgramClient(useHostname,self.addrsT[i],self.programJson)
 					
@@ -307,7 +322,7 @@ class Ui_MainWindow(object):
 		self.threadData(False)
 
 	def threadData(self,flag):
-		print("ThreadData")
+		#print("ThreadData")
 		if flag == True:
 			self.dataThread = None
 			self.dataThread = DataListenerMemory(self.testsCallback)
@@ -315,8 +330,23 @@ class Ui_MainWindow(object):
 		else:
 			self.dataThread.stop()
 
+	def exitWindow(self):
+		self.MainWindow.close()
+
+	def execProfileEd(self): #open otra gui diferente
+		subprocess.Popen(['python3','/opt/Ditsa/ProfileEditor/ProfileEditorApp.py'])
+
+	def fileReport(self):
+		print("REPORT")
+		FilesReport() #recibe carpeta(FormationDataFiles) de server
+
+		ventana = QtWidgets.QWidget()
+		uif = Ui_FormTable()
+		uif.setupUi(ventana)
+		ventana.show()
+		
 	def threadTimer(self,flag):
-		print("ThreadTimer")
+		#print("ThreadTimer")
 		if flag == True:
 			self.t = None
 			self.t = threading.Timer(1, self.valueData)
@@ -325,7 +355,7 @@ class Ui_MainWindow(object):
 			self.t.cancel()
 
 	def populateTabs(self):
-		print("populateTabs")
+		#print("populateTabs")
 		for i in range(0,len(self.settingsList),4):
 			self.maxTabs.append(self.settingsList[i])
 
@@ -355,6 +385,13 @@ class Ui_MainWindow(object):
 		form = self.tabWidget.currentWidget()
 		form.zoomCmb(det)
 
+	def addProgramNa(self):
+		if self.flagProg != False: #indica que hay programas guardados
+			for i in range(1,len(self.saveprograms),2):
+				for j in range(len(self.tempAddr)):								
+					if self.saveprograms[i] == 'A='+self.tempAddr[j]:
+						shared.DEV[j+1][13] = self.saveprograms[i-1]
+
 	def testsCallback(self, msg):
 		_translate = QtCore.QCoreApplication.translate
 
@@ -376,7 +413,7 @@ class Ui_MainWindow(object):
 				cbText2 = 3
 				pref = " C"
 
-			elif cbText == 'Time left':
+			elif cbText == 'Time':
 				cbText2 = 8
 				pref = ''
 
@@ -413,15 +450,15 @@ class Ui_MainWindow(object):
 				else:
 					self.labels[i].setText(shared.DEV[addr][cbText2]+pref)
 					self.labels[i].setToolTip(_translate("MainWindow", "Name: "+self.lblmodule[i].text()+"\n"
-			"Status: "+shared.DEV[addr][7]+"\n"  #ch,pause,finished
+			"Status: "+shared.DEV[addr][11]+"\n"  #ch,pause,finished
 			"Current: "+shared.DEV[addr][1]+"\n"
 			"Voltage: "+shared.DEV[addr][2]+"\n"
 			"Temperature: "+shared.DEV[addr][3]+"\n"
 			"AH: "+shared.DEV[addr][4]+"\n"
 			"AHc: "+shared.DEV[addr][5]+"\n"
-			"Program Name: 001-SGL\n"
-			#"Program Index: 501\n"
+			"Program Name: "+shared.DEV[addr][13]+"\n"
 			"Program Step: "+shared.DEV[addr][6]+"\n"
+			"Step State: "+shared.DEV[addr][7]+"\n"
 			"Step time: "+shared.DEV[addr][8]+"\n"))
 			#"Tiempo Restante: 00:00\n"
 			#"End Time: 12/04/2019 20:13\n"))
@@ -466,6 +503,7 @@ class Ui_MainWindow(object):
 	def valueData(self):
 		print("VALUEDATA")
 		memoryData = BCmb.memoryDataClient(useHostname)
+		time.sleep(0.3)
 		
 		for i in range (len(self.tempAddr)): 
 			address = i
@@ -507,7 +545,7 @@ class Ui_MainWindow(object):
 					TempData[0] = str(TempData[0]).replace('}','')
 					shared.DEV[address][0] = False
 				
-				print("TempData2:",TempData)
+				#print("TempData2:",TempData)
 		
 		if self.flagClose != True:
 			self.threadTimer(True)
@@ -517,7 +555,7 @@ class Ui_MainWindow(object):
 
 	count = 0
 	def resizeEvent(self,event): #verificar con ubuntu como trabaja
-		print("changeEvent")
+		#print("changeEvent")
 		self.count+= 1
 		if self.count != 1:
 
@@ -528,7 +566,6 @@ class Ui_MainWindow(object):
 				x.showEvent(event)
 			
 			else:
-				#print("else max")
 				self.flagPage = False
 				self.flagNormal = False
 				#MainWindow.showMaximized()
@@ -567,9 +604,7 @@ class Ui_MainWindow(object):
 		self.paint.setTransform(tr)
 
 		#self.scaleFactor *= Paint.factor
-		#print("f1:",self.scaleFactor)
 		#self.paint.resize(self.scaleFactor * self.paint.form.size() * 8)
-		#print(self.scaleFactor * self.paint.form.size()* 8)
 
 	def zoom_out(self):
 		print("zoom_out")
@@ -583,17 +618,14 @@ class Ui_MainWindow(object):
 			self.paint.setTransform(tr)
 
 		#self.scaleFactor *= 0.8
-		#print("f2:",self.scaleFactor)
 		#self.paint.resize(self.scaleFactor * self.paint.form.size()* 8)
-		#print(self.scaleFactor * self.paint.form.size()* 8)
-
 	'''
 
 if __name__ == "__main__":
 	import sys
 	app = QtWidgets.QApplication(sys.argv)
 	MainWindow = QtWidgets.QMainWindow()
-	ui = Ui_MainWindow(MainWindow)
+	ui = Ui_DitsaNet(MainWindow)
 	#ui.setupUi(MainWindow)
 	MainWindow.show()
 	sys.exit(app.exec_())

@@ -59,11 +59,11 @@ class NameOrdened():
 				elif list1.isalnum():
 					self.listAlp.append(list1)
 
-		print("listD:",sorted(self.listDig)) # se realiza orden de numeros
-		print("listAlp:",sorted(self.listAlp))
+		#print("listD:",sorted(self.listDig)) # se realiza orden de numeros
+		#print("listAlp:",sorted(self.listAlp))
 
 		if len(self.listAlp) != 0:
-			print("no esta vacio")
+			#print("no esta vacio")
 
 			for i in range(len(self.listAlp)):
 				dat = self.listAlp[i]
@@ -194,7 +194,7 @@ class NameOrdened():
 			return self.listT
 
 		else:
-			print("vacio")
+			#print("vacio")
 			self.listT = sorted(self.listDig[:])
 			#print("listT:",self.listT)
 

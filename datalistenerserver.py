@@ -105,7 +105,6 @@ class DataListenerServer(Thread):
                         print(DEV[address][8]) 
                         '''
                         if (DEV[address][11] == 'S' or DEV[address][11] == 'E') and DEV[address][12] == True:
-                            print(DEV[address][12])
                             DEV[address][12] = False
                             ireport.appendWithTimeStampUsingFile(","+ DEV[address][1] + "," + DEV[address][2] + "," +\
                                                     DEV[address][3] + "," + DEV[address][4] + "," +\
@@ -113,7 +112,7 @@ class DataListenerServer(Thread):
                                                     DEV[address][7] + "," + DEV[address][8] + "," +\
                                                     DEV[address][9] + "," + DEV[address][10] + "," + DEV[address][11],str(address))
 
-                        if DEV[address][11] == 'R' or DEV[address][11] == 'P':
+                        if DEV[address][11] == 'R' or DEV[address][11] == 'P' or DEV[address][11] == 'T' or DEV[address][11] == 'W':
                             DEV[address][12] = True
                             ireport.appendWithTimeStampUsingFile(","+ DEV[address][1] + "," + DEV[address][2] + "," +\
                                                     DEV[address][3] + "," + DEV[address][4] + "," +\

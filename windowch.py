@@ -267,15 +267,12 @@ class Ui_WindowCh(QtWidgets.QDialog):
 		time.sleep(0.5) 
 		self.parent.threadTimer(False)
 		self.parent.threadData(False)
-		self.parent.threadTimer(False)
-
 		#---------------------------- Extrae valor Addr ---------------------------#
 		self.uncheck_check()
 		self.addrs.clear()
 		for i in range(3,len(self.loadProg),4):
 			addr = self.loadProg[i].split('A=')
 			self.addrs.append(addr[1])
-
 		self.loadProg.clear()
 		self.textEdit.clear()
 		#---------------------------- Envia json a xmegas -------------------------#		
@@ -291,12 +288,13 @@ class Ui_WindowCh(QtWidgets.QDialog):
 					if x == 'PASS':
 						self.chtext(x,self.addrs[i])
 
-						self.checkPrograms()
+						self.checkPrograms(self.addrs[i])
 						self.parent.saveprograms.append(self.nameFile)
 						self.parent.saveprograms.append('A='+self.addrs[i])
 
 						self.settingsPrograms()
-						
+
+						#time.sleep(0.5)
 						run = BCmb.runClient(useHostname,int(self.addrs[i]))
 		
 						if run != None:
@@ -337,24 +335,23 @@ class Ui_WindowCh(QtWidgets.QDialog):
 			self.close()
 		#solo falta realizar pruebas con comunicacion
 
-	def checkPrograms(self):
+	def checkPrograms(self,addr):
 		print("checkPrograms")
 		if self.parent.saveprograms!= None:
 			if len(self.parent.saveprograms) != 0:
-				for k in range(len(self.addrs)):
-					for j in range(len(self.parent.saveprograms)-1):
-						if 'A='+self.addrs[k] == self.parent.saveprograms[j]:
-							print("entra",'A='+self.addrs[k])
-							self.parent.saveprograms.pop(j)	
-							self.parent.saveprograms.pop(j-1)			
-							break			
+				for j in range(1,len(self.parent.saveprograms),2):
+					if 'A='+addr == self.parent.saveprograms[j]:
+						#print("entra",'A='+addr)
+						self.parent.saveprograms.pop(j)	
+						self.parent.saveprograms.pop(j-1)		
+						break			
 
 	def settingsPrograms(self):
-		print("settingsPr")
+		#print("settingsPr")
 		settings = QtCore.QSettings('/home/ditsa/DitsaNet/Settings/fileprograms.ini', QtCore.QSettings.NativeFormat)
 		settings.setValue("saveprograms",self.parent.saveprograms)
 
-		print("saveP:",self.parent.saveprograms)
+		#print("saveP:",self.parent.saveprograms)
 			
 	def on_bttnCancelClicked(self):
 		self.close()
