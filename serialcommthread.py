@@ -9,7 +9,6 @@ import SerialPortUtil
 import StringUtils
 
 from communicate import Communicate
-from exitcodes import EXIT_CODE
 
 from shared import lock_uart,lock_memory
 

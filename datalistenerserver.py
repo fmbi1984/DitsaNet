@@ -6,7 +6,7 @@ import logging
 from enum import Enum
 from communicate import Communicate
 
-from shared import lock_uart, lock_memory,devStart,devStop,DEV,DA_PI,ON_PI
+from shared import lock_uart, lock_memory,devStart,devStop,DEV,DA_PI,ON_PI,RE_PI
 #import shared
 import appsettings
 
@@ -110,7 +110,7 @@ class DataListenerServer(Thread):
                                                     DEV[address][3] + "," + DEV[address][4] + "," +\
                                                     DEV[address][5] + "," + DEV[address][6] + "," +\
                                                     DEV[address][7] + "," + DEV[address][8] + "," +\
-                                                    DEV[address][9] + "," + DEV[address][10] + "," + DEV[address][11],str(address))
+                                                    DEV[address][9] + "," + DEV[address][10] + "," + DEV[address][11],str(RE_PI[i]))
 
                         if DEV[address][11] == 'R' or DEV[address][11] == 'P' or DEV[address][11] == 'T' or DEV[address][11] == 'W':
                             DEV[address][12] = True
@@ -118,7 +118,7 @@ class DataListenerServer(Thread):
                                                     DEV[address][3] + "," + DEV[address][4] + "," +\
                                                     DEV[address][5] + "," + DEV[address][6] + "," +\
                                                     DEV[address][7] + "," + DEV[address][8] + "," +\
-                                                    DEV[address][9] + "," + DEV[address][10] + "," + DEV[address][11],str(address))
+                                                    DEV[address][9] + "," + DEV[address][10] + "," + DEV[address][11],str(RE_PI[i]))
                         
                     
                         #self.dataStr = str(readData[0])

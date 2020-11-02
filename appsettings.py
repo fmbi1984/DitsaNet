@@ -7,7 +7,14 @@ import shared
 useDesktopToSaveReports = True
 useDongle = True
 useMac = True
-useHostname = 'raspberrypi.local' #'ditsa-Lenovo-C20-00.local'  #'MacBook-Pro-de-CEX-7.local'    	
+
+#para server se cambian estas dos lineas y se comentan las 3 siguientes
+#useHostname = 'ditsaServer1.local' 
+#usePort = 65433
+
+useHostname = list() #lee el archivo de serverConfig
+usePort = list()
+usePassw = list()
 
 measureWMVoltage = False
 jlinkSNforPIC32 = 820100854

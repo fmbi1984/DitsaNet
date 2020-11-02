@@ -7,9 +7,9 @@ import logging
 from enum import Enum
 from communicate import Communicate
 import shared
-from shared import lock_uart, lock_memory,devStart,devStop,DEV
+from shared import lock_uart, lock_memory,devStart,devStop,DEV,lock_client
 import appsettings
-from appsettings import useHostname
+from appsettings import useHostname,usePort
 
 from devicemainboard import BCmb
 #from report import IndividualReport
@@ -42,18 +42,20 @@ class DataListenerMemory(Thread):
 		#memoryPolling = BCmb.startPollingClient(useHostname)
 		#sleep(.3)
 		
-
 	def run(self):
 		print(self._name+" started")
+		#lock_client.acquire()
 		while not self._stop_event.is_set():
-			memoryPolling = BCmb.startPollingClient(useHostname)
-			sleep(.3)
+			for j in range(len(useHostname)):
+				memoryPolling = BCmb.startPollingClient(useHostname[j],usePort[j])
+				#sleep(.3)
 
-			if memoryPolling != None:
-				if self.mySrc != None:
-					#self.mySrc.myGUI_signal.emit("DL["+str(address)+"]:DataReady")
-					self.mySrc.myGUI_signal.emit("DL[PASS]:DataReady")
+				if memoryPolling != None:
+					if self.mySrc != None:
+						#self.mySrc.myGUI_signal.emit("DL["+str(address)+"]:DataReady")
+						self.mySrc.myGUI_signal.emit("DL[PASS]:DataReady")
 		
+		#lock_client.release()
 
 	def stop(self):
 		print("stop was done in "+self._name)

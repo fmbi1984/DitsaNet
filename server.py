@@ -12,7 +12,7 @@ from time import sleep, time
 
 import serial
 import appsettings 
-from appsettings import useHostname
+from appsettings import useHostname,usePort
 from datalistenerserver import DataListenerServer
 from devinterface import  devInterface
 #from testLcd import LCD
@@ -24,7 +24,7 @@ from downloadsFileServer import FilesServer
 
 #sleep(10)
 HOST = useHostname #'raspberrypi.local' # all availabe interfaces
-PORT = 65433 # arbitrary non privileged port
+PORT = usePort # arbitrary non privileged port
 
 try:
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -130,15 +130,19 @@ def client_thread(conn):
                     
                     shared.DA_PI.clear()
                     shared.ON_PI.clear()
+                    shared.RE_PI.clear()
                     for i in range(len(test2)):
                         if test2[i].isdigit():    
                             shared.DA_PI.append(int(test2[i]))
                             
-                    #print("sharedDA:",shared.DA_PI)
+                    print("sharedDA:",shared.DA_PI)
+                    
+                    #preguntaria del 1 al 16 no importa lo que tenga shared OJO!!
                     
                     #hace ping a todos los modulos
-                    for i in range(len(shared.DA_PI)):
-                        address = shared.DA_PI[i]
+                    for i in range(shared.devStart,shared.devStop+1): #len(shared.DA_PI)
+                        #address = shared.DA_PI[i]
+                        address = i
 
                         #print("Doing ping to device No."+str(address))
                         readData = BCmb.ping(address)
@@ -149,6 +153,7 @@ def client_thread(conn):
                             if readData == True:
                                 shared.DEV[address][0] = True
                                 shared.ON_PI.append(int(address))
+                                shared.RE_PI.append(int(shared.DA_PI[i-1]))
                                 print("DEV"+str(address)+" is Present!")  
                             else:
                                 print("DEV"+str(address)+" is not Present!")
@@ -177,9 +182,10 @@ def client_thread(conn):
                     #address = int(msg[1])
                     #print("started Acquire memory server")
                     tmp = "VALUE: "
-                    for i in range (len(DA_PI)): #en vez de solo los que estan pregunta por todos ON_PI
+                    for i in range (shared.devStart,shared.devStop+1): #len(DA_PI) #en vez de solo los que estan pregunta por todos ON_PI
                                     
-                        address = DA_PI[i]
+                        address = i
+                        #address = DA_PI[i]
                         #print("Address: "+str(address))
                         if DEV[address][0] == True: 
                             #DEV[address][0] = "True"
@@ -195,7 +201,7 @@ def client_thread(conn):
                                     "t" + shared.DEV[address][8] + "," +\
                                     "Tt" + shared.DEV[address][9] + "," +\
                                     "TT" + shared.DEV[address][10] + "," +\
-                                    "" + shared.DEV[address][11]
+                                    "" + shared.DEV[address][11] 
                             tmp += "}"
                         else:
                             tmp += "{"

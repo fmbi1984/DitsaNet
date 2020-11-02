@@ -11,7 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 import time 
 from devicemainboard import BCmb
-from appsettings import useHostname
+from appsettings import useHostname,usePort
 
 from ordened import NameOrdened
 
@@ -171,8 +171,8 @@ class Ui_runModule(QtWidgets.QDialog):
 	def btnOk(self):
 		print("btnOkRun")
 		#----------------------------- Detiene thread -----------------------------#
-		time.sleep(0.5)
-		self.parent.threadData(False) 
+		#time.sleep(0.5)
+		#self.parent.threadData(False) 
 		#---------------------------- Extrae valor Addr ---------------------------#	
 		self.uncheck_check()
 		self.addrs.clear()
@@ -185,28 +185,35 @@ class Ui_runModule(QtWidgets.QDialog):
 
 		#---------------------------- Envia comando run ---------------------------#
 		self.chtext("msg","None")
-		for i in range(len(self.addrs)):
-			#print("valueAddr:",self.addrs[i])
-			x = BCmb.runClient(useHostname,int(self.addrs[i]))
-			#time.sleep(0.3)#sujeto a cambios
+		#tambnien hay que cambiar stop,pause y ver como se cambiara el addr si es 18 u otro addr mas grande
+		for j in range(len(useHostname)):
+			section = self.parent.tempAddr[j]
+			for i in range(len(section)):
+				for k in range(len(self.addrs)):
+					if section[i] == self.addrs[k]:
+						
+						if int(section[i]) > 16:
+							x = BCmb.runClient(useHostname[j],usePort[j],i+1)
 
-			if x != None:
-				if x == 'PASS,RUN':
-					self.chtext(x,self.addrs[i])
+						else:
+							x = BCmb.runClient(useHostname[j],usePort[j],int(self.addrs[k]))
+							#time.sleep(0.3)#sujeto a cambios
+				
+						if x != None:
+							if x == 'PASS,RUN':
+								self.chtext(x,self.addrs[k])
 
-				else:
-					self.chtext(x,self.addrs[i])
-					self.flagFail = True
+							else:
+								self.chtext(x,self.addrs[k])
+								self.flagFail = True
 
-			else:
-				self.chtext('None',self.addrs[i])
-				self.flagFail = True
+						else:
+							self.chtext('None',self.addrs[k])
+							self.flagFail = True
 
-		
 		if self.flagFail != True:
 			time.sleep(3)
 			self.close()
-				
 		#solo falta realizar pruebas con comunicacion
 
 	def btnCancel(self):

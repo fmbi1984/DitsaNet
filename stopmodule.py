@@ -11,7 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 import time 
 from devicemainboard import BCmb
-from appsettings import useHostname
+from appsettings import useHostname,usePort
 
 from ordened import NameOrdened
 
@@ -173,8 +173,8 @@ class Ui_stopModule(QtWidgets.QDialog):
 	def btnOk(self):
 		print("btnOkStop")
 		#----------------------------- Detiene thread -----------------------------#
-		time.sleep(0.5)
-		self.parent.threadData(False) 
+		#time.sleep(0.5)
+		#self.parent.threadData(False) 
 		#---------------------------- Extrae valor Addr ---------------------------#	
 		self.uncheck_check()	
 		self.addrs.clear()
@@ -187,20 +187,29 @@ class Ui_stopModule(QtWidgets.QDialog):
 
 		#---------------------------- Envia comando stop ---------------------------#
 		self.chtext("msg","None")
-		for i in range(len(self.addrs)):		
-			x = BCmb.stopClient(useHostname,int(self.addrs[i]))
-			#time.sleep(0.3)#sujeto a cambios
 
-			if x != None:
-				if x == 'PASS,STOP':
-					self.chtext(x,self.addrs[i])
+		for j in range(len(useHostname)):
+			section = self.parent.tempAddr[j]
+			for i in range(len(section)):
+				for k in range(len(self.addrs)):
+					if section[i] == self.addrs[k]:
 
-				else:
-					self.chtext(x,self.addrs[i])
-					self.flagFail = True
-			else:
-				self.chtext("None",self.addrs[i])
-				self.flagFail = True
+						if int(section[i]) > 16:
+							x = BCmb.stopClient(useHostname[j],usePort[j],i+1)
+
+						else:
+							x = BCmb.stopClient(useHostname[j],usePort[j],int(self.addrs[k]))
+
+						if x != None:
+							if x == 'PASS,STOP':
+								self.chtext(x,self.addrs[i])
+
+							else:
+								self.chtext(x,self.addrs[i])
+								self.flagFail = True
+						else:
+							self.chtext("None",self.addrs[i])
+							self.flagFail = True
 
 
 		if self.flagFail != True:

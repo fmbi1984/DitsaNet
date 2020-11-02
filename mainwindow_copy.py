@@ -22,7 +22,7 @@ import shared
 import time
 import threading
 
-from appsettings import useHostname
+from appsettings import useHostname,usePort,usePassw
 from ordened import NameOrdened
 
 from datalistenermemory import DataListenerMemory
@@ -159,6 +159,9 @@ class Ui_DitsaNet(object):
 		MainWindow.closeEvent = self.closeEvent
 		MainWindow.resizeEvent = self.resizeEvent
 
+		self.tmp_server = list()  # list temporal de Server
+		self.tmp_total = list()	#
+
 		self.mylist = list()
 		self.mylabel = list()
 		self.rowCol = list()
@@ -229,6 +232,36 @@ class Ui_DitsaNet(object):
 		#if MainWindow.isMinimized(): #Para mac
 		#	pass
 		#else:
+			settaddrs = QtCore.QSettings('/home/ditsa/DitsaNet/Settings/ServerConfig.ini',QtCore.QSettings.NativeFormat)
+			if settaddrs.value('/home/ditsa/DitsaNet/Settings/ServerConfig.ini') !='':
+				tmpAddr = settaddrs.value("servers")
+				print("tmpAdrr:",tmpAddr)
+				
+				for i in range(3,len(tmpAddr),4):
+					self.tmp_server.clear()
+					x = tmpAddr[i].rpartition('-')
+					val1 = int(x[0])
+					#val2 = int(x[2])
+					self.tmp_server.append(str(val1))
+
+					for j in range(15):
+						y = val1 + j + 1
+						self.tmp_server.append(str(y))
+
+					self.tempAddr.append(self.tmp_server[:])
+					self.tmp_total.append(str(self.tmp_server[:]))
+
+				print("tmpT:",self.tmp_total)
+				print("temp:",self.tempAddr)
+
+				for k in range(0,len(tmpAddr),4): #guarda el hostname y el port
+					useHostname.append(tmpAddr[k]+".local")
+					usePort.append(int(tmpAddr[k+1]))
+					usePassw.append(tmpAddr[k+2])
+
+			#print("useHost:",useHostname)
+			#print("usePort:",usePort)
+			#print("usePassw:",usePassw)
 			settprog = QtCore.QSettings('/home/ditsa/DitsaNet/Settings/fileprograms.ini', QtCore.QSettings.NativeFormat)
 			if settprog.value('/home/ditsa/DitsaNet/Settings/fileprograms.ini') !='':
 				tmp = settprog.value("saveprograms")
@@ -236,7 +269,7 @@ class Ui_DitsaNet(object):
 				if tmp != None and len(tmp) != 0:
 					self.saveprograms = tmp[:]
 					self.flagProg = True
-					print("savePR:",self.saveprograms)
+					print("savePR:",self.saveprograms) #esta opcion no puede ser viable por que los gabinetes y addr puede cambiar 
 				
 			settings = QtCore.QSettings('/home/ditsa/DitsaNet/Settings/archivo.ini', QtCore.QSettings.NativeFormat)
 			if settings.value('/home/ditsa/DitsaNet/Settings/archivo.ini')!='':
@@ -259,9 +292,12 @@ class Ui_DitsaNet(object):
 					ordName = NameOrdened(self.newlist) #manda a llamar la clase NameOrdened
 					x = ordName.cod()					#ordena los elementos de la lista de < a >
 					self.newlist.clear()
-					self.tempAddr.clear()
-					self.addrsT.clear()
+					#self.tempAddr.clear()
+					#self.addrsT.clear()
 
+					#Extrae address ingresados en DitsaEditor
+					#puede que no sea realmente necesario, verificar!!
+					#los valores de neewlist son todas las addr que se muetran en la app
 					for i in range(len(x)):
 						for j in range(2,len(self.mylist),4):
 							if "N="+str(x[i]) == self.mylist[j]:
@@ -269,10 +305,11 @@ class Ui_DitsaNet(object):
 								self.newlist.append(self.mylist[j-1])
 								self.newlist.append(self.mylist[j])
 								self.newlist.append(self.mylist[j+1])
-								valAddr = self.mylist[j+1].split('A=')
-								self.tempAddr.append(valAddr[1])
+					#			valAddr = self.mylist[j+1].split('A=')
+					#			self.tempAddr.append(valAddr[1]) #optiene addr de ditsaEditor
 
-					self.addrsT.append(str(self.tempAddr))
+					#self.addrsT.append(str(self.tempAddr))
+					#print("tempAd:",self.tempAddr)
 					
 
 				if self.settingsLabel != None:
@@ -294,15 +331,27 @@ class Ui_DitsaNet(object):
 
 					self.onCmbZoom()
 
-					BCmb.pingDataClient(useHostname,self.addrsT[0]) #envia las addr de los modulos 
+					#server_1 = ['2','12','13','14','15','16','17','18','19','20']
+					#server_2 = ['1','3','4','5','6','7','8','9','10','11']
+
+					#toma los valores de los servidores
+				#	self.tempAddr = [server_1,server_2]
+				#	print("tempA:",self.tempAddr)
+				#	self.addrsT.append(str(server_1))
+				#	self.addrsT.append(str(server_2))
+
+				#	print("addrT:",self.addrsT[0])
+				#	print(self.addrsT[1])
+					for j in range(len(useHostname)):
+						BCmb.pingDataClient(useHostname[j],usePort[j],self.tmp_total[j]) #envia las addr de los modulos 
+	
 					#enviar actualizacion del ultimo program guardado 
 					#print("addrT:",self.addrsT[0])
 					#print(self.addrsT[1])
 					#print(self.addrsT[2])
-					#depreferencia que regrese valores addr answer
 
 					#-------------------------- save program name in shared --------------------------#
-					self.addProgramNa()
+					##self.addProgramNa()
 
 					
 					#	for i in range(len(self.addrsT)):
@@ -322,13 +371,17 @@ class Ui_DitsaNet(object):
 		self.threadData(False)
 
 	def threadData(self,flag):
-		#print("ThreadData")
+		print("threadData")
 		if flag == True:
+			shared.lock_client.acquire()
 			self.dataThread = None
 			self.dataThread = DataListenerMemory(self.testsCallback)
 			self.dataThread.start()
+			shared.lock_client.release()
 		else:
+			print("stopDataL")
 			self.dataThread.stop()
+		
 
 	def exitWindow(self):
 		self.MainWindow.close()
@@ -337,8 +390,9 @@ class Ui_DitsaNet(object):
 		subprocess.Popen(['python3','/opt/Ditsa/ProfileEditor/ProfileEditorApp.py'])
 
 	def fileReport(self):
-		print("REPORT")
-		FilesReport() #recibe carpeta(FormationDataFiles) de server
+		print("REPORT") #verificar esta parte como realizarla mas eficiente
+		QtGui.QGuiApplication.processEvents()
+		FilesReport(usePassw) #recibe carpeta(FormationDataFiles) de server
 
 		ventana = QtWidgets.QWidget()
 		uif = Ui_FormTable()
@@ -346,12 +400,13 @@ class Ui_DitsaNet(object):
 		ventana.show()
 		
 	def threadTimer(self,flag):
-		#print("ThreadTimer")
+		print("ThreadTimer")
 		if flag == True:
 			self.t = None
 			self.t = threading.Timer(1, self.valueData)
 			self.t.start()
 		else:
+			print("Cancel")
 			self.t.cancel()
 
 	def populateTabs(self):
@@ -388,7 +443,7 @@ class Ui_DitsaNet(object):
 	def addProgramNa(self):
 		if self.flagProg != False: #indica que hay programas guardados
 			for i in range(1,len(self.saveprograms),2):
-				for j in range(len(self.tempAddr)):								
+				for j in range(len(self.tempAddr)):
 					if self.saveprograms[i] == 'A='+self.tempAddr[j]:
 						shared.DEV[j+1][13] = self.saveprograms[i-1]
 
@@ -502,56 +557,61 @@ class Ui_DitsaNet(object):
 
 	def valueData(self):
 		print("VALUEDATA")
-		memoryData = BCmb.memoryDataClient(useHostname)
-		time.sleep(0.3)
-		
-		for i in range (len(self.tempAddr)): 
-			address = i
+		shared.lock_client.acquire()
+		for j in range(len(useHostname)):
+			memoryData = BCmb.memoryDataClient(useHostname[j],usePort[j])
+			#time.sleep(0.3)
 			if memoryData!= None:
-				#print("ValueM:",memoryData)
-				TempData = memoryData[address-1].split(',')
-				#print("TempData:",TempData)
-				dat1 = str(TempData[0]).replace('{','')
-				#print("data1:",dat1)
-			
-				if dat1 == 'True' and len(TempData) == 12:
-					TempData[11] = str(TempData[11]).replace('}','')
-					TempData[0] = True
-
-					shared.DEV[address][0] = TempData[0]
-					#we store current
-					shared.DEV[address][1] = str(TempData[1].replace('I',''))
-					#we store voltage
-					shared.DEV[address][2] = str(TempData[2].replace('V',''))
-					#we store temperature
-					shared.DEV[address][3] = str(TempData[3].replace('T',''))
-					#we store step number and type
-					shared.DEV[address][4] = str(TempData[4].replace('AH',''))
-					#we store step number and type
-					shared.DEV[address][5] = str(TempData[5].replace('AC',''))
-					#we store step number and type
-					shared.DEV[address][6] = str(TempData[6].replace('P',''))
-					#we store time of current step
-					shared.DEV[address][7] = str(TempData[7].replace('S',''))
-					#we store current time program
-					shared.DEV[address][8] = str(TempData[8].replace('t',''))
-					#we store the total time program
-					shared.DEV[address][9] = str(TempData[9].replace('Tt',''))
-					#we store the total time program
-					shared.DEV[address][10] = str(TempData[10].replace('TT',''))
-					shared.DEV[address][11] = str(TempData[11].replace('',''))
-
-				elif dat1 == 'False}':
-					TempData[0] = str(TempData[0]).replace('}','')
-					shared.DEV[address][0] = False
+				#for i in range (len(self.tempAddr)): 
+				addr_list = self.tempAddr[j]
+				for i in range(len(addr_list)):
+					address = int(addr_list[i])
+	
+					TempData = memoryData[i].split(',')
+					#print("TempData:",TempData)
+					dat1 = str(TempData[0]).replace('{','')
+					#print("data1:",dat1)
 				
-				#print("TempData2:",TempData)
-		
+					if dat1 == 'True' and len(TempData) == 12:
+						TempData[11] = str(TempData[11]).replace('}','')
+						TempData[0] = True
+
+						shared.DEV[address][0] = TempData[0]
+						#we store current
+						shared.DEV[address][1] = str(TempData[1].replace('I',''))
+						#we store voltage
+						shared.DEV[address][2] = str(TempData[2].replace('V',''))
+						#we store temperature
+						shared.DEV[address][3] = str(TempData[3].replace('T',''))
+						#we store step number and type
+						shared.DEV[address][4] = str(TempData[4].replace('AH',''))
+						#we store step number and type
+						shared.DEV[address][5] = str(TempData[5].replace('AC',''))
+						#we store step number and type
+						shared.DEV[address][6] = str(TempData[6].replace('P',''))
+						#we store time of current step
+						shared.DEV[address][7] = str(TempData[7].replace('S',''))
+						#we store current time program
+						shared.DEV[address][8] = str(TempData[8].replace('t',''))
+						#we store the total time program
+						shared.DEV[address][9] = str(TempData[9].replace('Tt',''))
+						#we store the total time program
+						shared.DEV[address][10] = str(TempData[10].replace('TT',''))
+						shared.DEV[address][11] = str(TempData[11].replace('',''))
+
+					elif dat1 == 'False}':
+						TempData[0] = str(TempData[0]).replace('}','')
+						shared.DEV[address][0] = False
+					
+					#print("TempData2:",TempData)
+
 		if self.flagClose != True:
 			self.threadTimer(True)
 		else:
 			self.threadTimer(False)
 
+		shared.lock_client.release()
+		
 
 	count = 0
 	def resizeEvent(self,event): #verificar con ubuntu como trabaja
@@ -575,17 +635,17 @@ class Ui_DitsaNet(object):
 	def btnDetener(self):
 		print("Detener")
 		Ui_stopModule(self).exec_()
-		self.threadData(True)
+		#self.threadData(True)
 
 	def btnPausar(self):
 		print("Pausar")
 		Ui_pauseModule(self).exec_()
-		self.threadData(True)
+		#self.threadData(True)
 
 	def btnIniciar(self): 
 		print("Iniciar")
 		Ui_runModule(self).exec_()
-		self.threadData(True)
+		#self.threadData(True)
 
 	def btnCargar(self):
 		print("Cargar")

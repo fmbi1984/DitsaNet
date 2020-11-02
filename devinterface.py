@@ -10,7 +10,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 import SerialPortUtil
 
 import appsettings
-from appsettings import useHostname
+from appsettings import useHostname, usePort
 
 from communicate import Communicate
 from serialcommthread import SerialCommThread, serial_cmd_result
@@ -126,7 +126,7 @@ class devInterface(object):
         return result
 
     @staticmethod
-    def sendClientCommandAndGetResponse(hostname,address, op, cmd, timeout):
+    def sendClientCommandAndGetResponse(hostname, port, address, op, cmd, timeout):
         result = None
 
         try:
@@ -138,7 +138,7 @@ class devInterface(object):
                 raise Exception("devInterface", "No hostname device found!")
             #print("Sent:")
             #print(p_data)
-            sct = ClientCommThread(None, useHostname, p_data, b'\x04',timeout,1)
+            sct = ClientCommThread(None,hostname,port, p_data, b'\x04',timeout,1)
             sct.start()
             sct.join()
             #print("client thread stopped")
@@ -160,7 +160,7 @@ class devInterface(object):
 
     @staticmethod
     
-    def sendClientCommandAndGetResponseWithoutAddr(hostname, op, cmd, timeout):
+    def sendClientCommandAndGetResponseWithoutAddr(hostname, port, op, cmd, timeout):
         result = None
 
         try:
@@ -172,7 +172,7 @@ class devInterface(object):
                 raise Exception("devInterface", "No hostname device found!")
             #print("Sent:")
             #print(p_data)
-            sct = ClientCommThread(None, useHostname, p_data, b'\x04',timeout,1)
+            sct = ClientCommThread(None,hostname,port, p_data, b'\x04',timeout,1)
             sct.start()
             sct.join()
             print("client thread stopped")

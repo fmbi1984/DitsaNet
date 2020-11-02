@@ -17,7 +17,7 @@ import time
 from devicemainboard import BCmb
 #from datalistenermemory import DataListenerMemory
 
-from appsettings import useHostname
+from appsettings import useHostname,usePort
 
 #from ordened import NameOrdened
 
@@ -282,7 +282,7 @@ class Ui_WindowCh(QtWidgets.QDialog):
 		if self.textPrograms.currentText() != '':
 
 			for i in range(len(self.addrs)):
-				x = BCmb.writeProgramClient(useHostname,int(self.addrs[i]),self.programJson)
+				x = BCmb.writeProgramClient(useHostname[0],usePort[0],int(self.addrs[i]),self.programJson)
 				print("xx:",x)
 				if x != None:
 					if x == 'PASS':
@@ -295,7 +295,7 @@ class Ui_WindowCh(QtWidgets.QDialog):
 						self.settingsPrograms()
 
 						#time.sleep(0.5)
-						run = BCmb.runClient(useHostname,int(self.addrs[i]))
+						run = BCmb.runClient(useHostname[0],usePort[0],int(self.addrs[i]))
 		
 						if run != None:
 							if run == 'PASS,RUN':
@@ -315,7 +315,7 @@ class Ui_WindowCh(QtWidgets.QDialog):
 		else:
 
 			for i in range(len(self.addrs)):
-				x = BCmb.runClient(useHostname,int(self.addrs[i]))
+				x = BCmb.runClient(useHostname[0],usePort[0],int(self.addrs[i]))
 
 				if x != None:
 					if x == 'PASS,RUN':
