@@ -49,11 +49,12 @@ class DataListenerMemory(Thread):
 			for j in range(len(useHostname)):
 				memoryPolling = BCmb.startPollingClient(useHostname[j],usePort[j])
 				#sleep(.3)
+				#print("memory:",memoryPolling)
 
-				if memoryPolling != None:
-					if self.mySrc != None:
+				#if memoryPolling != None:  
+				#	if self.mySrc != None:
 						#self.mySrc.myGUI_signal.emit("DL["+str(address)+"]:DataReady")
-						self.mySrc.myGUI_signal.emit("DL[PASS]:DataReady")
+				self.mySrc.myGUI_signal.emit("DL[PASS]:DataReady")
 		
 		#lock_client.release()
 

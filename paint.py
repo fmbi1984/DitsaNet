@@ -170,8 +170,10 @@ class Paint(QtWidgets.QGraphicsView):
 			#------------label options value A,V,T,S,t,TT...------------#
 			lb2 = QtWidgets.QLabel(shared.DEV[int(addrCell[1])][cbText2])
 
-			lb2.setFont(font)
-			lb2.setStyleSheet("QLabel { background-color : lightblue; color : black;  border: 1px solid black; }")
+			font.setPointSize(10)
+			lb2.setFont(font)  #lightblue
+			lb2.setText("NO COMM")
+			lb2.setStyleSheet("QLabel { background-color : gold; color : black;  border: 1px solid black; }")
 			lb2.setFrameShape(QtWidgets.QFrame.Box)
 			lb2.setAlignment(QtCore.Qt.AlignHCenter|QtCore.Qt.AlignTop)
 

@@ -14,6 +14,7 @@ from devicemainboard import BCmb
 from appsettings import useHostname,usePort
 
 from ordened import NameOrdened
+import shared
 
 
 class Ui_runModule(QtWidgets.QDialog):
@@ -103,22 +104,25 @@ class Ui_runModule(QtWidgets.QDialog):
 
 	def on_editMin(self): #captura el dato en lineeditMin
 		y = self.lineEditMin.text()
-		txt = y.upper()
-		self.lineEditMin.setText(txt)
+		self.txt = y.upper()
+		self.lineEditMin.setText(self.txt)
 
-		self.data1 = "N="+txt
+		#print("tmpA:",self.parent.newlist)
+
+		self.data1 = "N="+self.txt
 		self.on_editMax()
 
 	def on_editMax(self): #captura el dato en lineeditMax
 		y = self.lineEditMax.text()
-		txt = y.upper()
-		self.lineEditMax.setText(txt)
-		self.data2 = "N="+txt
+		self.txt2 = y.upper()
+		self.lineEditMax.setText(self.txt2)
 
+		self.data2 = "N="+self.txt2
 		self.flagChange = False
 
 		try:
 			self.flagOutL = False
+
 			value1 = self.parent.newlist.index(self.data1)
 			value2 = self.parent.newlist.index(self.data2)
 
@@ -127,13 +131,11 @@ class Ui_runModule(QtWidgets.QDialog):
 			value2 = value2 + 2
 
 			valF = self.parent.newlist[value1:value2]
-			#print("valF:",valF)
 			self.check.clear()
 			for i in range(2,len(valF),4):
 				self.check.append(valF[i].replace('N=',''))
 
 			self.btnCheckBox()
-
 		except:
 			self.flagChange = True
 			if self.data1 != None and self.data1 !='N=':
@@ -176,45 +178,52 @@ class Ui_runModule(QtWidgets.QDialog):
 		#---------------------------- Extrae valor Addr ---------------------------#	
 		self.uncheck_check()
 		self.addrs.clear()
-		for i in range(3,len(self.loadProg),4):
-			addr = self.loadProg[i].split('A=')
-			self.addrs.append(addr[1])
 
-		self.loadProg.clear()
-		self.textEdit.clear()
+		if len(self.loadProg) != 0:
+			for i in range(3,len(self.loadProg),4):
+				addr = self.loadProg[i].split('A=')
+				self.addrs.append(addr[1])
 
-		#---------------------------- Envia comando run ---------------------------#
-		self.chtext("msg","None")
-		#tambnien hay que cambiar stop,pause y ver como se cambiara el addr si es 18 u otro addr mas grande
-		for j in range(len(useHostname)):
-			section = self.parent.tempAddr[j]
-			for i in range(len(section)):
-				for k in range(len(self.addrs)):
-					if section[i] == self.addrs[k]:
-						
-						if int(section[i]) > 16:
-							x = BCmb.runClient(useHostname[j],usePort[j],i+1)
-
-						else:
-							x = BCmb.runClient(useHostname[j],usePort[j],int(self.addrs[k]))
-							#time.sleep(0.3)#sujeto a cambios
-				
-						if x != None:
-							if x == 'PASS,RUN':
-								self.chtext(x,self.addrs[k])
+			self.loadProg.clear()
+			self.textEdit.clear()
+			#---------------------------- Envia comando run ---------------------------#
+			self.chtext("msg","None")
+			for j in range(len(useHostname)):
+				section = self.parent.tempAddr[j]
+				for i in range(len(section)):
+					for k in range(len(self.addrs)):
+						if section[i] == self.addrs[k]:
+							
+							if int(section[i]) > 16:
+								print("section:",section[i])
+								print("i:",i+1)
+								x = BCmb.runClient(useHostname[j],usePort[j],i+1)
 
 							else:
-								self.chtext(x,self.addrs[k])
+								x = BCmb.runClient(useHostname[j],usePort[j],int(self.addrs[k]))
+								#time.sleep(0.3)#sujeto a cambios
+					
+							print("x:",x)
+							if x != None:
+								if x == 'PASS,RUN':
+									self.chtext(x,self.addrs[k])
+
+								else:
+									self.chtext(x,self.addrs[k])
+									self.flagFail = True
+
+							else:
+								self.chtext('None',self.addrs[k])
 								self.flagFail = True
 
-						else:
-							self.chtext('None',self.addrs[k])
-							self.flagFail = True
-
-		if self.flagFail != True:
-			time.sleep(3)
-			self.close()
-		#solo falta realizar pruebas con comunicacion
+			if self.flagFail != True:
+				time.sleep(3)
+				self.close()
+			#solo falta realizar pruebas con comunicacion
+		else:
+			if self.flagFail != True:
+				time.sleep(3)
+				self.close()
 
 	def btnCancel(self):
 		#print("btnCancel")
@@ -243,8 +252,14 @@ class Ui_runModule(QtWidgets.QDialog):
 
 			for i in range(len(self.check)):
 				item = QtWidgets.QListWidgetItem(self.check[i])
-				item.setFlags(item.flags() | QtCore.Qt.ItemIsUserCheckable)
-				item.setCheckState(QtCore.Qt.Checked)
+
+				if shared.DEV[int(self.check[i])][0] == False:
+					item.setFlags(QtCore.Qt.ItemIsUserCheckable)
+					item.setCheckState(QtCore.Qt.Unchecked)
+				else:
+					item.setFlags(item.flags()|QtCore.Qt.ItemIsUserCheckable)
+					item.setCheckState(QtCore.Qt.Checked)	
+	
 				self.listWidget.addItem(item)
 
 	flagClickR = False

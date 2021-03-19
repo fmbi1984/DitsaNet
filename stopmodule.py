@@ -14,7 +14,7 @@ from devicemainboard import BCmb
 from appsettings import useHostname,usePort
 
 from ordened import NameOrdened
-
+import shared
 
 class Ui_stopModule(QtWidgets.QDialog):
 	#def setupUi(self, stopModule):
@@ -178,45 +178,51 @@ class Ui_stopModule(QtWidgets.QDialog):
 		#---------------------------- Extrae valor Addr ---------------------------#	
 		self.uncheck_check()	
 		self.addrs.clear()
-		for i in range(3,len(self.loadProg),4):
-			addr = self.loadProg[i].split('A=')
-			self.addrs.append(addr[1])
 
-		self.loadProg.clear()
-		self.textEdit.clear()
+		if len(self.loadProg) != 0:
+			for i in range(3,len(self.loadProg),4):
+				addr = self.loadProg[i].split('A=')
+				self.addrs.append(addr[1])
 
-		#---------------------------- Envia comando stop ---------------------------#
-		self.chtext("msg","None")
+			self.loadProg.clear()
+			self.textEdit.clear()
 
-		for j in range(len(useHostname)):
-			section = self.parent.tempAddr[j]
-			for i in range(len(section)):
-				for k in range(len(self.addrs)):
-					if section[i] == self.addrs[k]:
+			#---------------------------- Envia comando stop ---------------------------#
+			self.chtext("msg","None")
 
-						if int(section[i]) > 16:
-							x = BCmb.stopClient(useHostname[j],usePort[j],i+1)
+			for j in range(len(useHostname)):
+				section = self.parent.tempAddr[j]
+				for i in range(len(section)):
+					for k in range(len(self.addrs)):
+						if section[i] == self.addrs[k]:
 
-						else:
-							x = BCmb.stopClient(useHostname[j],usePort[j],int(self.addrs[k]))
-
-						if x != None:
-							if x == 'PASS,STOP':
-								self.chtext(x,self.addrs[i])
+							if int(section[i]) > 16:
+								x = BCmb.stopClient(useHostname[j],usePort[j],i+1)
 
 							else:
-								self.chtext(x,self.addrs[i])
+								x = BCmb.stopClient(useHostname[j],usePort[j],int(self.addrs[k]))
+
+							if x != None:
+								if x == 'PASS,STOP':
+									self.chtext(x,self.addrs[i])
+
+								else:
+									self.chtext(x,self.addrs[i])
+									self.flagFail = True
+							else:
+								self.chtext("None",self.addrs[i])
 								self.flagFail = True
-						else:
-							self.chtext("None",self.addrs[i])
-							self.flagFail = True
 
 
-		if self.flagFail != True:
-			time.sleep(3)
-			self.close()
+			if self.flagFail != True:
+				time.sleep(3)
+				self.close()
 
-		#solo falta realizar pruebas con comunicacion
+			#solo falta realizar pruebas con comunicacion
+		else:
+			if self.flagFail != True:
+				time.sleep(3)
+				self.close()
 
 	def btnCancel(self):
 		self.close()
@@ -244,8 +250,14 @@ class Ui_stopModule(QtWidgets.QDialog):
 
 			for i in range(len(self.check)):
 				item = QtWidgets.QListWidgetItem(self.check[i])
-				item.setFlags(item.flags() | QtCore.Qt.ItemIsUserCheckable)
-				item.setCheckState(QtCore.Qt.Checked)
+
+				if shared.DEV[int(self.check[i])][0] == False:
+					item.setFlags(QtCore.Qt.ItemIsUserCheckable)
+					item.setCheckState(QtCore.Qt.Unchecked)
+				else:
+					item.setFlags(item.flags()|QtCore.Qt.ItemIsUserCheckable)
+					item.setCheckState(QtCore.Qt.Checked)	
+
 				self.listWidget.addItem(item)
 
 	flagClickR = False

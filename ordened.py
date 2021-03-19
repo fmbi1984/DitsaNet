@@ -16,9 +16,6 @@ class NameOrdened():
 		self.indx = list()
 		self.num = list()
 
-		self.tup = tuple()
-		self.flagInt = False
-
 	def cod(self):
 		x = sorted(self.nameList)
 		#print("x:",x)

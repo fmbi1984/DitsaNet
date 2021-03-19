@@ -103,6 +103,7 @@ class Ui_WindowCh(QtWidgets.QDialog):
 		self.flagChange = False
 
 		self.flagFail = False	#flag para controlar el cierre de windowch
+		self.flagSect = False
 
 	def retranslateUi(self, WindowCh):
 		_translate = QtCore.QCoreApplication.translate
@@ -240,16 +241,17 @@ class Ui_WindowCh(QtWidgets.QDialog):
 		self.nameFile = self.textPrograms.currentText()
 		if self.nameFile != '':
 			openFile = self.nameFile+".txt"
+			#print("nameFile:",self.nameFile)
 			archivo_texto = open("/home/ditsa/DitsaNet/ProfileEditorPrograms/"+openFile,"r")
 			self.programJson = archivo_texto.read()
 			archivo_texto.close()
-			print("jason:",self.programJson)
+			#print("json:",self.programJson)
 
 	def chtext(self,flag,addr):
 		if flag == 'msg':
 			self.textEdit.append("Send programs...")
 		elif flag == 'None':
-			self.textEdit.append("ERROR COMMf.checkPrograms(): "+addr)
+			self.textEdit.append("ERROR COMM: "+addr)
 		elif flag == 'PASS':
 			self.textEdit.append("Load successful in Addr: "+addr)
 		elif flag == 'FAIL':
@@ -281,54 +283,80 @@ class Ui_WindowCh(QtWidgets.QDialog):
 		#for j in range(len(self.parent.saveprograms)):
 		if self.textPrograms.currentText() != '':
 
-			for i in range(len(self.addrs)):
-				x = BCmb.writeProgramClient(useHostname[0],usePort[0],int(self.addrs[i]),self.programJson)
-				print("xx:",x)
-				if x != None:
-					if x == 'PASS':
-						self.chtext(x,self.addrs[i])
+			for j in range(len(useHostname)):
+				section = self.parent.tempAddr[j]
+				for i in range(len(section)):
+					for k in range(len(self.addrs)):
+						if section[i] == self.addrs[k]:
 
-						self.checkPrograms(self.addrs[i])
-						self.parent.saveprograms.append(self.nameFile)
-						self.parent.saveprograms.append('A='+self.addrs[i])
-
-						self.settingsPrograms()
-
-						#time.sleep(0.5)
-						run = BCmb.runClient(useHostname[0],usePort[0],int(self.addrs[i]))
-		
-						if run != None:
-							if run == 'PASS,RUN':
-								self.chtext(run,self.addrs[i])
+						#for i in range(len(self.addrs)):
+							if int(section[i]) > 16:
+								self.flagSect = True
+								#print("section:",section[i])
+								#print("i:",i+1)
+								x = BCmb.writeProgramClient(useHostname[j],usePort[j],i+1,self.nameFile+self.programJson)
 
 							else:
-								self.chtext(run,self.addrs[i])
-								self.flagFail = True
+								x = BCmb.writeProgramClient(useHostname[j],usePort[j],int(self.addrs[k]),self.nameFile+self.programJson)
 
-						else:
-							self.chtext('None',self.addrs[i])
-							self.flagFail = True
-				
-					else:
-						self.chtext(x,self.addrs[i])
-						self.flagFail = True
-		else:
+							#print("xx:",x)
+							if x != None:
+								if x == 'PASS':
+									self.chtext(x,self.addrs[k])
 
-			for i in range(len(self.addrs)):
-				x = BCmb.runClient(useHostname[0],usePort[0],int(self.addrs[i]))
+									self.checkPrograms(self.addrs[k])
+									self.parent.saveprograms.append(self.nameFile)
+									self.parent.saveprograms.append('A='+self.addrs[k])
 
-				if x != None:
-					if x == 'PASS,RUN':
-						self.chtext(x,self.addrs[i])
+									self.settingsPrograms()
 
-					else:
-						self.chtext(x,self.addrs[i])
-						self.flagFail = True
-
-				else:
-					self.chtext('None',self.addrs[i])
-					self.flagFail = True
+									#time.sleep(0.5)
+									if self.flagSect != True:
+										run = BCmb.runClient(useHostname[j],usePort[j],int(self.addrs[k]))
+									else:
+										run = BCmb.runClient(useHostname[j],usePort[j],i+1)
 					
+									if run != None:
+										if run == 'PASS,RUN':
+											self.chtext(run,self.addrs[k])
+
+										else:
+											self.chtext(run,self.addrs[k])
+											self.flagFail = True
+
+									else:
+										self.chtext('None',self.addrs[k])
+										self.flagFail = True
+							
+								else:
+									self.chtext(x,self.addrs[k])
+									self.flagFail = True
+
+							else:
+								self.chtext('None',self.addrs[k])
+								self.flagFail = True
+		else:
+			for j in range(len(useHostname)):
+				section = self.parent.tempAddr[j]
+				for i in range(len(section)):
+					for k in range(len(self.addrs)):
+						if section[i] == self.addrs[k]:
+
+						#for i in range(len(self.addrs)):
+							x = BCmb.runClient(useHostname[j],usePort[j],int(self.addrs[k]))
+
+							if x != None:
+								if x == 'PASS,RUN':
+									self.chtext(x,self.addrs[k])
+
+								else:
+									self.chtext(x,self.addrs[k])
+									self.flagFail = True
+
+							else:
+								self.chtext('None',self.addrs[k])
+								self.flagFail = True
+								
 
 		if self.flagFail != True:
 			time.sleep(3)
@@ -366,7 +394,7 @@ class Ui_WindowCh(QtWidgets.QDialog):
 			w = y.replace('{','')
 			v = w.replace('}','')
 			z = v.replace('"','')
-			new = z.split('Type:')
+			new = z.split('T:')
 
 			#print("pJ:",programJson)
 			#print("y:",y)
@@ -382,58 +410,57 @@ class Ui_WindowCh(QtWidgets.QDialog):
 			for i in range(len(new)):
 				comp= new[i].split(',')
 				for j in range(len(comp)-1):
-					typeName = comp[j]
-					if comp[j] == 'Charge':
+					if comp[j] == 'Ch':
 						self.st += 1
 						#print("Carga")
 						#print("comp:",comp)
 						#print("len:",len(comp)-1) 
-						self.tabItem(typeName,self.st-1,j)
+						self.tabItem('Charge',self.st-1,j)
 						if len(comp)-1 == 5: # 5 implica /Carga/Current/AH-T/MaxTmp/MinTmp
 							comp2 = comp[j+1].split(':')
 							comp3 = comp[j+2].split(':')
 							comp4 = comp[j+3].split(':')
 							comp5 = comp[j+4].split(':')
 							
-							if comp2[0]=='Current':
-								current = comp2[1]
-								self.tabItem(current,self.st-1,j+1)
-							if comp3[0]=='AH':
-								ampH = comp3[1]
-								self.tabItem(ampH+'    AH',self.st-1,j+2)
+							if comp2[0]=='C':
+								current = float(comp2[1])
+								self.tabItem(str(current),self.st-1,j+1)
+							if comp3[0]=='A':
+								ampH = float(comp3[1])
+								self.tabItem(str(ampH)+'    AH',self.st-1,j+2)
 							else:
-								ampH = comp3[1]
-								self.tabItem(ampH+'    T',self.st-1,j+2)
-							if comp4[0]=='MaxTemp':
-								maxTmp = comp4[1]
-								self.tabItem(maxTmp,self.st-1,j+3)
-							if comp5[0]=='MinTemp':
-								minTmp = comp5[1]
-								self.tabItem(minTmp,self.st-1,j+4)
+								ampH = float(comp3[1])
+								self.tabItem(str(ampH)+'    T',self.st-1,j+2)
+							if comp4[0]=='M':
+								maxTmp = float(comp4[1])
+								self.tabItem(str(maxTmp),self.st-1,j+3)
+							if comp5[0]=='m':
+								minTmp = float(comp5[1])
+								self.tabItem(str(minTmp),self.st-1,j+4)
 
 						else: # 3 implica /Carga/Current/AH-T
 							comp2 = comp[j+1].split(':')
 							comp3 = comp[j+2].split(':')
 							
-							if comp2[0]=='Current':
-								current = comp2[1]
-								self.tabItem(current,self.st-1,j+1)
+							if comp2[0]=='C':
+								current = float(comp2[1])
+								self.tabItem(str(current),self.st-1,j+1)
 
-							if comp3[0]=='AH':
-								ampH = comp3[1]
-								self.tabItem(ampH+'    AH',self.st-1,j+2)
+							if comp3[0]=='A':
+								ampH = float(comp3[1])
+								self.tabItem(str(ampH)+'    AH',self.st-1,j+2)
 							else:
-								ampH = comp3[1]
-								self.tabItem(ampH+'    T',self.st-1,j+2)
+								ampH = float(comp3[1])
+								self.tabItem(str(ampH)+'    T',self.st-1,j+2)
 
-					elif comp[j] =='Pause':
+					elif comp[j] =='Pa':
 						self.st +=1
-						self.tabItem(typeName,self.st-1,j)
+						self.tabItem('Pause',self.st-1,j)
 						comp2 = comp[j+1].split(':')
-						if comp2[0] =='Time':
-							time = comp2[1]
+						if comp2[0] =='           H':
+							time = float(comp2[1])
 							self.tabItem('-',self.st-1,j+1)
-							self.tabItem(time+'    T',self.st-1,j+2)
+							self.tabItem(str(time)+'    T',self.st-1,j+2)
 							self.tabItem('-',self.st-1,j+3)
 							self.tabItem('-',self.st-1,j+4)
 

@@ -174,8 +174,6 @@ class Ui_Form(QtWidgets.QWidget):
 
 		action = self.popMenu.exec_(self.tableWidget.mapToGlobal(event.pos()))
 
-	
-
 	def on_cellClickedTableW(self):
 		print("ClickTable") #averguar si donde se hizo click esta en list
 		vx = self.tableWidget.currentRow()
