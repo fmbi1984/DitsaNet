@@ -11,7 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 import time 
 from devicemainboard import BCmb
-from appsettings import useHostname,usePort
+from appsettings import useIp,usePort,useAddr
 
 from ordened import NameOrdened
 import shared
@@ -73,6 +73,9 @@ class Ui_runModule(QtWidgets.QDialog):
 		self.tempList = list()
 		self.loadProg = list()
 		self.addrs = list()
+		self.prevrun = list()
+
+		self.conteo = 0
 
 		self.flagChange = False
 		self.flagFail = False	#flag para controlar el cierre de runmodule
@@ -108,7 +111,6 @@ class Ui_runModule(QtWidgets.QDialog):
 		self.lineEditMin.setText(self.txt)
 
 		#print("tmpA:",self.parent.newlist)
-
 		self.data1 = "N="+self.txt
 		self.on_editMax()
 
@@ -122,7 +124,6 @@ class Ui_runModule(QtWidgets.QDialog):
 
 		try:
 			self.flagOutL = False
-
 			value1 = self.parent.newlist.index(self.data1)
 			value2 = self.parent.newlist.index(self.data2)
 
@@ -134,6 +135,7 @@ class Ui_runModule(QtWidgets.QDialog):
 			self.check.clear()
 			for i in range(2,len(valF),4):
 				self.check.append(valF[i].replace('N=',''))
+				self.check.append(valF[i+1].replace('A=',''))
 
 			self.btnCheckBox()
 		except:
@@ -141,13 +143,16 @@ class Ui_runModule(QtWidgets.QDialog):
 			if self.data1 != None and self.data1 !='N=':
 				try:
 					val1 = self.parent.newlist.index(self.data1)
-
+					
 					val1 = val1 - 2
-					valF = self.parent.newlist[val1:val1+3]
+					valF = self.parent.newlist[val1:val1+4]
+					#valF = self.parent.newlist[val1]
 					self.check.clear()
 					for i in range(2,len(valF),4):
 						self.check.append(valF[i].replace('N=',''))
+						self.check.append(valF[i+1].replace('A=',''))
 
+					#print("cheack:",self.check)
 					self.btnCheckBox()
 				except:
 					self.listWidget.clear()
@@ -159,26 +164,73 @@ class Ui_runModule(QtWidgets.QDialog):
 				self.listWidget.clear()
 
 	def chtext(self,flag,addr):
-		if flag == 'msg':
-			self.textEdit.append("Comm Run")
-		elif flag == 'None':
-			self.textEdit.append("ERROR COMM: "+addr)
+		#if flag == 'msg':
+		#	self.textEdit.append("Comm Run")
+		if flag == 'None':
+			self.textEdit.append("ERROR COMMUNICATION: "+addr)
 		elif flag == 'PASS,RUN':
-			self.textEdit.append("run successful in Addr: "+addr)
+			self.textEdit.append("run successful in name: "+addr)
 		elif flag == 'FAIL,RUN':
-			self.textEdit.append("Fail run Addr: "+addr)
+			self.textEdit.append("Fail run name: "+addr)
 
 		QtGui.QGuiApplication.processEvents()
 
 	def btnOk(self):
-		print("btnOkRun")
+		print("btnOkRun") #que pasa si pones varios modulos a run y alguno falla, stop, pause
 		#----------------------------- Detiene thread -----------------------------#
-		#time.sleep(0.5)
-		#self.parent.threadData(False) 
-		#---------------------------- Extrae valor Addr ---------------------------#	
+		self.parent.threadData(False) 
+		time.sleep(1)
+		#---------------------------- Extrae valor Addr ---------------------------#
 		self.uncheck_check()
-		self.addrs.clear()
+		if self.flagFail != True:
+			self.addrs.clear()
+			self.prevrun.clear()
+			self.conteo = 0
 
+			if len(self.loadProg) != 0:
+				for i in range(3,len(self.loadProg),4):
+					addr = self.loadProg[i].split('A=')
+					self.addrs.append(addr[1])
+		else:
+			self.addrs = self.prevrun[:]
+			self.prevrun.clear()
+
+		self.loadProg.clear()
+		self.textEdit.clear()
+		self.flagFail = False
+
+		for j in range(len(useIp)):
+			section = useAddr[j]
+			for k in range(len(self.addrs)):
+				if section == self.addrs[k]:
+					t = self.check.index(self.addrs[k])
+					run = BCmb.runClient(useIp[j],usePort)
+					time.sleep(0.1)
+					#print("RUN-ACTION-PASS")
+					print("RRun:",run)
+
+					if run != None:
+						if run == 'PASS,RUN' or run == 'VALUE':
+							self.chtext(run,self.check[t-1])
+							self.flagFail = False
+							self.conteo = self.conteo + 1
+						else:
+							self.chtext('None',self.check[t-1])
+							if self.prevrun.count(self.addrs[k]) == 0:
+								self.prevrun.append(self.addrs[k])
+							self.flagFail = True
+							print("PASS,None")
+					else:
+						self.chtext('FAIL',self.check[t-1])
+						if self.prevrun.count(self.addrs[k]) == 0:
+							self.prevrun.append(self.addrs[k])
+						self.flagFail = True
+
+		if self.flagFail != True and (self.conteo == len(self.check) / 2):
+			time.sleep(3)
+			self.close()
+
+		'''
 		if len(self.loadProg) != 0:
 			for i in range(3,len(self.loadProg),4):
 				addr = self.loadProg[i].split('A=')
@@ -188,42 +240,43 @@ class Ui_runModule(QtWidgets.QDialog):
 			self.textEdit.clear()
 			#---------------------------- Envia comando run ---------------------------#
 			self.chtext("msg","None")
-			for j in range(len(useHostname)):
-				section = self.parent.tempAddr[j]
+			
+			for j in range(len(useIp)):
+				section = useAddr[j]
 				for i in range(len(section)):
 					for k in range(len(self.addrs)):
 						if section[i] == self.addrs[k]:
-							
-							if int(section[i]) > 16:
-								print("section:",section[i])
-								print("i:",i+1)
-								x = BCmb.runClient(useHostname[j],usePort[j],i+1)
-
-							else:
-								x = BCmb.runClient(useHostname[j],usePort[j],int(self.addrs[k]))
-								#time.sleep(0.3)#sujeto a cambios
+							t = self.check.index(self.addrs[k])
+							x = BCmb.runClient(useIp[j],usePort)
 					
-							print("x:",x)
 							if x != None:
 								if x == 'PASS,RUN':
-									self.chtext(x,self.addrs[k])
+									#self.chtext(x,self.addrs[k])
+									self.chtext(x,self.check[t-1])
 
 								else:
-									self.chtext(x,self.addrs[k])
+									#self.chtext(x,self.addrs[k])
+									self.chtext(x,self.check[t-1])
 									self.flagFail = True
+									print("RUN-1")
 
 							else:
-								self.chtext('None',self.addrs[k])
+								#self.chtext('None',self.addrs[k])
+								self.chtext("None",self.check[t-1])
 								self.flagFail = True
-
+								print("RUN-2")
+			
 			if self.flagFail != True:
 				time.sleep(3)
 				self.close()
+				print("Close-1")
 			#solo falta realizar pruebas con comunicacion
 		else:
 			if self.flagFail != True:
 				time.sleep(3)
 				self.close()
+				print("Close-2")
+		'''
 
 	def btnCancel(self):
 		#print("btnCancel")
@@ -250,16 +303,16 @@ class Ui_runModule(QtWidgets.QDialog):
 			self.flagChange = False
 			self.listWidget.clear()
 
-			for i in range(len(self.check)):
+			for i in range(0,len(self.check),2):
 				item = QtWidgets.QListWidgetItem(self.check[i])
 
-				if shared.DEV[int(self.check[i])][0] == False:
+				if shared.DEV[int(self.check[i+1])][0] == False:
 					item.setFlags(QtCore.Qt.ItemIsUserCheckable)
 					item.setCheckState(QtCore.Qt.Unchecked)
 				else:
 					item.setFlags(item.flags()|QtCore.Qt.ItemIsUserCheckable)
-					item.setCheckState(QtCore.Qt.Checked)	
-	
+					item.setCheckState(QtCore.Qt.Checked)
+				
 				self.listWidget.addItem(item)
 
 	flagClickR = False

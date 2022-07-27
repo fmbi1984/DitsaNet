@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'pausemodule.ui'
+# Form implementation generated from reading ui file 'reconnectmodule.ui'
 #
 # Created by: PyQt5 UI code generator 5.13.0
 #
@@ -9,24 +9,23 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-
 import time 
-
 from devicemainboard import BCmb
 from appsettings import useIp,usePort,useAddr
 
 from ordened import NameOrdened
 import shared
 
-class Ui_pauseModule(QtWidgets.QDialog):
-	#def setupUi(self, pauseModule):
+
+class Ui_recModule(QtWidgets.QDialog):
+	#def setupUi(self, recModule):
 	def __init__(self,parent=None):
-		super(Ui_pauseModule, self).__init__()
+		super(Ui_recModule, self).__init__()
 		self.parent = parent
 
-		self.setObjectName("pauseModule")
+		self.setObjectName("recModule")
 		self.setFixedSize(332,331) #332,331
-		#self.resize(472, 331) 
+		#self.resize(472, 331)
 		self.buttonBox = QtWidgets.QDialogButtonBox(self)
 		self.buttonBox.setGeometry(QtCore.QRect(80, 120, 161, 32))
 		self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
@@ -66,7 +65,7 @@ class Ui_pauseModule(QtWidgets.QDialog):
 		self.horizontalLayout_2.addWidget(self.BtnArrowR)
 
 		self.retranslateUi(self)
-		#self.buttonBox.accepted.connect(self.accept) # cierra la ventana con un click
+		#self.buttonBox.accepted.connect(self.accept)#cierra la ventana con un click
 		#self.buttonBox.rejected.connect(self.reject)
 		QtCore.QMetaObject.connectSlotsByName(self)
 
@@ -74,18 +73,16 @@ class Ui_pauseModule(QtWidgets.QDialog):
 		self.tempList = list()
 		self.loadProg = list()
 		self.addrs = list()
-		self.prevpause = list()
-		self.conteo = 0
 
 		self.flagChange = False
-		self.flagFail = False	#flag para controlar el cierre de pausemodule
+		self.flagFail = False	#flag para controlar el cierre de recmodule
 
-	def retranslateUi(self, pauseModule):
+	def retranslateUi(self, recModule):
 		_translate = QtCore.QCoreApplication.translate
-		pauseModule.setWindowTitle(_translate("pauseModule", "Pause"))
-		self.label.setText(_translate("pauseModule", "-"))
-		self.lblModules.setText(_translate("pauseModule", "Selection of Modules"))
-		self.BtnArrowR.setText(_translate("pauseModule", ">>"))
+		recModule.setWindowTitle(_translate("recModule", "Reconnect"))
+		self.label.setText(_translate("recModule", "-"))
+		self.lblModules.setText(_translate("recModule", "Selection of Modules"))
+		self.BtnArrowR.setText(_translate("recModule", ">>"))
 
 		#conexion a funciones
 		self.BtnArrowR.clicked.connect(self.on_bttnArrowR)
@@ -105,24 +102,27 @@ class Ui_pauseModule(QtWidgets.QDialog):
 	def closeEvent(self,event):
 		pass
 
-	def on_editMin(self):
+	def on_editMin(self): #captura el dato en lineeditMin
 		y = self.lineEditMin.text()
-		txt = y.upper()
-		self.lineEditMin.setText(txt)
+		self.txt = y.upper()
+		self.lineEditMin.setText(self.txt)
 
-		self.data1 = "N="+txt
+		#print("tmpA:",self.parent.newlist)
+
+		self.data1 = "N="+self.txt
 		self.on_editMax()
 
-	def on_editMax(self):
+	def on_editMax(self): #captura el dato en lineeditMax
 		y = self.lineEditMax.text()
-		txt = y.upper()
-		self.lineEditMax.setText(txt)
-		self.data2 = "N="+txt
+		self.txt2 = y.upper()
+		self.lineEditMax.setText(self.txt2)
 
+		self.data2 = "N="+self.txt2
 		self.flagChange = False
 
 		try:
 			self.flagOutL = False
+
 			value1 = self.parent.newlist.index(self.data1)
 			value2 = self.parent.newlist.index(self.data2)
 
@@ -137,7 +137,6 @@ class Ui_pauseModule(QtWidgets.QDialog):
 				self.check.append(valF[i+1].replace('A=',''))
 
 			self.btnCheckBox()
-
 		except:
 			self.flagChange = True
 			if self.data1 != None and self.data1 !='N=':
@@ -162,116 +161,66 @@ class Ui_pauseModule(QtWidgets.QDialog):
 				self.listWidget.clear()
 
 	def chtext(self,flag,addr):
-		if flag == 'None':
-			self.textEdit.append("ERROR Communication: "+addr)
-		elif flag == 'PASS,PAUSE':
-			self.textEdit.append("Pause successful in name: "+addr)
-		elif flag == 'FAIL,PAUSE':
-			self.textEdit.append("Fail Pause name: "+addr)
+		if flag == 'msg':
+			self.textEdit.append("Comm Reconnect")
+		elif flag == 'None':
+			self.textEdit.append("ERROR COMM: "+addr)
+		elif flag == 'PASS':
+			self.textEdit.append("Reconnect successful in Addr: "+addr)
+		elif flag == 'FAIL':
+			self.textEdit.append("Fail reconnect Addr: "+addr)
 
 		QtGui.QGuiApplication.processEvents()
 
 	def btnOk(self):
-		print("btnOk")
+		print("btnOkRec")
 		#----------------------------- Detiene thread -----------------------------#
 		#time.sleep(0.5)
 		#self.parent.threadData(False) 
-		#---------------------------- Extrae valor Addr ---------------------------#
+		#---------------------------- Extrae valor Addr ---------------------------#	
 		self.uncheck_check()
-		if self.flagFail != True:
-			self.addrs.clear()
-			self.prevpause.clear()
-			self.conteo = 0
-
-			if len(self.loadProg) != 0:
-				for i in range(3,len(self.loadProg),4):
-					addr = self.loadProg[i].split('A=')
-					self.addrs.append(addr[1])
-		else:
-			self.addrs = self.prevpause[:]
-			self.prevpause.clear()
-
-		self.loadProg.clear()
-		self.textEdit.clear()
-		self.flagFail = False
-
-		for j in range(len(useIp)):
-			section = useAddr[j]
-			for k in range(len(self.addrs)):
-				if section == self.addrs[k]:
-					t = self.check.index(self.addrs[k])
-					pause = BCmb.pauseClient(useIp[j],usePort)
-					time.sleep(0.1)
-					print("PAUSE-ACTION-PASS")
-
-					if pause != None:
-						if pause == 'PASS,PAUSE' or pause == 'VALUE':
-							self.chtext(pause,self.check[t-1])
-							self.flagFail = False
-							self.conteo = self.conteo + 1
-						else:
-							self.chtext('None',self.check[t-1])
-							if self.prevpause.count(self.addrs[k]) == 0:
-								self.prevpause.append(self.addrs[k])
-							self.flagFail = True
-					else:
-						self.chtext('FAIL',self.check[t-1])
-						if self.prevpause.count(self.addrs[k]) == 0:
-							self.prevpause.append(self.addrs[k])
-						self.flagFail = True
-
-		if self.flagFail != True and (self.conteo == len(self.check) / 2):
-			time.sleep(3)
-			self.close()
-
-		'''
 		self.addrs.clear()
-		self.flagFail = False
-
+		
 		if len(self.loadProg) != 0:
 			for i in range(3,len(self.loadProg),4):
 				addr = self.loadProg[i].split('A=')
 				self.addrs.append(addr[1])
-
+			
 			self.loadProg.clear()
 			self.textEdit.clear()
-		
-			#---------------------------- Envia comando pause ---------------------------#
+			#---------------------------- Envia comando run ---------------------------#
+			self.chtext("msg","None")
 			
 			for j in range(len(useIp)):
 				section = useAddr[j]
 				for i in range(len(section)):
 					for k in range(len(self.addrs)):
 						if section[i] == self.addrs[k]:
-							t = self.check.index(self.addrs[k])
-							x = BCmb.pauseClient(useIp[j],usePort)
-
+							x = BCmb.runClient(useIp[j],usePort)
+					
 							if x != None:
-								if x == 'PASS,PAUSE':
-									#self.chtext(x,self.addrs[k])
-									self.chtext(x,self.check[t-1])
+								if x == 'PASS,RUN':
+									self.chtext(x,self.addrs[k])
 
 								else:
-									#self.chtext(x,self.addrs[k])
-									self.chtext(x,self.check[t-1])
+									self.chtext(x,self.addrs[k])
 									self.flagFail = True
+
 							else:
-								#self.chtext("None",self.addrs[k])
-								self.chtext("None",self.check[t-1])
+								self.chtext('None',self.addrs[k])
 								self.flagFail = True
 			
 			if self.flagFail != True:
 				time.sleep(3)
 				self.close()
-					
 			#solo falta realizar pruebas con comunicacion
 		else:
 			if self.flagFail != True:
 				time.sleep(3)
 				self.close()
-		'''
 
 	def btnCancel(self):
+		#print("btnCancel")
 		self.close()
 
 	def uncheck_check(self):
@@ -297,14 +246,9 @@ class Ui_pauseModule(QtWidgets.QDialog):
 
 			for i in range(0,len(self.check),2):
 				item = QtWidgets.QListWidgetItem(self.check[i])
-
-				if shared.DEV[int(self.check[i+1])][0] == False:
-					item.setFlags(QtCore.Qt.ItemIsUserCheckable)
-					item.setCheckState(QtCore.Qt.Unchecked)
-				else:
-					item.setFlags(item.flags()|QtCore.Qt.ItemIsUserCheckable)
-					item.setCheckState(QtCore.Qt.Checked)	
-
+				item.setFlags(item.flags()|QtCore.Qt.ItemIsUserCheckable)
+				item.setCheckState(QtCore.Qt.Checked)	
+	
 				self.listWidget.addItem(item)
 
 	flagClickR = False

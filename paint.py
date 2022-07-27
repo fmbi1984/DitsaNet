@@ -49,7 +49,7 @@ class Paint(QtWidgets.QGraphicsView):
 
 
 	def showEvent(self,event):
-		print("showE")
+		print("showPaint")
 		if self.parent.flagZoom != True:
 			if self.parent.flagNormal != False: 
 				self.setSceneRect(110,90,1280,523) #0,90,1280,523
@@ -61,13 +61,10 @@ class Paint(QtWidgets.QGraphicsView):
 			self.parent.tmpTabs.append('1%')
 		else:
 			z = self.parent.tabWidget.currentIndex() + 1 #tab-current
-
 			if z == 0:
 				z = 1
-
 			try:
 				self.parent.tmpTabs.index(str(z)+'%')
-
 			except:
 				#-------------- For lblmodule ----------------#
 				for i in range(0,len(self.parent.lblmodule),3): #2
@@ -130,7 +127,7 @@ class Paint(QtWidgets.QGraphicsView):
 	def populateCircuit(self): 
 		print("PopulateCircuit")
 		self.parent.flagCircuit = True
-		self.parent.listSelect.clear()
+		#self.parent.listSelect.clear()
 
 		cbText2 =  self.parent.comboBox.currentIndex()+1
 
@@ -153,7 +150,6 @@ class Paint(QtWidgets.QGraphicsView):
 			font.setBold(True)
 			font.setWeight(75)
 
-
 			#if k == str(z):
 			nameCell = self.parent.mylist[i+2].split()
 			nameF = nameCell[0].partition('N=')
@@ -173,7 +169,7 @@ class Paint(QtWidgets.QGraphicsView):
 			font.setPointSize(10)
 			lb2.setFont(font)  #lightblue
 			lb2.setText("NO COMM")
-			lb2.setStyleSheet("QLabel { background-color : gold; color : black;  border: 1px solid black; }")
+			lb2.setStyleSheet("QLabel {min-width: 71px; max-width: 71px; background-color : gold; color : black;  border: 1px solid black;}")
 			lb2.setFrameShape(QtWidgets.QFrame.Box)
 			lb2.setAlignment(QtCore.Qt.AlignHCenter|QtCore.Qt.AlignTop)
 
@@ -217,6 +213,7 @@ class Paint(QtWidgets.QGraphicsView):
 			self.parent.labels.append(numberTab) #tab
 			self.parent.labels.append(lb2)  #option value
 			self.parent.labels.append(int(addrCell[1])) #addr
+			#self.parent.labels.append([75*coordy,20+(61*coordx), 73, 37])
 
 			#self.parent.progress.append(numberTab)
 			#self.parent.progress.append(pbProgram)
@@ -246,7 +243,6 @@ class Paint(QtWidgets.QGraphicsView):
 
 			if z == 0:
 				z = 1
-
 			#---------------------- Labels items---------------------#
 			label = nameCellL.split('#')
 			number = label[1].split('$')
@@ -343,7 +339,7 @@ class Paint(QtWidgets.QGraphicsView):
 	'''
 
 	def zoomCmb(self,det):
-		#print("zoom comb")
+		print("zoom comb")
 		#print("det:",det)
 
 		if det > 0.8:

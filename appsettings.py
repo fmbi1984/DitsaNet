@@ -8,13 +8,17 @@ useDesktopToSaveReports = True
 useDongle = True
 useMac = True
 
-#para server se cambian estas dos lineas y se comentan las 3 siguientes
-#useHostname = 'ditsaServer1.local' 
-#usePort = 65433
-
+'''
+esto sera de manera general
 useHostname = list() #lee el archivo de serverConfig
 usePort = list()
 usePassw = list()
+'''
+useIp = list()
+usePort = 9000 	#para todos
+useAddr = list()
+
+flagComm = None
 
 measureWMVoltage = False
 jlinkSNforPIC32 = 820100854
@@ -179,7 +183,7 @@ def countEnabledTests():
 # Future Technology Devices International Limited FT232R USB UART
 FTDI_idVendor=0x0403
 FTDI_idProduct=0x6001
-FTDI_baudRate=230400	#115200
+FTDI_baudRate=115200
 if inAustin == True:
     FTDI_serialNumber='AH05R7EI' # Austin
 else:

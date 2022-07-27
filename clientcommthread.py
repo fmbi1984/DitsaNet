@@ -18,7 +18,7 @@ import appsettings
 
 client_cmd_result = [None]
 
-logger = logging.getLogger(__name__)
+#logger = logging.getLogger(__name__)
 
 
 class ClientCommThread(Thread):
@@ -87,28 +87,34 @@ class ClientCommThread(Thread):
 					client_cmd_result[0] = None
 					self._msgwasreceived = False
 					for n in range(0, self._attemps):
-
 						if self._messagetosend != None:
 
-							print("doing attempt no."+str(n+1)+" msg:"+ ''.join(str( bytes(self._messagetosend), 'ISO-8859-1')))
-
+							#print("doing attempt no."+str(n+1)+" msg:"+ ''.join(str( bytes(self._messagetosend), 'ISO-8859-1')))
+							#print("doing attempt no."+str(n+1))
 							HOST = self._hostname  # The server's hostname or IP address
 							PORT = self._port		# The port used by the server
 
 							client_cmd_result[0] = None
 							self.flag_command = False
 							self.inicbuff()
-
+							data = None
 							with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-								s.connect((HOST, PORT))
-								s.sendall(bytes(self._messagetosend))
-								data = s.recv(1024)
+								try: 
+									s.connect((HOST, PORT))
+									s.settimeout(5) 
+									s.sendall(bytes(self._messagetosend))
+									data = s.recv(1024)
 
-							print('Received', repr(data))
-							
-							self._msgwasreceived == True
-							client_cmd_result[0]=data
+								except:
+									print("", end='')
 
+							if data!= None:
+								print('Received', repr(data))
+								self._msgwasreceived = True
+								client_cmd_result[0]=data
+							else:
+								self._msgwasreceived = False
+								client_cmd_result[0]=data
 
 							if self._msgwasreceived == True or self._stopevent.is_set():
 								break
@@ -138,7 +144,7 @@ class ClientCommThread(Thread):
 			self._wasStopped.set()
 			#lock.release()
 		except:
-			print("ERROR SERVER")
+			#print("ERROR SERVER")
 			self.stop()
 
 	def stop(self):
@@ -185,7 +191,8 @@ class ClientCommThread(Thread):
 		self._msgwasreceived = True
 		client_cmd_result[0] = self._dataByteArray.copy()
 
-if __name__ == '__main__':
-	logger.debug("demo")
+#if __name__ == '__main__':
+	#logger.debug("demo")
+
 	
 	   

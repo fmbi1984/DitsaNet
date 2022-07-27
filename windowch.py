@@ -7,6 +7,7 @@
 # WARNING! All changes made in this file will be lost!
 
 
+from distutils.util import run_2to3
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 from io import open 
@@ -17,7 +18,9 @@ import time
 from devicemainboard import BCmb
 #from datalistenermemory import DataListenerMemory
 
-from appsettings import useHostname,usePort
+#from appsettings import useHostname,usePort
+from appsettings import useIp,usePort,useAddr
+import shared
 
 #from ordened import NameOrdened
 
@@ -30,11 +33,15 @@ class Ui_WindowCh(QtWidgets.QDialog):
 		self.setObjectName("WindowCh")
 		self.setFixedSize(392, 421) #self.setFixedSize(392, 384) 533-663
 		self.BttnCancel = QtWidgets.QPushButton(self)
-		self.BttnCancel.setGeometry(QtCore.QRect(110, 190, 80, 25))
+		self.BttnCancel.setGeometry(QtCore.QRect(60, 180, 80, 25))
 		self.BttnCancel.setObjectName("BttnCancel")
-		self.BttnDone = QtWidgets.QPushButton(self)
-		self.BttnDone.setGeometry(QtCore.QRect(220, 190, 80, 25))
-		self.BttnDone.setObjectName("BttnDone")
+		self.BttnLoad = QtWidgets.QPushButton(self)
+		self.BttnLoad.setGeometry(QtCore.QRect(170, 180, 80, 25))
+		self.BttnLoad.setObjectName("BttnLoad")
+		self.BttnStart = QtWidgets.QPushButton(self)
+		self.BttnStart.setGeometry(QtCore.QRect(280, 180, 80, 25))
+		self.BttnStart.setObjectName("BttnStart")
+
 		self.textPrograms = QtWidgets.QComboBox(self)
 		self.textPrograms.setGeometry(QtCore.QRect(50, 60, 301, 25))
 		self.textPrograms.setObjectName("textPrograms")
@@ -96,6 +103,7 @@ class Ui_WindowCh(QtWidgets.QDialog):
 		self.addrs = list()
 		self.check = list()
 		self.tempList = list()
+		self.prueba = list()
 
 		self.data1 = None
 		self.data2 = None
@@ -103,13 +111,13 @@ class Ui_WindowCh(QtWidgets.QDialog):
 		self.flagChange = False
 
 		self.flagFail = False	#flag para controlar el cierre de windowch
-		self.flagSect = False
 
 	def retranslateUi(self, WindowCh):
 		_translate = QtCore.QCoreApplication.translate
 		WindowCh.setWindowTitle(_translate("WindowCh", "Programs"))
 		self.BttnCancel.setText(_translate("WindowCh", "Cancel"))
-		self.BttnDone.setText(_translate("WindowCh", "Done"))
+		self.BttnLoad.setText(_translate("WindowCh", "Load"))
+		self.BttnStart.setText(_translate("WindowCh", "Start"))
 		self.lblPrograms.setText(_translate("WindowCh", "Programs"))
 		self.lblModules.setText(_translate("WindowCh", "Selection of Modules"))
 		self.label.setText(_translate("WindowCh", "-"))
@@ -118,26 +126,29 @@ class Ui_WindowCh(QtWidgets.QDialog):
 
 		self.BtnArrowR.clicked.connect(self.on_bttnArrowR)
 		self.BtnArrowL.clicked.connect(self.on_bttnArrowL)
-		self.BttnDone.setDefault(True)
+		self.BttnLoad.setDefault(True)
 		self.lineEditMin.setAlignment(QtCore.Qt.AlignCenter)
 		self.lineEditMax.setAlignment(QtCore.Qt.AlignCenter)
 		self.lineEditMin.setMaxLength(8)
 		self.lineEditMax.setMaxLength(8)
 		self.lineEditMin.textChanged.connect(self.on_editMin)
 		self.lineEditMax.textChanged.connect(self.on_editMax)
-		self.BttnDone.clicked.connect(self.on_bttnDoneClicked)
+		self.BttnLoad.clicked.connect(self.on_BttnLoadClicked)
 		self.BttnCancel.clicked.connect(self.on_bttnCancelClicked)
+		self.BttnStart.clicked.connect(self.on_BttnStart)
 
-		self.textPrograms.addItem('')		
+		self.BttnStart.setEnabled(False)
+
+		self.textPrograms.addItem('')
 		self.textPrograms.activated.connect(self.loadTableW)
 		#self.listWidget.itemClicked.connect(self.uncheck_check)
 		#self.textEdit.textChanged.connect(self.chtext)
 
 	def showEvent(self,event):
-		print("showEventWindowCh")
+		print("showEventWindowCh1")
 		self.on_cb_textPrograms()
 
-		self.loadTableW() ##verificar lo que sucede si no hay programas
+		#self.loadTableW() ##verificar lo que sucede si no hay programas
 
 	def closeEvent(self,event):
 		print("closeEventW")
@@ -172,6 +183,7 @@ class Ui_WindowCh(QtWidgets.QDialog):
 			self.check.clear()
 			for i in range(2,len(valF),4):
 				self.check.append(valF[i].replace('N=',''))
+				self.check.append(valF[i+1].replace('A=',''))
 
 			self.btnCheckBox()
 
@@ -182,10 +194,11 @@ class Ui_WindowCh(QtWidgets.QDialog):
 					val1 = self.parent.newlist.index(self.data1)
 
 					val1 = val1 - 2
-					valF = self.parent.newlist[val1:val1+3]
+					valF = self.parent.newlist[val1:val1+4]
 					self.check.clear()
 					for i in range(2,len(valF),4):
 						self.check.append(valF[i].replace('N=',''))
+						self.check.append(valF[i+1].replace('A=',''))
 
 					self.btnCheckBox()
 				except:
@@ -201,13 +214,15 @@ class Ui_WindowCh(QtWidgets.QDialog):
 				#print("data2 esta vacio")
 
 	def uncheck_check(self):
-		#print("uncheck_check")
 		self.tempList.clear()
 		for index in range(self.listWidget.count()):
 			if self.listWidget.item(index).checkState() == QtCore.Qt.Checked:
 				#print("check:",self.listWidget.item(index).text())
 				self.tempList.append(self.listWidget.item(index).text())
 
+		#print("newList:",self.parent.newlist)
+		#print("temp:",self.tempList)
+		self.loadProg.clear()
 		for i in range(2,len(self.parent.newlist),4):
 			for j in range(len(self.tempList)):
 				if 'N='+self.tempList[j] == self.parent.newlist[i]:
@@ -221,10 +236,16 @@ class Ui_WindowCh(QtWidgets.QDialog):
 			self.flagChange = False
 			self.listWidget.clear()
 
-			for i in range(len(self.check)):
+			for i in range(0,len(self.check),2):
 				item = QtWidgets.QListWidgetItem(self.check[i])
-				item.setFlags(item.flags() | QtCore.Qt.ItemIsUserCheckable)
-				item.setCheckState(QtCore.Qt.Checked)
+
+				if shared.DEV[int(self.check[i+1])][0] == False:
+					item.setFlags(QtCore.Qt.ItemIsUserCheckable)
+					item.setCheckState(QtCore.Qt.Unchecked)
+				else:
+					item.setFlags(item.flags()|QtCore.Qt.ItemIsUserCheckable)
+					item.setCheckState(QtCore.Qt.Checked)	
+
 				self.listWidget.addItem(item)
 
 	def on_cb_textPrograms(self):
@@ -237,6 +258,7 @@ class Ui_WindowCh(QtWidgets.QDialog):
 		return [obj.name for obj in scandir(path) if obj.is_file()]
 
 
+	programJson = ""
 	def on_clicked_textPrograms(self):
 		self.nameFile = self.textPrograms.currentText()
 		if self.nameFile != '':
@@ -249,119 +271,123 @@ class Ui_WindowCh(QtWidgets.QDialog):
 
 	def chtext(self,flag,addr):
 		if flag == 'msg':
-			self.textEdit.append("Send programs...")
+			self.textEdit.setText('Send programs ...')
+			#self.textEdit.append("Send programs...")
+		elif flag == 'msgP':
+			self.textEdit.setText("...")
 		elif flag == 'None':
-			self.textEdit.append("ERROR COMM: "+addr)
+			self.textEdit.append("ERROR COMMUNICATION: "+addr)
 		elif flag == 'PASS':
-			self.textEdit.append("Load successful in Addr: "+addr)
+			self.textEdit.append("Load successful in name: "+addr)
 		elif flag == 'FAIL':
-			self.textEdit.append("Fail Load Addr: "+addr)
+			self.textEdit.append("Fail Load name: "+addr)
 		elif flag == 'PASS,RUN':
-			self.textEdit.append("run successful in Addr: "+addr)
+			self.textEdit.append("run successful in name: "+addr)
 		elif flag == 'FAIL,RUN':
 			self.textEdit.append("Fail run Addr: "+addr)
 
 		QtGui.QGuiApplication.processEvents()
 
-	def on_bttnDoneClicked(self):
-		print("clickDone")
+	def on_BttnLoadClicked(self):
+		print("ClickLoad")
 		#----------------------------- Detiene thread -----------------------------#
-		time.sleep(0.5) 
-		self.parent.threadTimer(False)
+		#self.parent.threadTimer(False)
+		#if self.flagFail != True:
+		#print("thData: ",self.parent.threadData)
 		self.parent.threadData(False)
+		time.sleep(1)
 		#---------------------------- Extrae valor Addr ---------------------------#
 		self.uncheck_check()
 		self.addrs.clear()
-		for i in range(3,len(self.loadProg),4):
-			addr = self.loadProg[i].split('A=')
-			self.addrs.append(addr[1])
-		self.loadProg.clear()
-		self.textEdit.clear()
-		#---------------------------- Envia json a xmegas -------------------------#		
-		self.chtext("msg","None")
-
-		#for j in range(len(self.parent.saveprograms)):
-		if self.textPrograms.currentText() != '':
-
-			for j in range(len(useHostname)):
-				section = self.parent.tempAddr[j]
-				for i in range(len(section)):
-					for k in range(len(self.addrs)):
-						if section[i] == self.addrs[k]:
-
-						#for i in range(len(self.addrs)):
-							if int(section[i]) > 16:
-								self.flagSect = True
-								#print("section:",section[i])
-								#print("i:",i+1)
-								x = BCmb.writeProgramClient(useHostname[j],usePort[j],i+1,self.nameFile+self.programJson)
-
-							else:
-								x = BCmb.writeProgramClient(useHostname[j],usePort[j],int(self.addrs[k]),self.nameFile+self.programJson)
-
-							#print("xx:",x)
-							if x != None:
-								if x == 'PASS':
-									self.chtext(x,self.addrs[k])
-
-									self.checkPrograms(self.addrs[k])
-									self.parent.saveprograms.append(self.nameFile)
-									self.parent.saveprograms.append('A='+self.addrs[k])
-
-									self.settingsPrograms()
-
-									#time.sleep(0.5)
-									if self.flagSect != True:
-										run = BCmb.runClient(useHostname[j],usePort[j],int(self.addrs[k]))
-									else:
-										run = BCmb.runClient(useHostname[j],usePort[j],i+1)
-					
-									if run != None:
-										if run == 'PASS,RUN':
-											self.chtext(run,self.addrs[k])
-
-										else:
-											self.chtext(run,self.addrs[k])
-											self.flagFail = True
-
-									else:
-										self.chtext('None',self.addrs[k])
-										self.flagFail = True
-							
-								else:
-									self.chtext(x,self.addrs[k])
-									self.flagFail = True
-
-							else:
-								self.chtext('None',self.addrs[k])
-								self.flagFail = True
-		else:
-			for j in range(len(useHostname)):
-				section = self.parent.tempAddr[j]
-				for i in range(len(section)):
-					for k in range(len(self.addrs)):
-						if section[i] == self.addrs[k]:
-
-						#for i in range(len(self.addrs)):
-							x = BCmb.runClient(useHostname[j],usePort[j],int(self.addrs[k]))
-
-							if x != None:
-								if x == 'PASS,RUN':
-									self.chtext(x,self.addrs[k])
-
-								else:
-									self.chtext(x,self.addrs[k])
-									self.flagFail = True
-
-							else:
-								self.chtext('None',self.addrs[k])
-								self.flagFail = True
-								
-
+		
 		if self.flagFail != True:
-			time.sleep(3)
-			self.close()
-		#solo falta realizar pruebas con comunicacion
+			self.prueba.clear()
+			for i in range(3,len(self.loadProg),4):
+				addr = self.loadProg[i].split('A=')
+				self.addrs.append(addr[1])
+			self.loadProg.clear()
+		else:
+			self.addrs = self.prueba[:]
+			self.prueba.clear()
+
+		self.textEdit.clear()
+		self.flagFail = False
+		#---------------------------- Envia json a xmegas -------------------------#
+		self.chtext("msg","None")
+		if self.textPrograms.currentText() != '':
+			for j in range(len(useIp)):
+				section = useAddr[j]
+				for k in range(len(self.addrs)):
+					if section == self.addrs[k]:
+						t = self.check.index(self.addrs[k])
+						for i in range(17):
+							x = BCmb.writeProgramClient(useIp[j],usePort,self.step[i])
+							time.sleep(0.1)
+							#agregar timeout posible solucion
+							if x == None:
+								self.flagFail = True
+								if self.prueba.count(self.addrs[k]) == 0:
+									self.prueba.append(self.addrs[k])
+								break
+							#time.sleep(0.3)
+
+						if x != None:
+							if x == 'ACTION.PASS':
+								time.sleep(8)
+								self.chtext('PASS',self.check[t-1])
+								self.BttnStart.setEnabled(True)
+								if len(self.prueba) != 0:
+									self.prueba.remove(self.addrs[k])	
+							else:
+								self.chtext('FAIL',self.check[t-1])
+								if self.flagFail != True:
+									self.flagFail = True
+									if self.prueba.count(self.addrs[k]) == 0:
+										self.prueba.append(self.addrs[k])
+						else:
+							self.chtext('None',self.check[t-1])
+							if self.flagFail != True:
+								self.flagFail = True
+								if self.prueba.count(self.addrs[k]) == 0:
+									self.prueba.append(self.addrs[k])
+
+	#crear metodo para enviar comm con equipos que se fallo sin repetir
+	def on_BttnStart(self):
+		print("Start")
+		if self.flagFail != True:
+			self.addrs.clear()
+			self.prueba.clear()
+			for x in range(1,len(self.check),2):
+				self.addrs.append(self.check[x])
+		else:
+			self.addrs = self.prueba[:]
+			self.prueba.clear()
+
+		self.flagFail = False
+		for j in range(len(useIp)):
+			section = useAddr[j]
+			for k in range(len(self.addrs)):
+				if section == self.addrs[k]:
+					t = self.check.index(self.addrs[k])
+					run = BCmb.runClient(useIp[j],usePort)
+					time.sleep(0.1)
+					print("RUN-ACTION-PASS")
+
+					if run != None:
+						if run == 'PASS,RUN':
+							self.chtext(run,self.check[t-1])
+							#time.sleep(3)
+							#self.close()
+						else:
+							self.chtext('None',self.check[t-1])
+							if self.prueba.count(self.addrs[k]) == 0:
+								self.prueba.append(self.addrs[k])
+							self.flagFail = True
+					else:
+						self.chtext('FAIL',self.check[t-1])
+						if self.prueba.count(self.addrs[k]) == 0:
+							self.prueba.append(self.addrs[k])
+						self.flagFail = True
 
 	def checkPrograms(self,addr):
 		print("checkPrograms")
@@ -369,15 +395,14 @@ class Ui_WindowCh(QtWidgets.QDialog):
 			if len(self.parent.saveprograms) != 0:
 				for j in range(1,len(self.parent.saveprograms),2):
 					if 'A='+addr == self.parent.saveprograms[j]:
-						#print("entra",'A='+addr)
-						self.parent.saveprograms.pop(j)	
-						self.parent.saveprograms.pop(j-1)		
-						break			
+						self.parent.saveprograms.pop(j)
+						self.parent.saveprograms.pop(j-1)
+						break
 
 	def settingsPrograms(self):
-		#print("settingsPr")
-		settings = QtCore.QSettings('/home/ditsa/DitsaNet/Settings/fileprograms.ini', QtCore.QSettings.NativeFormat)
-		settings.setValue("saveprograms",self.parent.saveprograms)
+		print("settingsPr")
+		#settings = QtCore.QSettings('/home/ditsa/DitsaNet/Settings/fileprograms.ini', QtCore.QSettings.NativeFormat)
+		#settings.setValue("saveprograms",self.parent.saveprograms)
 
 		#print("saveP:",self.parent.saveprograms)
 			
@@ -388,81 +413,87 @@ class Ui_WindowCh(QtWidgets.QDialog):
 	def loadTableW(self):
 		print("loadProgramsTable")
 		self.on_clicked_textPrograms()
-		if self.nameFile != '':
-			x = self.programJson.replace('[','')
-			y = x.replace(']','')
-			w = y.replace('{','')
-			v = w.replace('}','')
-			z = v.replace('"','')
-			new = z.split('T:')
+		xx = ""
+		self.step = list()
 
-			#print("pJ:",programJson)
-			#print("y:",y)
-			#print("w:",w)
-			#print("v:",v)
-			#print("z:",z)
-			#print("new:",new)
-			steps = len(new)-3
-			#print("Steps:",steps) #rows este valor es el numero de steps -3 (begin,end,'')
-			self.tableWidget.setRowCount(steps)
+		for i in range(len(self.programJson)):
 			
-			self.st = 0
-			for i in range(len(new)):
-				comp= new[i].split(',')
-				for j in range(len(comp)-1):
-					if comp[j] == 'Ch':
-						self.st += 1
-						#print("Carga")
-						#print("comp:",comp)
-						#print("len:",len(comp)-1) 
-						self.tabItem('Charge',self.st-1,j)
-						if len(comp)-1 == 5: # 5 implica /Carga/Current/AH-T/MaxTmp/MinTmp
-							comp2 = comp[j+1].split(':')
-							comp3 = comp[j+2].split(':')
-							comp4 = comp[j+3].split(':')
-							comp5 = comp[j+4].split(':')
-							
-							if comp2[0]=='C':
-								current = float(comp2[1])
-								self.tabItem(str(current),self.st-1,j+1)
-							if comp3[0]=='A':
-								ampH = float(comp3[1])
-								self.tabItem(str(ampH)+'    AH',self.st-1,j+2)
-							else:
-								ampH = float(comp3[1])
-								self.tabItem(str(ampH)+'    T',self.st-1,j+2)
-							if comp4[0]=='M':
-								maxTmp = float(comp4[1])
-								self.tabItem(str(maxTmp),self.st-1,j+3)
-							if comp5[0]=='m':
-								minTmp = float(comp5[1])
-								self.tabItem(str(minTmp),self.st-1,j+4)
+			if self.programJson[i] == '"':
+				if xx != "":
+					xx += "\"" 
+				##vv = self.programJson[i].replace('"',"")
+			else:
+				if (self.programJson[i] == "," and self.programJson[i-1] != "}" and self.programJson[i-1] != ",") or (self.programJson[i] != "," and self.programJson[i-1] != "}"):
+					xx += self.programJson[i]
+			
+				if self.programJson[i] == "}" and (self.programJson[i+1] == "," or self.programJson[i+1] == "]"):
+					xx += self.programJson[i+1]
+					self.step.append(xx)
+					xx = ""
 
-						else: # 3 implica /Carga/Current/AH-T
-							comp2 = comp[j+1].split(':')
-							comp3 = comp[j+2].split(':')
-							
-							if comp2[0]=='C':
-								current = float(comp2[1])
-								self.tabItem(str(current),self.st-1,j+1)
+		#print("STEP: ",self.step) #checar por que no envia o se recibe el nombre del programa para guardarse
+		
+		self.tableWidget.setRowCount(15)
+		self.st = 0
+		for i in range(len(self.step)):
+			#print("T:",self.step[i])
+			#comp = self.step[i].split(',')
+			comp = self.step[i].split("'")
+			#print("comp:",comp)
+		#	compAux = comp[0].split('{') Aqui deberia ir otro for
+			compAux = comp[0].split('{')
+			#print("comp22:",compAux) 
+			final = compAux[1].split(',')
+			#print("DD: ",final)
+			
+			for j in range(len(final)):
+				#if comp[j] == 'T:Ch':
+				if final[0] == '"T":"Ch"':
+					self.st += 1
+					comp0 = final[j+1].split('"C":')
+					comp1 = final[j+2].split('"A":')
+					comp2 = final[j+3].split('"M":')
+					comp3 = final[j+4].split('"m":')
 
-							if comp3[0]=='A':
-								ampH = float(comp3[1])
-								self.tabItem(str(ampH)+'    AH',self.st-1,j+2)
-							else:
-								ampH = float(comp3[1])
-								self.tabItem(str(ampH)+'    T',self.st-1,j+2)
+					comp5 = comp3[1].split('}')
 
-					elif comp[j] =='Pa':
-						self.st +=1
-						self.tabItem('Pause',self.st-1,j)
-						comp2 = comp[j+1].split(':')
-						if comp2[0] =='           H':
-							time = float(comp2[1])
-							self.tabItem('-',self.st-1,j+1)
-							self.tabItem(str(time)+'    T',self.st-1,j+2)
-							self.tabItem('-',self.st-1,j+3)
-							self.tabItem('-',self.st-1,j+4)
+			#		print("comp0: ",comp0)
+			#		print("comp1: ",comp1)
+			#		print("comp2: ",comp2)
+			#		print("comp3: ",comp3)
+
+					#ff = comp5[0].split('"')
+					#print("COMP0: ",ff)
+					#print("COMP0: ",float(comp2[1].split('"')[1]))
+
+					self.tabItem('Charge',self.st-1,j)
+					self.tabItem(str(float(comp0[1].split('"')[1])),self.st-1,j+1) #current
+
+					if len(comp1) == 1:
+						comp1 = final[j+2].split('"H":')
+						self.tabItem(str(float(comp1[1].split('"')[1]))+'   T',self.st-1,j+2) # H
+					else:
+						self.tabItem(str(float(comp1[1].split('"')[1]))+'    AH',self.st-1,j+2) # ampH
+
+					self.tabItem(str(float(comp2[1].split('"')[1])),self.st-1,j+3) #maxTmp
+					self.tabItem(str(float(comp5[0].split('"')[1])),self.st-1,j+4) #minTmp
+					
+					break
+					
+				#elif comp[j] == 'T:Pa':
+				elif final[0] == '"T":"Pa"':
+					self.st +=1
+					self.tabItem('Pause',self.st-1,j)
+					comp4 = final[j+1].split('"           H":')
+
+					#val = comp4[0].split(':')[1]
+				
+					self.tabItem('-',self.st-1,j+1)
+					#print("comp4:",comp4)
+					self.tabItem(str(float(comp4[1].split('"')[1]))+'    T',self.st-1,j+2) #time
+					self.tabItem('-',self.st-1,j+3)
+					self.tabItem('-',self.st-1,j+4)
+					break
 
 	def tabItem(self,name,rw,col):
 		lblt = QtGui.QFont("Arial",10, QtGui.QFont.Normal)

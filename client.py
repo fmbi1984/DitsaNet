@@ -8,9 +8,9 @@ from appsettings import useHostname, usePort
 
 
 #HOST = 'raspberrypi00.local'  # The server's hostname or IP address #169.254.76.5
-#PORT = 10050 #65433        # The port used by the server
+#PORT = 10050 #65433		# The port used by the server
 
-
+'''
 for i in range(len(useHostname)):
 	with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 		s.connect((useHostname[i], usePort[i]))
@@ -18,7 +18,22 @@ for i in range(len(useHostname)):
 		data = s.recv(19)
 
 	print('Received', repr(data))
+'''
+ip = '192.168.0.20'
+port = 9000
+mssg = 'Hola Mundo, mensaje enviado' #b"HolaMund0\r\n"
 
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.connect((ip,port))
+
+#try:
+s.sendall(mssg.encode())
+data = s.recv(1024)
+print("data",data)
+
+#finally:
+print('closing socket')
+s.close()
 
 
 

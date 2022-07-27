@@ -11,7 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 import time 
 from devicemainboard import BCmb
-from appsettings import useHostname,usePort
+from appsettings import useIp,usePort,useAddr
 
 from ordened import NameOrdened
 import shared
@@ -72,6 +72,8 @@ class Ui_stopModule(QtWidgets.QDialog):
 		self.tempList = list()
 		self.loadProg = list()
 		self.addrs = list()
+		self.prevstop = list()
+		self.conteo = 0
 
 		self.flagChange = False		
 		self.flagFail = False	#flag para controlar el cierre de stopmodule
@@ -110,7 +112,6 @@ class Ui_stopModule(QtWidgets.QDialog):
 		self.on_editMax()
 
 	def on_editMax(self):
-		#print("on_editMax")
 		y = self.lineEditMax.text()
 		txt = y.upper()
 		self.lineEditMax.setText(txt)
@@ -128,10 +129,10 @@ class Ui_stopModule(QtWidgets.QDialog):
 			value2 = value2 + 2
 
 			valF = self.parent.newlist[value1:value2]
-			#print("valF:",valF)
 			self.check.clear()
 			for i in range(2,len(valF),4):
 				self.check.append(valF[i].replace('N=',''))
+				self.check.append(valF[i+1].replace('A=',''))
 
 			self.btnCheckBox()
 
@@ -142,10 +143,11 @@ class Ui_stopModule(QtWidgets.QDialog):
 					val1 = self.parent.newlist.index(self.data1)
 
 					val1 = val1 - 2
-					valF = self.parent.newlist[val1:val1+3]
+					valF = self.parent.newlist[val1:val1+4]
 					self.check.clear()
 					for i in range(2,len(valF),4):
 						self.check.append(valF[i].replace('N=',''))
+						self.check.append(valF[i+1].replace('A=',''))
 
 					self.btnCheckBox()
 				except:
@@ -159,14 +161,14 @@ class Ui_stopModule(QtWidgets.QDialog):
 				self.listWidget.clear()
 
 	def chtext(self,flag,addr):
-		if flag == 'msg':
-			self.textEdit.append("Comm Stop")
-		elif flag == 'None':
-			self.textEdit.append("ERROR COMM: "+addr)
+		#if flag == 'msg':
+		#	self.textEdit.append("Send Communication-Stop")
+		if flag == 'None':
+			self.textEdit.append("ERROR COMMUNICATION: "+addr)
 		elif flag == 'PASS,STOP':
-			self.textEdit.append("Stop successful in Addr: "+addr)
+			self.textEdit.append("Stop successful in name: "+addr)
 		elif flag == 'FAIL,STOP':
-			self.textEdit.append("Fail Stop Addr: "+addr)
+			self.textEdit.append("Fail Stop name: "+addr)
 
 		QtGui.QGuiApplication.processEvents()
 
@@ -176,8 +178,57 @@ class Ui_stopModule(QtWidgets.QDialog):
 		#time.sleep(0.5)
 		#self.parent.threadData(False) 
 		#---------------------------- Extrae valor Addr ---------------------------#	
-		self.uncheck_check()	
+		self.uncheck_check()
+
+		if self.flagFail != True:
+			self.addrs.clear()
+			self.prevstop.clear()
+			self.conteo = 0
+
+			if len(self.loadProg) != 0:
+				for i in range(3,len(self.loadProg),4):
+					addr = self.loadProg[i].split('A=')
+					self.addrs.append(addr[1])
+		else:
+			self.addrs = self.prevstop[:]
+			self.prevstop.clear()
+
+		self.loadProg.clear()
+		self.textEdit.clear()
+		self.flagFail = False
+
+		for j in range(len(useIp)):
+			section = useAddr[j]
+			for k in range(len(self.addrs)):
+				if section == self.addrs[k]:
+					t = self.check.index(self.addrs[k])
+					stop = BCmb.stopClient(useIp[j],usePort)
+					time.sleep(0.1)
+					print("STOP-ACTION-PASS")
+
+					if stop != None:
+						if stop == 'PASS,STOP' or stop == 'VALUE':
+							self.chtext(stop,self.check[t-1])
+							self.flagFail = False
+							self.conteo = self.conteo + 1
+						else:
+							self.chtext('None',self.check[t-1])
+							if self.prevstop.count(self.addrs[k]) == 0:
+								self.prevstop.append(self.addrs[k])
+							self.flagFail = True
+					else:
+						self.chtext('FAIL',self.check[t-1])
+						if self.prevstop.count(self.addrs[k]) == 0:
+							self.prevstop.append(self.addrs[k])
+						self.flagFail = True
+
+		if self.flagFail != True and (self.conteo == len(self.check) / 2):
+			time.sleep(3)
+			self.close()
+
+		'''
 		self.addrs.clear()
+		self.flagFail = False
 
 		if len(self.loadProg) != 0:
 			for i in range(3,len(self.loadProg),4):
@@ -189,30 +240,32 @@ class Ui_stopModule(QtWidgets.QDialog):
 
 			#---------------------------- Envia comando stop ---------------------------#
 			self.chtext("msg","None")
+			
+			for j in range(len(useIp)):
+				section = useAddr[j]
 
-			for j in range(len(useHostname)):
-				section = self.parent.tempAddr[j]
 				for i in range(len(section)):
 					for k in range(len(self.addrs)):
 						if section[i] == self.addrs[k]:
-
-							if int(section[i]) > 16:
-								x = BCmb.stopClient(useHostname[j],usePort[j],i+1)
-
-							else:
-								x = BCmb.stopClient(useHostname[j],usePort[j],int(self.addrs[k]))
+							t = self.check.index(self.addrs[k])
+							x = BCmb.stopClient(useIp[j],usePort)
 
 							if x != None:
 								if x == 'PASS,STOP':
-									self.chtext(x,self.addrs[i])
+									#self.chtext(x,self.addrs[i])
+									self.chtext(x,self.check[t-1])
+									print("stop111")
 
 								else:
-									self.chtext(x,self.addrs[i])
+									#self.chtext(x,self.addrs[i])
+									self.chtext(x,self.check[t-1])
 									self.flagFail = True
+									print("stop222")
 							else:
-								self.chtext("None",self.addrs[i])
+								#self.chtext("None",self.addrs[i])
+								self.chtext("None",self.check[t-1])
 								self.flagFail = True
-
+								print("stop333")
 
 			if self.flagFail != True:
 				time.sleep(3)
@@ -223,6 +276,7 @@ class Ui_stopModule(QtWidgets.QDialog):
 			if self.flagFail != True:
 				time.sleep(3)
 				self.close()
+		'''
 
 	def btnCancel(self):
 		self.close()
@@ -248,10 +302,10 @@ class Ui_stopModule(QtWidgets.QDialog):
 			self.flagChange = False
 			self.listWidget.clear()
 
-			for i in range(len(self.check)):
+			for i in range(0,len(self.check),2):
 				item = QtWidgets.QListWidgetItem(self.check[i])
 
-				if shared.DEV[int(self.check[i])][0] == False:
+				if shared.DEV[int(self.check[i+1])][0] == False:
 					item.setFlags(QtCore.Qt.ItemIsUserCheckable)
 					item.setCheckState(QtCore.Qt.Unchecked)
 				else:
