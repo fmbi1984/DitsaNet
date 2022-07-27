@@ -182,101 +182,57 @@ class Ui_runModule(QtWidgets.QDialog):
 		time.sleep(1)
 		#---------------------------- Extrae valor Addr ---------------------------#
 		self.uncheck_check()
-		if self.flagFail != True:
-			self.addrs.clear()
-			self.prevrun.clear()
-			self.conteo = 0
 
-			if len(self.loadProg) != 0:
-				for i in range(3,len(self.loadProg),4):
-					addr = self.loadProg[i].split('A=')
-					self.addrs.append(addr[1])
-		else:
-			self.addrs = self.prevrun[:]
-			self.prevrun.clear()
+		if len(self.tempList)!=0:  #indica que hay equipos conectados
+			if self.flagFail != True:
+				self.addrs.clear()
+				self.prevrun.clear()
+				self.conteo = 0
 
-		self.loadProg.clear()
-		self.textEdit.clear()
-		self.flagFail = False
-
-		for j in range(len(useIp)):
-			section = useAddr[j]
-			for k in range(len(self.addrs)):
-				if section == self.addrs[k]:
-					t = self.check.index(self.addrs[k])
-					run = BCmb.runClient(useIp[j],usePort)
-					time.sleep(0.1)
-					#print("RUN-ACTION-PASS")
-					print("RRun:",run)
-
-					if run != None:
-						if run == 'PASS,RUN' or run == 'VALUE':
-							self.chtext(run,self.check[t-1])
-							self.flagFail = False
-							self.conteo = self.conteo + 1
-						else:
-							self.chtext('None',self.check[t-1])
-							if self.prevrun.count(self.addrs[k]) == 0:
-								self.prevrun.append(self.addrs[k])
-							self.flagFail = True
-							print("PASS,None")
-					else:
-						self.chtext('FAIL',self.check[t-1])
-						if self.prevrun.count(self.addrs[k]) == 0:
-							self.prevrun.append(self.addrs[k])
-						self.flagFail = True
-
-		if self.flagFail != True and (self.conteo == len(self.check) / 2):
-			time.sleep(3)
-			self.close()
-
-		'''
-		if len(self.loadProg) != 0:
-			for i in range(3,len(self.loadProg),4):
-				addr = self.loadProg[i].split('A=')
-				self.addrs.append(addr[1])
+				if len(self.loadProg) != 0:
+					for i in range(3,len(self.loadProg),4):
+						addr = self.loadProg[i].split('A=')
+						self.addrs.append(addr[1])
+			else:
+				self.addrs = self.prevrun[:]
+				self.prevrun.clear()
 
 			self.loadProg.clear()
 			self.textEdit.clear()
-			#---------------------------- Envia comando run ---------------------------#
-			self.chtext("msg","None")
-			
+			self.flagFail = False
+
 			for j in range(len(useIp)):
 				section = useAddr[j]
-				for i in range(len(section)):
-					for k in range(len(self.addrs)):
-						if section[i] == self.addrs[k]:
-							t = self.check.index(self.addrs[k])
-							x = BCmb.runClient(useIp[j],usePort)
-					
-							if x != None:
-								if x == 'PASS,RUN':
-									#self.chtext(x,self.addrs[k])
-									self.chtext(x,self.check[t-1])
+				for k in range(len(self.addrs)):
+					if section == self.addrs[k]:
+						t = self.check.index(self.addrs[k])
+						run = BCmb.runClient(useIp[j],usePort)
+						time.sleep(0.1)
+						#print("RUN-ACTION-PASS")
+						print("RRun:",run)
 
-								else:
-									#self.chtext(x,self.addrs[k])
-									self.chtext(x,self.check[t-1])
-									self.flagFail = True
-									print("RUN-1")
-
+						if run != None:
+							if run == 'PASS,RUN' or run == 'VALUE':
+								self.chtext(run,self.check[t-1])
+								self.flagFail = False
+								self.conteo = self.conteo + 1
 							else:
-								#self.chtext('None',self.addrs[k])
-								self.chtext("None",self.check[t-1])
+								self.chtext('None',self.check[t-1])
+								if self.prevrun.count(self.addrs[k]) == 0:
+									self.prevrun.append(self.addrs[k])
 								self.flagFail = True
-								print("RUN-2")
-			
-			if self.flagFail != True:
+								print("PASS,None")
+						else:
+							self.chtext('FAIL',self.check[t-1])
+							if self.prevrun.count(self.addrs[k]) == 0:
+								self.prevrun.append(self.addrs[k])
+							self.flagFail = True
+
+			if self.flagFail != True and (self.conteo == len(self.check) / 2):
 				time.sleep(3)
 				self.close()
-				print("Close-1")
-			#solo falta realizar pruebas con comunicacion
 		else:
-			if self.flagFail != True:
-				time.sleep(3)
-				self.close()
-				print("Close-2")
-		'''
+			self.chtext("None","---")
 
 	def btnCancel(self):
 		#print("btnCancel")

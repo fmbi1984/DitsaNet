@@ -300,57 +300,59 @@ class Ui_WindowCh(QtWidgets.QDialog):
 		self.uncheck_check()
 		self.addrs.clear()
 		
-		if self.flagFail != True:
-			self.prueba.clear()
-			for i in range(3,len(self.loadProg),4):
-				addr = self.loadProg[i].split('A=')
-				self.addrs.append(addr[1])
-			self.loadProg.clear()
-		else:
-			self.addrs = self.prueba[:]
-			self.prueba.clear()
+		if len(self.tempList)!=0:  #indica que hay equipos conectados
+			if self.flagFail != True:
+				self.prueba.clear()
+				for i in range(3,len(self.loadProg),4):
+					addr = self.loadProg[i].split('A=')
+					self.addrs.append(addr[1])
+				self.loadProg.clear()
+			else:
+				self.addrs = self.prueba[:]
+				self.prueba.clear()
 
-		self.textEdit.clear()
-		self.flagFail = False
-		#---------------------------- Envia json a xmegas -------------------------#
-		self.chtext("msg","None")
-		if self.textPrograms.currentText() != '':
-			for j in range(len(useIp)):
-				section = useAddr[j]
-				for k in range(len(self.addrs)):
-					if section == self.addrs[k]:
-						t = self.check.index(self.addrs[k])
-						for i in range(17):
-							x = BCmb.writeProgramClient(useIp[j],usePort,self.step[i])
-							time.sleep(0.1)
-							#agregar timeout posible solucion
-							if x == None:
-								self.flagFail = True
-								if self.prueba.count(self.addrs[k]) == 0:
-									self.prueba.append(self.addrs[k])
-								break
-							#time.sleep(0.3)
+			self.textEdit.clear()
+			self.flagFail = False
+			#---------------------------- Envia json a xmegas -------------------------#
+			self.chtext("msg","None")
+			if self.textPrograms.currentText() != '':
+				for j in range(len(useIp)):
+					section = useAddr[j]
+					for k in range(len(self.addrs)):
+						if section == self.addrs[k]:
+							t = self.check.index(self.addrs[k])
+							for i in range(17):
+								x = BCmb.writeProgramClient(useIp[j],usePort,self.step[i])
+								time.sleep(0.1)
+								#agregar timeout posible solucion
+								if x == None:
+									self.flagFail = True
+									if self.prueba.count(self.addrs[k]) == 0:
+										self.prueba.append(self.addrs[k])
+									break
+								#time.sleep(0.3)
 
-						if x != None:
-							if x == 'ACTION.PASS':
-								time.sleep(8)
-								self.chtext('PASS',self.check[t-1])
-								self.BttnStart.setEnabled(True)
-								if len(self.prueba) != 0:
-									self.prueba.remove(self.addrs[k])	
+							if x != None:
+								if x == 'ACTION.PASS':
+									time.sleep(8)
+									self.chtext('PASS',self.check[t-1])
+									self.BttnStart.setEnabled(True)
+									if len(self.prueba) != 0:
+										self.prueba.remove(self.addrs[k])	
+								else:
+									self.chtext('FAIL',self.check[t-1])
+									if self.flagFail != True:
+										self.flagFail = True
+										if self.prueba.count(self.addrs[k]) == 0:
+											self.prueba.append(self.addrs[k])
 							else:
-								self.chtext('FAIL',self.check[t-1])
+								self.chtext('None',self.check[t-1])
 								if self.flagFail != True:
 									self.flagFail = True
 									if self.prueba.count(self.addrs[k]) == 0:
 										self.prueba.append(self.addrs[k])
-						else:
-							self.chtext('None',self.check[t-1])
-							if self.flagFail != True:
-								self.flagFail = True
-								if self.prueba.count(self.addrs[k]) == 0:
-									self.prueba.append(self.addrs[k])
-
+		else:
+			self.chtext("None","---")
 	#crear metodo para enviar comm con equipos que se fallo sin repetir
 	def on_BttnStart(self):
 		print("Start")
@@ -417,7 +419,6 @@ class Ui_WindowCh(QtWidgets.QDialog):
 		self.step = list()
 
 		for i in range(len(self.programJson)):
-			
 			if self.programJson[i] == '"':
 				if xx != "":
 					xx += "\"" 

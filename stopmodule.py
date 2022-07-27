@@ -179,104 +179,54 @@ class Ui_stopModule(QtWidgets.QDialog):
 		#self.parent.threadData(False) 
 		#---------------------------- Extrae valor Addr ---------------------------#	
 		self.uncheck_check()
+		if len(self.tempList)!=0:  #indica que hay equipos conectados
+			if self.flagFail != True:
+				self.addrs.clear()
+				self.prevstop.clear()
+				self.conteo = 0
 
-		if self.flagFail != True:
-			self.addrs.clear()
-			self.prevstop.clear()
-			self.conteo = 0
-
-			if len(self.loadProg) != 0:
-				for i in range(3,len(self.loadProg),4):
-					addr = self.loadProg[i].split('A=')
-					self.addrs.append(addr[1])
-		else:
-			self.addrs = self.prevstop[:]
-			self.prevstop.clear()
-
-		self.loadProg.clear()
-		self.textEdit.clear()
-		self.flagFail = False
-
-		for j in range(len(useIp)):
-			section = useAddr[j]
-			for k in range(len(self.addrs)):
-				if section == self.addrs[k]:
-					t = self.check.index(self.addrs[k])
-					stop = BCmb.stopClient(useIp[j],usePort)
-					time.sleep(0.1)
-					print("STOP-ACTION-PASS")
-
-					if stop != None:
-						if stop == 'PASS,STOP' or stop == 'VALUE':
-							self.chtext(stop,self.check[t-1])
-							self.flagFail = False
-							self.conteo = self.conteo + 1
-						else:
-							self.chtext('None',self.check[t-1])
-							if self.prevstop.count(self.addrs[k]) == 0:
-								self.prevstop.append(self.addrs[k])
-							self.flagFail = True
-					else:
-						self.chtext('FAIL',self.check[t-1])
-						if self.prevstop.count(self.addrs[k]) == 0:
-							self.prevstop.append(self.addrs[k])
-						self.flagFail = True
-
-		if self.flagFail != True and (self.conteo == len(self.check) / 2):
-			time.sleep(3)
-			self.close()
-
-		'''
-		self.addrs.clear()
-		self.flagFail = False
-
-		if len(self.loadProg) != 0:
-			for i in range(3,len(self.loadProg),4):
-				addr = self.loadProg[i].split('A=')
-				self.addrs.append(addr[1])
+				if len(self.loadProg) != 0:
+					for i in range(3,len(self.loadProg),4):
+						addr = self.loadProg[i].split('A=')
+						self.addrs.append(addr[1])
+			else:
+				self.addrs = self.prevstop[:]
+				self.prevstop.clear()
 
 			self.loadProg.clear()
 			self.textEdit.clear()
+			self.flagFail = False
 
-			#---------------------------- Envia comando stop ---------------------------#
-			self.chtext("msg","None")
-			
 			for j in range(len(useIp)):
 				section = useAddr[j]
+				for k in range(len(self.addrs)):
+					if section == self.addrs[k]:
+						t = self.check.index(self.addrs[k])
+						stop = BCmb.stopClient(useIp[j],usePort)
+						time.sleep(0.1)
+						print("STOP-ACTION-PASS")
 
-				for i in range(len(section)):
-					for k in range(len(self.addrs)):
-						if section[i] == self.addrs[k]:
-							t = self.check.index(self.addrs[k])
-							x = BCmb.stopClient(useIp[j],usePort)
-
-							if x != None:
-								if x == 'PASS,STOP':
-									#self.chtext(x,self.addrs[i])
-									self.chtext(x,self.check[t-1])
-									print("stop111")
-
-								else:
-									#self.chtext(x,self.addrs[i])
-									self.chtext(x,self.check[t-1])
-									self.flagFail = True
-									print("stop222")
+						if stop != None:
+							if stop == 'PASS,STOP' or stop == 'VALUE':
+								self.chtext(stop,self.check[t-1])
+								self.flagFail = False
+								self.conteo = self.conteo + 1
 							else:
-								#self.chtext("None",self.addrs[i])
-								self.chtext("None",self.check[t-1])
+								self.chtext('None',self.check[t-1])
+								if self.prevstop.count(self.addrs[k]) == 0:
+									self.prevstop.append(self.addrs[k])
 								self.flagFail = True
-								print("stop333")
+						else:
+							self.chtext('FAIL',self.check[t-1])
+							if self.prevstop.count(self.addrs[k]) == 0:
+								self.prevstop.append(self.addrs[k])
+							self.flagFail = True
 
-			if self.flagFail != True:
+			if self.flagFail != True and (self.conteo == len(self.check) / 2):
 				time.sleep(3)
 				self.close()
-
-			#solo falta realizar pruebas con comunicacion
 		else:
-			if self.flagFail != True:
-				time.sleep(3)
-				self.close()
-		'''
+			self.chtext("None","---")
 
 	def btnCancel(self):
 		self.close()

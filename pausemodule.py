@@ -178,98 +178,54 @@ class Ui_pauseModule(QtWidgets.QDialog):
 		#self.parent.threadData(False) 
 		#---------------------------- Extrae valor Addr ---------------------------#
 		self.uncheck_check()
-		if self.flagFail != True:
-			self.addrs.clear()
-			self.prevpause.clear()
-			self.conteo = 0
+		if len(self.tempList)!=0:  #indica que hay equipos conectados
+			if self.flagFail != True:
+				self.addrs.clear()
+				self.prevpause.clear()
+				self.conteo = 0
 
-			if len(self.loadProg) != 0:
-				for i in range(3,len(self.loadProg),4):
-					addr = self.loadProg[i].split('A=')
-					self.addrs.append(addr[1])
-		else:
-			self.addrs = self.prevpause[:]
-			self.prevpause.clear()
-
-		self.loadProg.clear()
-		self.textEdit.clear()
-		self.flagFail = False
-
-		for j in range(len(useIp)):
-			section = useAddr[j]
-			for k in range(len(self.addrs)):
-				if section == self.addrs[k]:
-					t = self.check.index(self.addrs[k])
-					pause = BCmb.pauseClient(useIp[j],usePort)
-					time.sleep(0.1)
-					print("PAUSE-ACTION-PASS")
-
-					if pause != None:
-						if pause == 'PASS,PAUSE' or pause == 'VALUE':
-							self.chtext(pause,self.check[t-1])
-							self.flagFail = False
-							self.conteo = self.conteo + 1
-						else:
-							self.chtext('None',self.check[t-1])
-							if self.prevpause.count(self.addrs[k]) == 0:
-								self.prevpause.append(self.addrs[k])
-							self.flagFail = True
-					else:
-						self.chtext('FAIL',self.check[t-1])
-						if self.prevpause.count(self.addrs[k]) == 0:
-							self.prevpause.append(self.addrs[k])
-						self.flagFail = True
-
-		if self.flagFail != True and (self.conteo == len(self.check) / 2):
-			time.sleep(3)
-			self.close()
-
-		'''
-		self.addrs.clear()
-		self.flagFail = False
-
-		if len(self.loadProg) != 0:
-			for i in range(3,len(self.loadProg),4):
-				addr = self.loadProg[i].split('A=')
-				self.addrs.append(addr[1])
+				if len(self.loadProg) != 0:
+					for i in range(3,len(self.loadProg),4):
+						addr = self.loadProg[i].split('A=')
+						self.addrs.append(addr[1])
+			else:
+				self.addrs = self.prevpause[:]
+				self.prevpause.clear()
 
 			self.loadProg.clear()
 			self.textEdit.clear()
-		
-			#---------------------------- Envia comando pause ---------------------------#
-			
+			self.flagFail = False
+
 			for j in range(len(useIp)):
 				section = useAddr[j]
-				for i in range(len(section)):
-					for k in range(len(self.addrs)):
-						if section[i] == self.addrs[k]:
-							t = self.check.index(self.addrs[k])
-							x = BCmb.pauseClient(useIp[j],usePort)
+				for k in range(len(self.addrs)):
+					if section == self.addrs[k]:
+						t = self.check.index(self.addrs[k])
+						pause = BCmb.pauseClient(useIp[j],usePort)
+						time.sleep(0.1)
+						print("PAUSE-ACTION-PASS")
 
-							if x != None:
-								if x == 'PASS,PAUSE':
-									#self.chtext(x,self.addrs[k])
-									self.chtext(x,self.check[t-1])
-
-								else:
-									#self.chtext(x,self.addrs[k])
-									self.chtext(x,self.check[t-1])
-									self.flagFail = True
+						if pause != None:
+							if pause == 'PASS,PAUSE' or pause == 'VALUE':
+								self.chtext(pause,self.check[t-1])
+								self.flagFail = False
+								self.conteo = self.conteo + 1
 							else:
-								#self.chtext("None",self.addrs[k])
-								self.chtext("None",self.check[t-1])
+								self.chtext('None',self.check[t-1])
+								if self.prevpause.count(self.addrs[k]) == 0:
+									self.prevpause.append(self.addrs[k])
 								self.flagFail = True
-			
-			if self.flagFail != True:
+						else:
+							self.chtext('FAIL',self.check[t-1])
+							if self.prevpause.count(self.addrs[k]) == 0:
+								self.prevpause.append(self.addrs[k])
+							self.flagFail = True
+
+			if self.flagFail != True and (self.conteo == len(self.check) / 2):
 				time.sleep(3)
 				self.close()
-					
-			#solo falta realizar pruebas con comunicacion
 		else:
-			if self.flagFail != True:
-				time.sleep(3)
-				self.close()
-		'''
+			self.chtext("None","---")
 
 	def btnCancel(self):
 		self.close()
