@@ -99,8 +99,13 @@ class Ui_pauseModule(QtWidgets.QDialog):
 		self.lineEditMin.textChanged.connect(self.on_editMin)
 		self.lineEditMax.textChanged.connect(self.on_editMax)
 
+		self.lineEditMin.setFocus(True)
+
 	def showEvent(self,event):
-		pass
+		for i in range(1,len(self.parent.lblmodule),3):
+			if self.parent.lblmodule[i].isDown():
+				self.lineEditMin.setText(self.parent.lblmodule[i].text())
+				break
 
 	def closeEvent(self,event):
 		pass
@@ -222,7 +227,7 @@ class Ui_pauseModule(QtWidgets.QDialog):
 							self.flagFail = True
 
 			if self.flagFail != True and (self.conteo == len(self.check) / 2):
-				time.sleep(3)
+				time.sleep(2)
 				self.close()
 		else:
 			self.chtext("None","---")

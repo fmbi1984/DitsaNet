@@ -6,6 +6,8 @@
 #
 # WARNING! All changes made in this file will be lost!
 
+import sys
+sys.path.append("../sourcePath")
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 import subprocess
@@ -15,7 +17,7 @@ from paint import Paint
 from windowch import Ui_WindowCh
 from pausemodule import Ui_pauseModule
 from stopmodule import Ui_stopModule
-from runmodule import Ui_runModule
+#from runmodule import Ui_runModule
 from reconnectmodule import Ui_recModule
 
 from devicemainboard import BCmb
@@ -23,7 +25,7 @@ import shared
 import time
 import threading
 
-#from appsettings import useHostname,usePort,usePassw
+from Opath import ditsaNetAppIcon, pathSettings, ditsaProfileEditor
 from appsettings import useIp,useAddr
 from ordened import NameOrdened
 
@@ -45,9 +47,9 @@ class Ui_DitsaNet(object):
 		self.gridLayout.setContentsMargins(11, 11, 11, 11)
 		self.gridLayout.setSpacing(6) #6
 		self.gridLayout.setObjectName("gridLayout")
-		self.cmdIniciar = QtWidgets.QPushButton(self.centralWidget) ######
-		self.cmdIniciar.setObjectName("cmdIniciar")
-		self.gridLayout.addWidget(self.cmdIniciar, 0, 1, 1, 1)
+		#self.cmdIniciar = QtWidgets.QPushButton(self.centralWidget) ######
+		#self.cmdIniciar.setObjectName("cmdIniciar")
+		#self.gridLayout.addWidget(self.cmdIniciar, 0, 1, 1, 1)
 
 		self.comboBox = QtWidgets.QComboBox(self.centralWidget)
 		self.comboBox.setObjectName("comboBox")
@@ -66,10 +68,10 @@ class Ui_DitsaNet(object):
 		self.gridLayout.addWidget(self.cmbZoom, 0, 6, 1, 1) #0,4,1,1  ##0,6,1,1
 		self.cmdDetener = QtWidgets.QPushButton(self.centralWidget)
 		self.cmdDetener.setObjectName("cmdDetener")
-		self.gridLayout.addWidget(self.cmdDetener, 0, 3, 1, 1) #0,2,1,1  ##0,3,1,1
+		self.gridLayout.addWidget(self.cmdDetener, 0, 2, 1, 1) #0,2,1,1  ##0,3,1,1 ok
 		self.cmdPausar = QtWidgets.QPushButton(self.centralWidget)
 		self.cmdPausar.setObjectName("cmdPausar")
-		self.gridLayout.addWidget(self.cmdPausar, 0, 2, 1, 1) #0,1,1,1  ##0,2,1,1
+		self.gridLayout.addWidget(self.cmdPausar, 0, 1, 1, 1) #0,1,1,1  ##0,2,1,1 ok
 	#	self.cmdReconnect = QtWidgets.QPushButton(self.centralWidget)
 	#	self.cmdReconnect.setObjectName("cmdReconnect")
 	#	self.gridLayout.addWidget(self.cmdReconnect, 0, 4, 1, 1) 
@@ -113,8 +115,8 @@ class Ui_DitsaNet(object):
 		self.actionExit.setObjectName("actionExit")
 		self.actionLoadSt = QtWidgets.QAction(MainWindow)
 		self.actionLoadSt.setObjectName("actionLoadSt")
-		self.actionStart = QtWidgets.QAction(MainWindow)
-		self.actionStart.setObjectName("actionStart")
+	#	self.actionStart = QtWidgets.QAction(MainWindow)
+	#	self.actionStart.setObjectName("actionStart")
 		self.actionPau = QtWidgets.QAction(MainWindow)
 		self.actionPau.setObjectName("actionPau")
 		self.actionSt = QtWidgets.QAction(MainWindow)
@@ -125,7 +127,7 @@ class Ui_DitsaNet(object):
 		self.actionRecon.setObjectName("actionRecon")
 		self.menuArchivo.addAction(self.actionExit)
 		self.menuCircuito.addAction(self.actionLoadSt)
-		self.menuCircuito.addAction(self.actionStart)
+	#	self.menuCircuito.addAction(self.actionStart)
 		self.menuCircuito.addAction(self.actionPau)
 		self.menuCircuito.addAction(self.actionSt)
 		#self.menuCircuito.addAction(self.actionRecon)
@@ -152,7 +154,7 @@ class Ui_DitsaNet(object):
 	#	self.cmdReconnect.clicked.connect(self.btnReconnect)
 		self.cmdDetener.clicked.connect(self.btnDetener)
 		self.cmdPausar.clicked.connect(self.btnPausar)
-		self.cmdIniciar.clicked.connect(self.btnIniciar)
+	#	self.cmdIniciar.clicked.connect(self.btnIniciar)
 		self.cmdCargar.clicked.connect(self.btnCargar)
 	
 		#self.paint = Paint(self)
@@ -200,10 +202,10 @@ class Ui_DitsaNet(object):
 	def retranslateUi(self, MainWindow):
 		_translate = QtCore.QCoreApplication.translate
 		MainWindow.setWindowTitle(_translate("MainWindow", "Formation Viewer"))
-		MainWindow.setWindowIcon(QtGui.QIcon('/opt/Ditsa/DitsaNetApp/ditsanet1.png'))
+		MainWindow.setWindowIcon(QtGui.QIcon(ditsaNetAppIcon+'ditsanet1.png'))
 
-		self.cmdIniciar.setText(_translate("MainWindow", "Start"))
-		self.cmdCargar.setText(_translate("MainWindow", "Load Programs / Start"))
+	#	self.cmdIniciar.setText(_translate("MainWindow", "Start"))
+		self.cmdCargar.setText(_translate("MainWindow", "Start"))  #"MainWindow", "Load Programs / Start"
 		self.cmdDetener.setText(_translate("MainWindow", "Stop"))
 		self.cmdPausar.setText(_translate("MainWindow", "Pause"))
 	#	self.cmdReconnect.setText(_translate("MainWindow","Reconnect"))
@@ -213,8 +215,8 @@ class Ui_DitsaNet(object):
 		self.menuCircuito.setTitle(_translate("MainWindow", "Circuit"))
 		self.menuHerramientas.setTitle(_translate("MainWindow", "Tools"))
 		self.actionExit.setText(_translate("MainWindow", "Exit"))
-		self.actionLoadSt.setText(_translate("MainWindow", "Load Programs / Start"))
-		self.actionStart.setText(_translate("MainWindow", "Start"))
+		self.actionLoadSt.setText(_translate("MainWindow", "Start")) #"MainWindow", "Load Programs / Start"
+	#	self.actionStart.setText(_translate("MainWindow", "Start"))
 		self.actionPau.setText(_translate("MainWindow", "Pause"))
 		self.actionSt.setText(_translate("MainWindow", "Stop"))
 		self.actionEd.setText(_translate("MainWindow", "Profile Editor"))
@@ -222,7 +224,7 @@ class Ui_DitsaNet(object):
 
 		self.actionExit.triggered.connect(self.exitWindow)
 		self.actionLoadSt.triggered.connect(self.btnCargar)
-		self.actionStart.triggered.connect(self.btnIniciar)
+	#	self.actionStart.triggered.connect(self.btnIniciar)
 		self.actionPau.triggered.connect(self.btnPausar)
 		self.actionSt.triggered.connect(self.btnDetener)
 		self.actionEd.triggered.connect(self.execProfileEd)
@@ -236,8 +238,8 @@ class Ui_DitsaNet(object):
 		#	pass
 		#else:
 			#----------------------------------- Obtiene hostname, port , addrs / serverConfig.ini ------------------------#
-			settaddrs = QtCore.QSettings('/home/ditsa/DitsaNet/Settings/archivo_ipconfig.ini',QtCore.QSettings.NativeFormat)
-			if settaddrs.value('/home/ditsa/DitsaNet/Settings/archivo_ipconfig.ini') !='':
+			settaddrs = QtCore.QSettings(pathSettings+'archivo_ipconfig.ini',QtCore.QSettings.NativeFormat)
+			if settaddrs.value(pathSettings+'archivo_ipconfig.ini') !='':
 				tmpAddr = settaddrs.value("ip")   #ip y address
 
 				for k in range(0,len(tmpAddr),3): #guarda la ip, addrs
@@ -249,8 +251,8 @@ class Ui_DitsaNet(object):
 			print("addr:",useAddr)
 			
 			#-----------------------------------Obtiene mylist, mylabel, rowcol / archivo.ini -----------------------------#
-			settings = QtCore.QSettings('/home/ditsa/DitsaNet/Settings/archivo.ini', QtCore.QSettings.NativeFormat)
-			if settings.value('/home/ditsa/DitsaNet/Settings/archivo.ini')!='':
+			settings = QtCore.QSettings(pathSettings+'archivo.ini', QtCore.QSettings.NativeFormat)
+			if settings.value(pathSettings+'archivo.ini')!='':
 				self.settingsList = settings.value("mylist")
 				self.settingsLabel = settings.value("mylabel")
 				self.settingsRowCol = settings.value("rowcol")
@@ -330,11 +332,15 @@ class Ui_DitsaNet(object):
 			print("STOP!!!!!")
 			self.dataThread.stop()
 
+	def prueba(self):
+		print("PRUEBA!!")
+
 	def exitWindow(self):
 		self.MainWindow.close()
 
-	def execProfileEd(self): #open otra gui diferente
-		subprocess.Popen(['python3','/opt/Ditsa/ProfileEditor/ProfileEditorApp.py'])
+	#open otra gui diferente ProfileEditor App
+	def execProfileEd(self): 
+		subprocess.Popen(['python3', ditsaProfileEditor])
 
 	'''
 	def fileReport(self):
@@ -594,7 +600,8 @@ class Ui_DitsaNet(object):
 		self.threadData(False)
 		#self.threadTimer(False)
 		time.sleep(1)
-		Ui_runModule(self).exec_()
+		Ui_WindowCh(self).exec_()
+		#Ui_runModule(self).exec_()
 		self.threadData(True)
 		#self.threadTimer(True)
 
@@ -640,7 +647,7 @@ class Ui_DitsaNet(object):
 	'''
 
 if __name__ == "__main__":
-	import sys
+	#import sys
 	app = QtWidgets.QApplication(sys.argv)
 	MainWindow = QtWidgets.QMainWindow()
 	ui = Ui_DitsaNet(MainWindow)

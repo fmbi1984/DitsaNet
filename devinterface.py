@@ -132,13 +132,15 @@ class devInterface(object):
 		return result
 
 	@staticmethod
-	def sendClientCommandAndGetResponse(ip, port, op, cmd, timeout):
+	def sendClientCommandAndGetResponse(ip, port ,op, cmd, timeout):
 		result = None
 
 		try:
 			cmd_data = bytes(cmd,'ISO-8859-1')
 			#p_data = devInterface.packMessage(address, op, cmd_data)
 			p_data = devInterface.packMessage(op, cmd_data)
+
+			#print("DATA:",p_data)
 
 			if ip == None:
 				raise Exception("devInterface", "No hostname device found!")

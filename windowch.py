@@ -6,20 +6,15 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-
-from distutils.util import run_2to3
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 from io import open 
 from os import scandir
-
 import time 
 
 from devicemainboard import BCmb
-#from datalistenermemory import DataListenerMemory
-
-#from appsettings import useHostname,usePort
 from appsettings import useIp,usePort,useAddr
+from Opath import pathPrograms
 import shared
 
 #from ordened import NameOrdened
@@ -33,13 +28,13 @@ class Ui_WindowCh(QtWidgets.QDialog):
 		self.setObjectName("WindowCh")
 		self.setFixedSize(392, 421) #self.setFixedSize(392, 384) 533-663
 		self.BttnCancel = QtWidgets.QPushButton(self)
-		self.BttnCancel.setGeometry(QtCore.QRect(60, 180, 80, 25))
+		self.BttnCancel.setGeometry(QtCore.QRect(100, 180, 80, 25))
 		self.BttnCancel.setObjectName("BttnCancel")
-		self.BttnLoad = QtWidgets.QPushButton(self)
-		self.BttnLoad.setGeometry(QtCore.QRect(170, 180, 80, 25))
-		self.BttnLoad.setObjectName("BttnLoad")
+		#self.BttnLoad = QtWidgets.QPushButton(self)
+		#self.BttnLoad.setGeometry(QtCore.QRect(170, 180, 80, 25))
+		#self.BttnLoad.setObjectName("BttnLoad")
 		self.BttnStart = QtWidgets.QPushButton(self)
-		self.BttnStart.setGeometry(QtCore.QRect(280, 180, 80, 25))
+		self.BttnStart.setGeometry(QtCore.QRect(230, 180, 80, 25)) #(280, 180, 80, 25))
 		self.BttnStart.setObjectName("BttnStart")
 
 		self.textPrograms = QtWidgets.QComboBox(self)
@@ -59,7 +54,8 @@ class Ui_WindowCh(QtWidgets.QDialog):
 		self.horizontalLayout.setObjectName("horizontalLayout")
 		self.lineEditMin = QtWidgets.QLineEdit(self.layoutWidget)
 		self.lineEditMin.setObjectName("lineEditMin")
-		self.lineEditMin.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp("^[-A-Za-z\\d]*$"),self))
+		#self.lineEditMin.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp("^[-A-Za-z\\d]*$"),self))
+		self.lineEditMin.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp("^[-A-Za-z\\d]*,[0-9]{1,2}$"),self))
 		self.horizontalLayout.addWidget(self.lineEditMin)
 		self.label = QtWidgets.QLabel(self.layoutWidget)
 		font = QtGui.QFont()
@@ -98,7 +94,6 @@ class Ui_WindowCh(QtWidgets.QDialog):
 		self.retranslateUi(self)
 		QtCore.QMetaObject.connectSlotsByName(self)
 
-		#self.newlist = list()
 		self.loadProg = list()
 		self.addrs = list()
 		self.check = list()
@@ -107,16 +102,18 @@ class Ui_WindowCh(QtWidgets.QDialog):
 
 		self.data1 = None
 		self.data2 = None
+		self.stepAddrs = None
 		self.flagOutL = False
 		self.flagChange = False
 
 		self.flagFail = False	#flag para controlar el cierre de windowch
+		self.intentos = 0
 
 	def retranslateUi(self, WindowCh):
 		_translate = QtCore.QCoreApplication.translate
 		WindowCh.setWindowTitle(_translate("WindowCh", "Programs"))
 		self.BttnCancel.setText(_translate("WindowCh", "Cancel"))
-		self.BttnLoad.setText(_translate("WindowCh", "Load"))
+	#	self.BttnLoad.setText(_translate("WindowCh", "Load"))
 		self.BttnStart.setText(_translate("WindowCh", "Start"))
 		self.lblPrograms.setText(_translate("WindowCh", "Programs"))
 		self.lblModules.setText(_translate("WindowCh", "Selection of Modules"))
@@ -126,39 +123,53 @@ class Ui_WindowCh(QtWidgets.QDialog):
 
 		self.BtnArrowR.clicked.connect(self.on_bttnArrowR)
 		self.BtnArrowL.clicked.connect(self.on_bttnArrowL)
-		self.BttnLoad.setDefault(True)
+		self.BttnStart.setDefault(True)
 		self.lineEditMin.setAlignment(QtCore.Qt.AlignCenter)
 		self.lineEditMax.setAlignment(QtCore.Qt.AlignCenter)
 		self.lineEditMin.setMaxLength(8)
 		self.lineEditMax.setMaxLength(8)
 		self.lineEditMin.textChanged.connect(self.on_editMin)
 		self.lineEditMax.textChanged.connect(self.on_editMax)
-		self.BttnLoad.clicked.connect(self.on_BttnLoadClicked)
+	#	self.BttnLoad.clicked.connect(self.on_BttnLoadClicked)
 		self.BttnCancel.clicked.connect(self.on_bttnCancelClicked)
 		self.BttnStart.clicked.connect(self.on_BttnStart)
-
-		self.BttnStart.setEnabled(False)
 
 		self.textPrograms.addItem('')
 		self.textPrograms.activated.connect(self.loadTableW)
 		#self.listWidget.itemClicked.connect(self.uncheck_check)
 		#self.textEdit.textChanged.connect(self.chtext)
 
+		self.lineEditMin.setFocus(True)
+		#self.parent.lblmodule.editingFinished.connect(self.prueba) OJO!!
+
 	def showEvent(self,event):
 		print("showEventWindowCh1")
-		self.on_cb_textPrograms()
+		for i in range(1,len(self.parent.lblmodule),3):
+			if self.parent.lblmodule[i].isDown():
+				self.lineEditMin.setText(self.parent.lblmodule[i].text())
+				break
 
-		#self.loadTableW() ##verificar lo que sucede si no hay programas
+		self.on_cb_textPrograms()
 
 	def closeEvent(self,event):
 		print("closeEventW")
+
+	def prueba(self):
+		print("PRUEBA")
 
 	def on_editMin(self):
 		y = self.lineEditMin.text()
 		txt = y.upper()
 		self.lineEditMin.setText(txt)
 
-		self.data1 = "N="+txt
+		self.stepAddrs = ""
+		if txt.count(',')==1:  
+			txt0 = txt.partition(",")
+			self.data1 = "N="+txt0[0]
+			self.stepAddrs = txt0[2]
+		else:
+			self.data1 = "N="+txt
+		
 		self.on_editMax()
 
 	def on_editMax(self):
@@ -166,7 +177,6 @@ class Ui_WindowCh(QtWidgets.QDialog):
 		txt = y.upper()
 		self.lineEditMax.setText(txt)
 		self.data2 = "N="+txt
-
 		self.flagChange = False
 		
 		try:
@@ -179,7 +189,6 @@ class Ui_WindowCh(QtWidgets.QDialog):
 			value2 = value2 + 2
 
 			valF = self.parent.newlist[value1:value2]
-			#print("valF:",valF)
 			self.check.clear()
 			for i in range(2,len(valF),4):
 				self.check.append(valF[i].replace('N=',''))
@@ -207,21 +216,15 @@ class Ui_WindowCh(QtWidgets.QDialog):
 				self.listWidget.clear()
 
 			if self.data2 != None and self.data2 != 'N=':
-				#print("no se encuentra")
 				self.flagOutL = True
 				self.listWidget.clear()
-			#else:
-				#print("data2 esta vacio")
 
 	def uncheck_check(self):
 		self.tempList.clear()
 		for index in range(self.listWidget.count()):
 			if self.listWidget.item(index).checkState() == QtCore.Qt.Checked:
-				#print("check:",self.listWidget.item(index).text())
 				self.tempList.append(self.listWidget.item(index).text())
 
-		#print("newList:",self.parent.newlist)
-		#print("temp:",self.tempList)
 		self.loadProg.clear()
 		for i in range(2,len(self.parent.newlist),4):
 			for j in range(len(self.tempList)):
@@ -249,7 +252,7 @@ class Ui_WindowCh(QtWidgets.QDialog):
 				self.listWidget.addItem(item)
 
 	def on_cb_textPrograms(self):
-		files=self.ls2("/home/ditsa/DitsaNet/ProfileEditorPrograms/")
+		files=self.ls2(pathPrograms)			#"/home/digitek/DitsaNet/ProfileEditorPrograms/"
 		for file in files:
 			nf = file.replace('.txt','')
 			self.textPrograms.addItem(nf)
@@ -264,7 +267,7 @@ class Ui_WindowCh(QtWidgets.QDialog):
 		if self.nameFile != '':
 			openFile = self.nameFile+".txt"
 			#print("nameFile:",self.nameFile)
-			archivo_texto = open("/home/ditsa/DitsaNet/ProfileEditorPrograms/"+openFile,"r")
+			archivo_texto = open(pathPrograms+openFile,"r")
 			self.programJson = archivo_texto.read()
 			archivo_texto.close()
 			#print("json:",self.programJson)
@@ -288,6 +291,7 @@ class Ui_WindowCh(QtWidgets.QDialog):
 
 		QtGui.QGuiApplication.processEvents()
 
+	'''
 	def on_BttnLoadClicked(self):
 		print("ClickLoad")
 		#----------------------------- Detiene thread -----------------------------#
@@ -321,39 +325,60 @@ class Ui_WindowCh(QtWidgets.QDialog):
 					for k in range(len(self.addrs)):
 						if section == self.addrs[k]:
 							t = self.check.index(self.addrs[k])
-							for i in range(17):
-								x = BCmb.writeProgramClient(useIp[j],usePort,self.step[i])
-								time.sleep(0.1)
-								#agregar timeout posible solucion
-								if x == None:
-									self.flagFail = True
-									if self.prueba.count(self.addrs[k]) == 0:
-										self.prueba.append(self.addrs[k])
-									break
-								#time.sleep(0.3)
-
-							if x != None:
+							self.intentos = 0
+							while self.intentos < 4: #Hace 3 intentos 
+								print("Intentos:",self.intentos)
+								
+								for i in range(17):
+									x = BCmb.writeProgramClient(useIp[j],usePort,self.step[i])
+									time.sleep(0.1)
+									#agregar timeout posible solucion
+									if x == None:
+										self.flagFail = True
+										self.intentos+=1
+										print("primer")
+										if self.prueba.count(self.addrs[k]) == 0:
+											self.prueba.append(self.addrs[k])
+										break
+										#time.sleep(0.3)
+							
+								#if x != None:
 								if x == 'ACTION.PASS':
 									time.sleep(8)
 									self.chtext('PASS',self.check[t-1])
-									self.BttnStart.setEnabled(True)
+									#self.BttnStart.setEnabled(True)
+									self.intentos = 4
 									if len(self.prueba) != 0:
 										self.prueba.remove(self.addrs[k])	
 								else:
-									self.chtext('FAIL',self.check[t-1])
-									if self.flagFail != True:
-										self.flagFail = True
-										if self.prueba.count(self.addrs[k]) == 0:
-											self.prueba.append(self.addrs[k])
-							else:
-								self.chtext('None',self.check[t-1])
-								if self.flagFail != True:
-									self.flagFail = True
-									if self.prueba.count(self.addrs[k]) == 0:
-										self.prueba.append(self.addrs[k])
+									self.intentos+=1
+									print("Segundo") #checar esta parte
+
+							print("A esta altura falta otro")
+							#simplificar
+							#hacer pruebas en esta parte y checar si se puede quitar boton load 
+							#se identifique load si esta cargado un archivo si no ,solo es start
+							#si esta cargado archivo es load y despues start
+							
+							#self.chtext('FAIL',self.check[t-1])
+							#print("Intenta Nuevamente")
+							#if self.flagFail != True:
+							#	self.flagFail = True
+							#	if self.prueba.count(self.addrs[k]) == 0:
+							#		self.prueba.append(self.addrs[k])
+							
+							#else:
+							#	print("Error Intenta")
+							#	intentos+=1
+							#	self.chtext('None',self.check[t-1])
+							#	if self.flagFail != True:
+							#		self.flagFail = True
+							#		if self.prueba.count(self.addrs[k]) == 0:
+							#			self.prueba.append(self.addrs[k])
+							
 		else:
 			self.chtext("None","---")
-	#crear metodo para enviar comm con equipos que se fallo sin repetir
+
 	def on_BttnStart(self):
 		print("Start")
 		if self.flagFail != True:
@@ -371,7 +396,7 @@ class Ui_WindowCh(QtWidgets.QDialog):
 			for k in range(len(self.addrs)):
 				if section == self.addrs[k]:
 					t = self.check.index(self.addrs[k])
-					run = BCmb.runClient(useIp[j],usePort)
+					run = BCmb.runClient(useIp[j],usePort,self.stepAddrs)
 					time.sleep(0.1)
 					print("RUN-ACTION-PASS")
 
@@ -391,6 +416,115 @@ class Ui_WindowCh(QtWidgets.QDialog):
 							self.prueba.append(self.addrs[k])
 						self.flagFail = True
 
+		if self.flagFail != True and (self.intentos == 4 or self.intentos == 0):
+				time.sleep(2)
+				self.close()
+	'''
+	def on_BttnStart(self):
+		print("Start")
+		#----------------------------- Detiene thread -----------------------------#
+		self.parent.threadData(False)
+		time.sleep(1)
+		#---------------------------- Extrae valor Addr ---------------------------#
+		self.uncheck_check()
+		self.addrs.clear()
+
+		if len(self.tempList)!=0:  #indica que hay equipos conectados
+			if self.flagFail != True:
+				self.prueba.clear()
+				for i in range(3,len(self.loadProg),4):
+					addr = self.loadProg[i].split('A=')
+					self.addrs.append(addr[1])
+				self.loadProg.clear()
+			else:
+				self.addrs = self.prueba[:]
+				self.prueba.clear()
+
+			self.textEdit.clear()
+			self.flagFail = False
+			#---------------------------- Envia json a xmegas -------------------------#
+			self.chtext("msg","None")
+			if self.textPrograms.currentText() != '':
+				for j in range(len(useIp)):
+					section = useAddr[j]
+					for k in range(len(self.addrs)):
+						if section == self.addrs[k]:
+							t = self.check.index(self.addrs[k])
+							self.intentos = 0
+							while self.intentos < 4: #Hace 3 intentos 
+								
+								for i in range(17):
+									x = BCmb.writeProgramClient(useIp[j],usePort,self.step[i])
+									time.sleep(0.1)
+									if x == None:
+										self.flagFail = True
+										self.intentos+=1
+										print("primer")
+										if self.prueba.count(self.addrs[k]) == 0:
+											self.prueba.append(self.addrs[k])
+										break
+
+								if x == 'ACTION.PASS':
+									time.sleep(8)
+									self.chtext('PASS',self.check[t-1])
+									self.intentos = 4
+									if len(self.prueba) != 0:
+										self.prueba.remove(self.addrs[k])	
+
+									time.sleep(2)
+									self.onlyStart()
+									break
+								else:
+									self.intentos+=1
+									print("Segundo") #checar esta parte
+							
+								print("Intentos:",self.intentos)
+
+							self.chtext('None',self.check[t-1])
+			else:
+				self.onlyStart()
+
+	def onlyStart(self):
+		print("Only start")
+		if self.flagFail != True:
+			self.addrs.clear()
+			self.prueba.clear()
+			for x in range(1,len(self.check),2):
+				self.addrs.append(self.check[x])
+		else:
+			self.addrs = self.prueba[:]
+			self.prueba.clear()
+
+		self.flagFail = False
+		for j in range(len(useIp)):
+			section = useAddr[j]
+			for k in range(len(self.addrs)):
+				if section == self.addrs[k]:
+					t = self.check.index(self.addrs[k])
+					run = BCmb.runClient(useIp[j],usePort,self.stepAddrs)
+					time.sleep(0.1)
+
+					if run != None:
+						if run == 'PASS,RUN':
+							self.chtext(run,self.check[t-1])
+
+						else:
+							self.chtext('None',self.check[t-1])
+							if self.prueba.count(self.addrs[k]) == 0:
+								self.prueba.append(self.addrs[k])
+							self.flagFail = True
+					else:
+						self.chtext('FAIL',self.check[t-1])
+						if self.prueba.count(self.addrs[k]) == 0:
+							self.prueba.append(self.addrs[k])
+						self.flagFail = True
+
+		if self.flagFail != True and (self.intentos == 4 or self.intentos == 0):
+				time.sleep(2)
+				self.close()
+		else:
+			self.chtext("None","---")
+				
 	def checkPrograms(self,addr):
 		print("checkPrograms")
 		if self.parent.saveprograms!= None:
@@ -400,13 +534,6 @@ class Ui_WindowCh(QtWidgets.QDialog):
 						self.parent.saveprograms.pop(j)
 						self.parent.saveprograms.pop(j-1)
 						break
-
-	def settingsPrograms(self):
-		print("settingsPr")
-		#settings = QtCore.QSettings('/home/ditsa/DitsaNet/Settings/fileprograms.ini', QtCore.QSettings.NativeFormat)
-		#settings.setValue("saveprograms",self.parent.saveprograms)
-
-		#print("saveP:",self.parent.saveprograms)
 			
 	def on_bttnCancelClicked(self):
 		self.close()
@@ -422,7 +549,6 @@ class Ui_WindowCh(QtWidgets.QDialog):
 			if self.programJson[i] == '"':
 				if xx != "":
 					xx += "\"" 
-				##vv = self.programJson[i].replace('"',"")
 			else:
 				if (self.programJson[i] == "," and self.programJson[i-1] != "}" and self.programJson[i-1] != ",") or (self.programJson[i] != "," and self.programJson[i-1] != "}"):
 					xx += self.programJson[i]
@@ -431,24 +557,15 @@ class Ui_WindowCh(QtWidgets.QDialog):
 					xx += self.programJson[i+1]
 					self.step.append(xx)
 					xx = ""
-
-		#print("STEP: ",self.step) #checar por que no envia o se recibe el nombre del programa para guardarse
 		
 		self.tableWidget.setRowCount(15)
 		self.st = 0
 		for i in range(len(self.step)):
-			#print("T:",self.step[i])
-			#comp = self.step[i].split(',')
 			comp = self.step[i].split("'")
-			#print("comp:",comp)
-		#	compAux = comp[0].split('{') Aqui deberia ir otro for
 			compAux = comp[0].split('{')
-			#print("comp22:",compAux) 
 			final = compAux[1].split(',')
-			#print("DD: ",final)
 			
 			for j in range(len(final)):
-				#if comp[j] == 'T:Ch':
 				if final[0] == '"T":"Ch"':
 					self.st += 1
 					comp0 = final[j+1].split('"C":')
@@ -457,15 +574,6 @@ class Ui_WindowCh(QtWidgets.QDialog):
 					comp3 = final[j+4].split('"m":')
 
 					comp5 = comp3[1].split('}')
-
-			#		print("comp0: ",comp0)
-			#		print("comp1: ",comp1)
-			#		print("comp2: ",comp2)
-			#		print("comp3: ",comp3)
-
-					#ff = comp5[0].split('"')
-					#print("COMP0: ",ff)
-					#print("COMP0: ",float(comp2[1].split('"')[1]))
 
 					self.tabItem('Charge',self.st-1,j)
 					self.tabItem(str(float(comp0[1].split('"')[1])),self.st-1,j+1) #current
@@ -481,16 +589,12 @@ class Ui_WindowCh(QtWidgets.QDialog):
 					
 					break
 					
-				#elif comp[j] == 'T:Pa':
 				elif final[0] == '"T":"Pa"':
 					self.st +=1
 					self.tabItem('Pause',self.st-1,j)
 					comp4 = final[j+1].split('"           H":')
-
-					#val = comp4[0].split(':')[1]
 				
 					self.tabItem('-',self.st-1,j+1)
-					#print("comp4:",comp4)
 					self.tabItem(str(float(comp4[1].split('"')[1]))+'    T',self.st-1,j+2) #time
 					self.tabItem('-',self.st-1,j+3)
 					self.tabItem('-',self.st-1,j+4)

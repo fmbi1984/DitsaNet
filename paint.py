@@ -2,8 +2,6 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 import shared
-#from formmodule import Ui_FormModule
-#from moduleWidget import Ui_ModuleWidget
 
 class Paint(QtWidgets.QGraphicsView):
 	factor = 1.25
@@ -11,30 +9,23 @@ class Paint(QtWidgets.QGraphicsView):
 		super(Paint, self).__init__()
 		self.parent = parent
 		
+		self.comd = [
+			'Start',
+			'Pause',
+			'Stop',
+		]
+
 		self.scene	=	QtWidgets.QGraphicsScene()
-		#sirve para seleccionar cuadro azul
-	#	self.rubberBand = QtWidgets.QRubberBand(QtWidgets.QRubberBand.Rectangle, self)
-	#	self.origin = QtCore.QPoint() 
-
-	#	self.P1 = [0,0]
-	#	self.P2 = [0,0]
-	#	self.P3 = [0,0] #alineado con P1 x P2 y
-	#	self.P4 = [0,0] #alineado con P2 x P1 y
-
-	#	self.Pm1 = [0,0]
-	#	self.Pm2 = [0,0]
 
 		self.flagRelease = False
 		self.flagSelection = False
 		self.flagTab = False
 
-		self.contextMenuEvent
+		#self.contextMenuEvent
 		self.mousePressEvent
 		self.mouseReleaseEvent
 		self.mouseMoveEvent
 		#self.resizeEvent
-
-	#	print("sceneRect:",self.sceneRect())
 		
 		###Para realizar el zoom con teclas ctrl+ / ctrl -
 		#self.selAllShort = QtWidgets.QShortcut(QtGui.QKeySequence(QtGui.QKeySequence.ZoomIn),self,context= QtCore.Qt.WidgetShortcut,)
@@ -114,14 +105,11 @@ class Paint(QtWidgets.QGraphicsView):
 
 	def populateZoom(self):
 		print("populateZoom")
-		#print(self.parent.flagZoom)
 		if len(self.parent.valueZoom) != 0:
 			tr = self.parent.valueZoom[0]
 			self.setTransform(tr)
-			#print("tr:",tr)
-
+			
 			if self.parent.flagZoom != False:
-				print("entraZoom")
 				self.setSceneRect(0.0,0.0,0.0,0.0)
 
 	def populateCircuit(self): 
@@ -156,12 +144,14 @@ class Paint(QtWidgets.QGraphicsView):
 			tmp = coordCell[i+1].split()
 
 			#--------------- name label----------------#
-			lb = QtWidgets.QLabel(nameF[2])
+			#lb = QtWidgets.QLabel(nameF[2])
+			lb = QtWidgets.QPushButton(nameF[2])
 
 			lb.setFont(font)
-			lb.setStyleSheet("QLabel { background-color : ghostwhite;}")
-			lb.setFrameShape(QtWidgets.QFrame.Box)
-			lb.setAlignment(QtCore.Qt.AlignCenter)
+			lb.setStyleSheet("QPushButton { background-color : ghostwhite; border: 1px solid black;}")
+			#lb.setStyleSheet("QLabel { background-color : ghostwhite;}")
+			#lb.setFrameShape(QtWidgets.QFrame.Box)
+			#lb.setAlignment(QtCore.Qt.AlignCenter)
 
 			#------------label options value A,V,T,S,t,TT...------------#
 			lb2 = QtWidgets.QLabel(shared.DEV[int(addrCell[1])][cbText2])
@@ -229,7 +219,13 @@ class Paint(QtWidgets.QGraphicsView):
 
 				#self.scene.addWidget(pbProgram)
 				#self.setScene(self.scene)
+		self.popMenu = QtWidgets.QMenu(self)
+		self.popMenu.triggered.connect(self.auxmenu)
 
+		for i in range(1,len(self.parent.lblmodule),3):
+			self.parent.lblmodule[i].setMenu(self.popMenu)
+		
+		self.add_menu(self.comd,self.popMenu)
 
 	def populateLabel(self):
 		print("PopulateLabel")
@@ -272,32 +268,63 @@ class Paint(QtWidgets.QGraphicsView):
 				self.scene.addWidget(lbltext)
 				self.setScene(self.scene)
 
+	
+	def add_menu(self,data,menu_obj):
+		if isinstance(data,dict):
+			for k,v in data.items():
+				sub_menu = QtWidgets.QMenu(k,menu_obj)
+				menu_obj.addMenu(sub_menu)
+				self.add_menu(v,sub_menu)
+		
+		elif isinstance(data,list):
+			for element in data:
+				self.add_menu(element,menu_obj)
+
+		else:
+			action = menu_obj.addAction(data)
+			action.setIconVisibleInMenu(False)
+
+	def auxmenu(self,data):
+		for i in range(1,len(self.parent.lblmodule),3):
+			if self.parent.lblmodule[i].isDown():
+				if data.text() == 'Start':
+					self.parent.btnIniciar()
+				elif data.text() == 'Pause':
+					self.parent.btnPausar()
+				elif data.text() == 'Stop':
+					self.parent.btnDetener()
+				break
+	
+	'''
 	def contextMenuEvent(self,event):
 		print("contextEvent")
-	#	self.rubberBand.hide()
+		#self.rubberBand.hide()
 		self.popMenu = QtWidgets.QMenu(self)
-		startAct = self.popMenu.addAction('LoadPrograms/Start')
+		startAct = self.popMenu.addAction('Start')
 		pauseAct = self.popMenu.addAction('Pause')
 		stopAct = self.popMenu.addAction('Stop')
 
 		action = self.popMenu.exec_(self.mapToGlobal(event.pos()))
-
+		print("action:",action.text())
+		print(self.parent.lblmodule[1].text())
 		if action == startAct:
 			self.parent.btnIniciar()
-
+			#print(self.parent.lblmodule[1].text())
+			
 		elif action == pauseAct:
 			self.parent.btnPausar()
 		
 		elif action == stopAct:
 			self.parent.btnDetener()
+	'''
 
 	def totalMylist(self):
 		self.auxMylist = self.parent.newlist[:]
 
-	'''
-	def	mousePressEvent(self,event):
-		if event.button() ==  QtCore.Qt.LeftButton:
-			self.flagRelease = False
+	
+	#def mousePressEvent(self,event):
+	#	if event.button() ==  QtCore.Qt.RightButton: #  LeftButton:
+		#	self.flagRelease = False
 
 		#	self.P1[0] = event.pos().x()
 		#	self.P1[1] = event.pos().y()
@@ -307,26 +334,28 @@ class Paint(QtWidgets.QGraphicsView):
 		#	self.rubberBand.show()
 		#	print("P1G:",event.globalPos())
 		#	print("P1D:",event.localPos())
-
-
+	
+	'''
 	def mouseMoveEvent(self, event):
 		if self.flagRelease != True:
 			if not self.origin.isNull():				
 				pass
 				#self.rubberBand.setGeometry(QtCore.QRect(self.origin,event.pos()).normalized())		
+	'''
+	
+	#def mouseReleaseEvent(self, event):
+		#if event.button() == QtCore.Qt.RightButton:
+	#	print("Press")
+	#	self.clicked.emit()
+		#	self.flagRelease = True
+		#	self.P2[0] = event.pos().x()
+		#	self.P2[1] = event.pos().y()
 
-
-	def mouseReleaseEvent(self, event):
-		if event.button() == QtCore.Qt.LeftButton:
-			self.flagRelease = True
-			self.P2[0] = event.pos().x()
-			self.P2[1] = event.pos().y()
-
-			self.P3[0] = self.P1[0]  #alineado con P1 x P2 y
-			self.P3[1] = self.P2[1]
+		#	self.P3[0] = self.P1[0]  #alineado con P1 x P2 y
+		#	self.P3[1] = self.P2[1]
 			
-			self.P4[0] = self.P2[0]  #alineado con P2 x P1 y
-			self.P4[1] = self.P1[1]
+		#	self.P4[0] = self.P2[0]  #alineado con P2 x P1 y
+		#	self.P4[1] = self.P1[1]
 
 		#	print("P2:",self.P2)
 		#	print("P3:",self.P3)
@@ -335,12 +364,10 @@ class Paint(QtWidgets.QGraphicsView):
 			#print("P2G:",event.globalPos())
 			#print("P2D:",event.localPos())
 
-			self.populateCircuit()
-	'''
+		#	self.populateCircuit()
 
 	def zoomCmb(self,det):
 		print("zoom comb")
-		#print("det:",det)
 
 		if det > 0.8:
 			print("flagZoom")
@@ -356,9 +383,7 @@ class Paint(QtWidgets.QGraphicsView):
 		scale_tr2.scale(det,det)
 
 		tr = scale_tr2 * scale_tr
-		#print("tr:",tr)
 		self.setTransform(tr)
-		#print("2:",self.transform().determinant())
 
 		self.parent.valueZoom.clear()
 		self.parent.valueZoom.append(tr)
